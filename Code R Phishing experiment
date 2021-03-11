@@ -1,1 +1,14 @@
+library(tidyverse)
+data <- read.csv("/Users/martinbeaufils/Downloads/phishing_dataset.csv")
+head(data)
 
+
+data %>%
+  group_by(group) %>%
+  summarise(nb_group = n())
+  
+  data <- data%>%
+  mutate(gender = ifelse(gender == 'M', 1, 0))
+data %>%
+  group_by(group) %>%
+  summarise(mean_age = mean(age, na.rm = TRUE), sex_repartition = mean(gender, na.rm = TRUE), mean_int_employee = mean(int_employee, na.rm = TRUE))
