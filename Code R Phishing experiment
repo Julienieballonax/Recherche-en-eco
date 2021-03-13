@@ -1,14 +1,56 @@
+```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 library(tidyverse)
-data <- read.csv("/Users/martinbeaufils/Downloads/phishing_dataset.csv")
-head(data)
+```
+
+```{r, eval = TRUE, message = FALSE, warning =  FALSE}
+data_phishing <- read.csv("/Users/f-x/Downloads/phishing_dataset.csv")
+head(data_phishing)
+```
+```{r, eval = TRUE, message = FALSE, warning =  FALSE}
+data_phishing <- data_phishing %>%
+  mutate(group = case_when(group == 1 ~ 'Control',
+                   group == 2 ~ 'Info',
+                   group == 3 ~ 'Exp',
+                   group == 4 ~ 'ExpInfo'))
+```
 
 
-data %>%
+"We implemented two interventions: information provision (Info) and experience (Exp).
+We used a 2x2 design and subjects were divided into four groups of roughly equal size: Control
+(2723 employees), Info (2740), Exp (2724) and ExpInfo (2742)."
+
+```{r, eval = TRUE, message = FALSE, warning =  FALSE}
+data_phishing %>%
   group_by(group) %>%
   summarise(nb_group = n())
-  
-  data <- data %>%
+```
+
+
+```{r, eval = TRUE, message = FALSE, warning =  FALSE}
+data_phishing <- data_phishing %>%
   mutate(gender = ifelse(gender == 'M', 1, 0))
-data %>%
+```
+
+
+```{r, eval = TRUE, message = FALSE, warning =  FALSE}
+data_phishing %>%
+  group_by(gender) %>%
+  summarise(nb_obs = n())
+```
+"Most subjects were males (60,6%),
+with an average age of 47 years."
+
+```{r, eval = TRUE, message = FALSE, warning =  FALSE}
+moy_age = mean(data_phishing$age, na.rm = TRUE)
+rep_sex = mean(data_phishing$gender, na.rm = TRUE)*100
+
+moy_age
+rep_sex
+```
+
+
+```{r, eval = TRUE, message = FALSE, warning =  FALSE}
+data_phishing %>%
   group_by(group) %>%
-  summarise(mean_age = mean(age, na.rm = TRUE), sex_repartition = mean(gender, na.rm = TRUE), mean_int_employee = mean(int_employee, na.rm = TRUE))
+  summarise(nb_obs = n(), mean_age = mean(age, na.rm = TRUE), sex_repartition = mean(gender, na.rm = TRUE)*100, mean_int_employee = mean(int_employee, na.rm = TRUE)*100,)
+```
