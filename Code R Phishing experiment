@@ -54,3 +54,14 @@ data_phishing %>%
   group_by(group) %>%
   summarise(nb_obs = n(), mean_age = mean(age, na.rm = TRUE), sex_repartition = mean(gender, na.rm = TRUE)*100, mean_int_employee = mean(int_employee, na.rm = TRUE)*100,)
 ```
+
+
+
+As the p-value is less than the significance level 0.05, we can conclude that there are significant differences between the treatment groups :
+
+```{r, eval = TRUE, message = FALSE, warning =  FALSE}
+kruskal.test(age ~ group, data = data_phishing)
+kruskal.test(gender ~ group, data = data_phishing)
+kruskal.test(int_employee ~ group, data = data_phishing)
+kruskal.test(division ~ group, data = data_phishing)
+```
