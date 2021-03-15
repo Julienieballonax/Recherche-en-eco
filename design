@@ -28,33 +28,23 @@ xaringanExtra::use_logo(
   image_url = "https://upload.wikimedia.org/wikipedia/commons/4/44/LOGO-PSL-nov-2017.jpg"
 )
 ```
-# Two dashes
 
-The easiest way to build incremental slides is...
---
- to use two dashes `--` to separate content on a slide.
+#Présentation de l'expérience
 
---
+###*Informing, simulating experience, or both: a field experiment on phishing risks*
+Aurélien Baillon, Jeroen de Bruin, Aysil Emirmahmutoglu, Evelien van de Veer, Bram van Dijk.
+<br>
+**Erasmus University Rotterdam**
 
-You can divide a slide in _any way you want_.
+PLOS One, décembre 2019
 
---
-
-- One bullet
-
-- Another bullet
-
---
-
-- And one more
-
---
-
-.center[
-![Saw](https://slides.yihui.name/gif/saw-branch.gif)
-
-Don't saw your slides too hard.
+.right[![saw](https://media4.giphy.com/media/l2JdSx78cVNm0x8AM/source.gif)
 ]
+
+
+
+
+
 ---
 # PAPAPA
 .pull-left[
@@ -74,7 +64,6 @@ knitr::include_graphics("https://media.giphy.com/media/12pwt3qlbVVBfy/giphy.gif"
 
 
 ---
----
 
 ## R Markdown
 
@@ -92,4 +81,3 @@ plot(pressure)
 ```
 
 Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
-
