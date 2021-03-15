@@ -86,6 +86,17 @@ data_phis_c %>%
   summarise(nb_obs = n(), mean_age = mean(age, na.rm = TRUE), sex_repartition = mean(gender, na.rm = TRUE)*100, mean_int_employee = mean(int_employee, na.rm = TRUE)*100,)
 ```
 
+```{r, eval = TRUE, message = FALSE, warning =  FALSE}
+ggplot(data = data) +
+  geom_boxplot(aes(x = as.character(group), y = age , color = as.character(group)))
+```
+
+```{r, eval = TRUE, message = FALSE, warning =  FALSE}
+ggplot(data = data) +
+  geom_density(aes(x = age, color = division)) +
+  facet_wrap(~ group, scales = "free")
+```
+
 As the p-value is less than the significance level 0.05, we can conclude that there are significant differences between the treatment groups :
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
