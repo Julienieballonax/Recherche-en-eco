@@ -1,0 +1,95 @@
+---
+title: "Informing, simulating experience, or both: a field experiment on phishing risks"
+author: "Martin Beaufils, Julien Cochet, François-Xavier Dyèvre"
+institute: <span style="color:#000000">CPES - Université PSL</span>
+output:
+  xaringan::moon_reader:
+    css: xaringan-themer.css
+    lib_dir: libs
+    nature:
+      titleSlideClass: [top, left]
+      ratio: '16:9'
+---
+```{r xaringan-themer, include=FALSE}
+library(xaringanthemer)
+style_mono_accent(
+  base_color = "#1c5253",
+  header_font_google = google_font("Josefin Sans"),
+  text_font_google   = google_font("Montserrat", "300", "300i"),
+  code_font_google   = google_font("Fira Mono"),
+    title_slide_background_image = knitr::include_graphics("https://www.economie.gouv.fr/files/files/directions_services/dgccrf/imgs/fiches_pratiques/2020/phishing.jpg"),
+  title_slide_background_size = "40%",
+  title_slide_background_position = "90% 80%",
+)
+```
+
+```{r xaringan-logo, echo=FALSE}
+xaringanExtra::use_logo(
+  image_url = "https://upload.wikimedia.org/wikipedia/commons/4/44/LOGO-PSL-nov-2017.jpg"
+)
+```
+# Two dashes
+
+The easiest way to build incremental slides is...
+--
+ to use two dashes `--` to separate content on a slide.
+
+--
+
+You can divide a slide in _any way you want_.
+
+--
+
+- One bullet
+
+- Another bullet
+
+--
+
+- And one more
+
+--
+
+.center[
+![Saw](https://slides.yihui.name/gif/saw-branch.gif)
+
+Don't saw your slides too hard.
+]
+---
+# PAPAPA
+.pull-left[
+<br>
+<br>
+- **Objectif crack design** 
+
+
+]
+.pull-right[
+<br>
+<br>
+```{r, echo=FALSE, out.width = '100%'}
+knitr::include_graphics("https://media.giphy.com/media/12pwt3qlbVVBfy/giphy.gif") 
+```
+]
+
+
+---
+---
+
+## R Markdown
+
+
+```{r cars}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
