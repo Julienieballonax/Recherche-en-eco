@@ -87,12 +87,12 @@ data_phis_c %>%
 ```
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
-ggplot(data = data) +
+ggplot(data = data_phishing) +
   geom_boxplot(aes(x = as.character(group), y = age , color = as.character(group)))
 ```
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
-ggplot(data = data) +
+ggplot(data = data_phishing) +
   geom_density(aes(x = age, color = division)) +
   facet_wrap(~ group, scales = "free")
 ```
