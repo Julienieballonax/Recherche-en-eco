@@ -22,11 +22,13 @@ style_mono_accent(
   title_slide_background_position = "90% 80%",
 )
 ```
-
 ```{r xaringan-logo, echo=FALSE}
 xaringanExtra::use_logo(
   image_url = "https://upload.wikimedia.org/wikipedia/commons/4/44/LOGO-PSL-nov-2017.jpg"
 )
+```
+```{r xaringan-animate-all, echo=FALSE}
+xaringanExtra::use_animate_all("slide_left")
 ```
 
 #Présentation de l'expérience
@@ -39,42 +41,126 @@ Aurélien Baillon, Jeroen de Bruin, Aysil Emirmahmutoglu, Evelien van de Veer, B
 PLOS One, décembre 2019
 .right[![saw](https://media4.giphy.com/media/l2JdSx78cVNm0x8AM/source.gif)]
 
-
-
-
 ---
-# PAPAPA
+```{r, eval = TRUE, message = FALSE, warning =  FALSE, echo=FALSE}
+library(tidyverse)
+```
+```{r, eval = TRUE, message = FALSE, warning =  FALSE, echo=FALSE}
+data_phishing <- read.csv("/Users/juliencochet/Desktop/L2/ECONOMIE/Recherche en économie/Mini-mémoire/Exp/phishing_dataset.csv")
+data_phis_c <- data_phishing %>%
+  filter(division == 'A' | division == 'B' | division == 'D' | division == 'E')
+```
+```{r, eval = TRUE, message = FALSE, warning =  FALSE, echo=FALSE}
+data_phishing <- data_phishing %>%
+  mutate(group = case_when(group == 1 ~ 'Control',
+                   group == 2 ~ 'Info',
+                   group == 3 ~ 'Exp',
+                   group == 4 ~ 'ExpInfo'))
+```
+
 .pull-left[
 <br>
 <br>
-- **Objectif crack design** 
-
-
+```{r, eval = TRUE, message = FALSE, warning =  FALSE, echo=FALSE}
+data_phishing %>%
+  group_by(group) %>%
+  summarise(nb_group = n())
+```
 ]
 .pull-right[
 <br>
 <br>
-```{r, echo=FALSE, out.width = '100%'}
-knitr::include_graphics("https://media.giphy.com/media/12pwt3qlbVVBfy/giphy.gif") 
+```{r, eval = TRUE, message = FALSE, warning =  FALSE, echo=FALSE}
+data_phis_c %>%
+  group_by(group) %>%
+  summarise(nb_group = n())
+```
+]
+---
+
+"Most subjects were males (60,6%),with an average age of 47 years."
+```{r, eval = TRUE, message = FALSE, warning =  FALSE, echo= FALSE}
+data_phishing <- data_phishing %>%
+  mutate(gender = ifelse(gender == 'M', 1, 0))
+```
+```{r, eval = TRUE, message = FALSE, warning =  FALSE, echo=FALSE}
+data_phis_c <- data_phis_c %>%
+  mutate(gender = ifelse(gender == 'M', 1, 0))
+```
+
+.pull-left[
+```{r, eval = TRUE, message = FALSE, warning =  FALSE, echo=FALSE}
+data_phishing %>%
+  group_by(gender) %>%
+  summarise(nb_obs = n())
+```
+```{r, eval = TRUE, message = FALSE, warning =  FALSE, echo=FALSE}
+moy_age = mean(data_phishing$age, na.rm = TRUE)
+rep_sex = mean(data_phishing$gender, na.rm = TRUE)*100
+
+moy_age
+rep_sex
 ```
 ]
 
+.pull-left[
+```{r, eval = TRUE, message = FALSE, warning =  FALSE, echo=FALSE}
+data_phis_c %>%
+  group_by(gender) %>%
+  summarise(nb_obs = n())
+```
+```{r, eval = TRUE, message = FALSE, warning =  FALSE, echo=FALSE}
+moy_age = mean(data_phis_c$age, na.rm = TRUE)
+rep_sex = mean(data_phis_c$gender, na.rm = TRUE)*100
+
+moy_age
+rep_sex
+```
+]
 
 ---
 
-## R Markdown
+#Répartition de l'âge
+.pull-left[
+```{r, eval = TRUE, message = FALSE, warning =  FALSE, echo= FALSE, fig.align="center", out.width = '80%'}
+ggplot(data = data_phishing) +
+  geom_boxplot(aes(x = as.character(group), y = age , color = as.character(group)))
+```
+]
+.pull-right[
+```{r, eval = TRUE, message = FALSE, warning =  FALSE, echo=FALSE, fig.align="center", out.width = '80%'}
+ggplot(data = data_phishing) +
+  geom_density(aes(x = age, color = division)) +
+  facet_wrap(~ group, scales = "free")
+```
+]
 
+---
 
-```{r cars}
-summary(cars)
+```{r, eval = TRUE, message = FALSE, warning =  FALSE}
+data_phishing %>%
+  group_by(group) %>%
+  summarise(nb_obs = n(), mean_age = mean(age, na.rm = TRUE), sex_repartition = mean(gender, na.rm = TRUE)*100, mean_int_employee = mean(int_employee, na.rm = TRUE)*100,)
 ```
 
-## Including Plots
-
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
+```{r, eval = TRUE, message = FALSE, warning =  FALSE}
+data_phis_c %>%
+  group_by(group) %>%
+  summarise(nb_obs = n(), mean_age = mean(age, na.rm = TRUE), sex_repartition = mean(gender, na.rm = TRUE)*100, mean_int_employee = mean(int_employee, na.rm = TRUE)*100,)
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+---
+
+```{r, eval = TRUE, message = FALSE, warning =  FALSE}
+kruskal.test(age ~ group, data = data_phishing)
+kruskal.test(gender ~ group, data = data_phishing)
+kruskal.test(int_employee ~ group, data = data_phishing)
+kruskal.test(division ~ group, data = data_phishing)
+```
+
+```{r, eval = TRUE, message = FALSE, warning =  FALSE}
+kruskal.test(age ~ group, data = data_phis_c)
+kruskal.test(gender ~ group, data = data_phis_c)
+kruskal.test(int_employee ~ group, data = data_phis_c)
+kruskal.test(division ~ group, data = data_phis_c)
+```
