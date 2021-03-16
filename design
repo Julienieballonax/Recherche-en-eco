@@ -27,8 +27,24 @@ xaringanExtra::use_logo(
   image_url = "https://upload.wikimedia.org/wikipedia/commons/4/44/LOGO-PSL-nov-2017.jpg"
 )
 ```
-```{r xaringan-animate-all, echo=FALSE}
-xaringanExtra::use_animate_all("slide_left")
+```{r xaringan-animate-css, echo=FALSE}
+xaringanExtra::use_animate_css()
+```
+```{r xaringan-tile-view, echo=FALSE}
+xaringanExtra::use_tile_view()
+```
+```{r broadcast, echo=FALSE}
+xaringanExtra::use_broadcast()
+```
+```{r xaringanExtra-clipboard, echo=FALSE}
+htmltools::tagList(
+  xaringanExtra::use_clipboard(
+    button_text = "<i class=\"fa fa-clipboard\"></i>",
+    success_text = "<i class=\"fa fa-check\" style=\"color: #90BE6D\"></i>",
+    error_text = "<i class=\"fa fa-times-circle\" style=\"color: #F94144\"></i>"
+  ),
+  rmarkdown::html_dependency_font_awesome()
+)
 ```
 
 #Présentation de l'expérience
