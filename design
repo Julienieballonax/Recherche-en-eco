@@ -9,7 +9,9 @@ output:
     nature:
       titleSlideClass: [top, left]
       ratio: '16:9'
+
 ---
+class: animated slideInRight flipOutX
 ```{r xaringan-themer, include=FALSE}
 library(xaringanthemer)
 style_mono_accent(
@@ -46,6 +48,9 @@ htmltools::tagList(
   rmarkdown::html_dependency_font_awesome()
 )
 ```
+```{r xaringan-panelset, echo=FALSE}
+xaringanExtra::use_panelset()
+```
 
 #Présentation de l'expérience
 
@@ -58,6 +63,8 @@ PLOS One, décembre 2019
 .right[![saw](https://media4.giphy.com/media/l2JdSx78cVNm0x8AM/source.gif)]
 
 ---
+class: animated flipInX
+
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE, echo=FALSE}
 library(tidyverse)
 ```
@@ -138,12 +145,23 @@ rep_sex
 
 #Répartition de l'âge
 .pull-left[
-```{r, eval = TRUE, message = FALSE, warning =  FALSE, echo= FALSE, fig.align="center", out.width = '80%'}
+```{r, eval = TRUE, message = FALSE, warning =  FALSE, fig.align="center", out.width = '80%'}
 ggplot(data = data_phishing) +
   geom_boxplot(aes(x = as.character(group), y = age , color = as.character(group)))
 ```
 ]
+
 .pull-right[
+```{r, eval = TRUE, message = FALSE, warning =  FALSE, echo= FALSE, fig.align="center", out.width = '80%'}
+ggplot(data = data_phis_c) +
+  geom_boxplot(aes(x = as.character(group), y = age , color = as.character(group)))
+```
+]
+
+---
+
+#Répartition de l'âge
+.pull-left[
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE, echo=FALSE, fig.align="center", out.width = '80%'}
 ggplot(data = data_phishing) +
   geom_density(aes(x = age, color = division)) +
@@ -151,9 +169,17 @@ ggplot(data = data_phishing) +
 ```
 ]
 
+.pull-right[
+```{r, eval = TRUE, message = FALSE, warning =  FALSE, echo=FALSE, fig.align="center", out.width = '80%'}
+ggplot(data = data_phis_c) +
+  geom_density(aes(x = age, color = division)) +
+  facet_wrap(~ group, scales = "free")
+```
+]
+
 ---
 
-```{r, eval = TRUE, message = FALSE, warning =  FALSE}
+```{r, eval = TRUE, message = FALSE, warning =  FALSE, echo=FALSE}
 data_phishing %>%
   group_by(group) %>%
   summarise(nb_obs = n(), mean_age = mean(age, na.rm = TRUE), sex_repartition = mean(gender, na.rm = TRUE)*100, mean_int_employee = mean(int_employee, na.rm = TRUE)*100,)
@@ -167,16 +193,43 @@ data_phis_c %>%
 
 ---
 
-```{r, eval = TRUE, message = FALSE, warning =  FALSE}
+```{r, eval = TRUE, message = FALSE, warning =  FALSE, echo=FALSE}
 kruskal.test(age ~ group, data = data_phishing)
 kruskal.test(gender ~ group, data = data_phishing)
 kruskal.test(int_employee ~ group, data = data_phishing)
 kruskal.test(division ~ group, data = data_phishing)
 ```
 
-```{r, eval = TRUE, message = FALSE, warning =  FALSE}
+---
+
+```{r, eval = TRUE, message = FALSE, warning =  FALSE, echo=FALSE}
 kruskal.test(age ~ group, data = data_phis_c)
 kruskal.test(gender ~ group, data = data_phis_c)
 kruskal.test(int_employee ~ group, data = data_phis_c)
 kruskal.test(division ~ group, data = data_phis_c)
 ```
+
+---
+class: animated zoomIn 
+
+
+.panelset[
+.panel[.panel-name[Données avec division c]
+```{r, eval = TRUE, message = FALSE, warning =  FALSE, echo=FALSE}
+data_phishing %>%
+  group_by(group) %>%
+  summarise(nb_obs = n(), mean_age = mean(age, na.rm = TRUE), sex_repartition = mean(gender, na.rm = TRUE)*100, mean_int_employee = mean(int_employee, na.rm = TRUE)*100,)
+```
+]
+.panel[.panel-name[Données sans division c]
+```{r, eval = TRUE, message = FALSE, warning =  FALSE,}
+data_phis_c %>%
+  group_by(group) %>%
+  summarise(nb_obs = n(), mean_age = mean(age, na.rm = TRUE), sex_repartition = mean(gender, na.rm = TRUE)*100, mean_int_employee = mean(int_employee, na.rm = TRUE)*100,)
+```
+]
+]
+
+ 
+ 
+ 
