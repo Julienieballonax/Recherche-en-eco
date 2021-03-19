@@ -1,0 +1,8 @@
+# Packages nécessaires 
+
+# Xaringanthemer
+install.packages("xaringanthemer")
+
+# XaringanExtra
+install.packages("devtools")
+devtools::install_github("gadenbuie/xaringanExtra")
