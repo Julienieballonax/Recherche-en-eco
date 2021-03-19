@@ -12,6 +12,15 @@ output:
 
 ---
 class: animated slideInRight flipOutX
+
+```{r, eval = TRUE, message = FALSE, warning =  FALSE, echo=FALSE}
+# Packages nécessaires 
+# Xaringanthemer / XaringanExtra
+install.packages("xaringanthemer")
+
+install.packages("devtools")
+devtools::install_github("gadenbuie/xaringanExtra")
+```
 ```{r xaringan-themer, include=FALSE}
 library(xaringanthemer)
 style_mono_accent(
