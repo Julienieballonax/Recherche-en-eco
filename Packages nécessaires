@@ -6,3 +6,6 @@ install.packages("xaringanthemer")
 # XaringanExtra
 install.packages("devtools")
 devtools::install_github("gadenbuie/xaringanExtra")
+
+#Pour combiner des graphiques sur une grille
+install.packages("cowplot")
