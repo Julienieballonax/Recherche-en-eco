@@ -101,7 +101,6 @@ ggplot(data = data_phishing) +
 
 ```
 
-
 #Test randomization inference
 
 I. Outcome Visit
@@ -109,21 +108,20 @@ I. Outcome Visit
 A. Calcul des différences observées pour l'outcome 'Visit' selon les différents groupes de traitement.
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
-observed_difference_v_exp = mean(data_phis_c$visit[data_phis_c$group == 'Exp']) - mean(data_phis_c$visit[data_phis_c$group == 'Control']) # je calcule la différence de moyenne pour la variable re78, en fonction de si l'individu est dans le groupe de traitement ou non.
+observed_difference_v_exp = mean(data_phis_c$visit[data_phis_c$group == 'Exp']) - mean(data_phis_c$visit[data_phis_c$group == 'Control']) 
 
-print(observed_difference_v_exp)
+print(observed_difference_v)
   
 ```
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
-observed_difference_v_info = mean(data_phis_c$visit[data_phis_c$group == 'Info']) - mean(data_phis_c$visit[data_phis_c$group == 'Control']) # je calcule la différence de moyenne pour la variable re78, en fonction de si l'individu est dans le groupe de traitement ou non.
+observed_difference_v_info = mean(data_phis_c$visit[data_phis_c$group == 'Info']) - mean(data_phis_c$visit[data_phis_c$group == 'Control']) 
 
 print(observed_difference_v_info)
   
 ```
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
-observed_difference_v_expinfo = mean(data_phis_c$visit[data_phis_c$group == 'ExpInfo']) - mean(data_phis_c$visit[data_phis_c$group == 'Control']) # je calcule la différence de moyenne pour la variable re78, en fonction de si l'individu est dans le groupe de traitement ou non.
-
+observed_difference_v_expinfo = mean(data_phis_c$visit[data_phis_c$group == 'ExpInfo']) - mean(data_phis_c$visit[data_phis_c$group == 'Control']) 
 print(observed_difference_v_expinfo)
   
 ```
@@ -164,17 +162,10 @@ graph_exp <- ggplot(data_simulations, aes(x = diff_simulations)) +
   geom_vline(xintercept = mean(data_simulations$diff_simulations), color = 'black') +
   #La moyenne réellement observé en coral
   geom_vline(xintercept = observed_difference_v, color = 'coral') +
+  xlab("Exp") +
   theme_minimal()
+
 ```
-
-```{r, eval = TRUE, message = FALSE, warning =  FALSE}
-#Calcul de la one-sided et two-sided p-value
-
-(sum(data_simulations$diff_simulations <= observed_difference_v_exp)/1000)*100
-(sum(abs(data_simulations$diff_simulations) <= observed_difference_v_exp)/1000)*100
-```
-
-
 
 
 C. Randomization inference : traitement Info.
@@ -187,7 +178,7 @@ data_phis_c_info <- data_phis_c %>%
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 # vecteur de 1000 coordonnées pour enregistrer les différences
-diff_simulations <- rep(NA, 1000)
+diff_simulations_info <- rep(NA, 1000)
 
 # boucle pour les simulations
 for (i in 1:1000){
@@ -198,31 +189,24 @@ data_phis_c_info <- data_phis_c_info %>%
   mutate(new_group = sample(group, replace = FALSE))
 
 #Je calcule les différences pour chacune des 1000 distributions que je place à la i-ème coordonnée
-diff_simulations[i] <- mean(data_phis_c_info$visit[data_phis_c_info$new_group == "Info"]) - mean(data_phis_c_info$visit[data_phis_c_info$new_group=="Control"])
+diff_simulations_info[i] <- mean(data_phis_c_info$visit[data_phis_c_info$new_group == "Info"]) - mean(data_phis_c_info$visit[data_phis_c_info$new_group=="Control"])
 }
 ```
 
 ```{r, eval = TRUE}
 #j'utilise le type tableau de données, qui convient à ggplot 
-data_simulations <- tibble(diff_simulations=diff_simulations)
+data_simulations_info <- tibble(diff_simulations_info=diff_simulations_info)
 #je crée le graphique de la fonction de densité pour les différentes différences
-graph_info <- ggplot(data_simulations, aes(x = diff_simulations)) +
+graph_info <- ggplot(data_simulations_info, aes(x = diff_simulations_info)) +
   #Les caractéristiques d'affichage
   geom_density(color = 'black', fill = 'deepskyblue3', alpha = 0.5) +
   #La moyenne des différences aléatoires en noir
-  geom_vline(xintercept = mean(data_simulations$diff_simulations), color = 'black') +
+  geom_vline(xintercept = mean(data_simulations_info$diff_simulations_info), color = 'black') +
   #La moyenne réellement observé en coral
   geom_vline(xintercept = observed_difference_v_info, color = 'coral') +
+  xlab("Info") +
   theme_minimal()
 ```
-
-```{r, eval = TRUE, message = FALSE, warning =  FALSE}
-#Calcul de la one-sided et two-sided p-value
-
-(sum(data_simulations$diff_simulations <= observed_difference_v_info)/1000)*100
-(sum(abs(data_simulations$diff_simulations) <= observed_difference_v_info)/1000)*100
-```
-
 
 D. Randomization inference : traitement ExpInfo
 
@@ -234,7 +218,7 @@ data_phis_c_expinfo <- data_phis_c %>%
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 # vecteur de 1000 coordonnées pour enregistrer les différences
-diff_simulations <- rep(NA, 1000)
+diff_simulations_expinfo <- rep(NA, 1000)
 
 # boucle pour les simulations
 for (i in 1:1000){
@@ -245,21 +229,22 @@ data_phis_c_expinfo <- data_phis_c_expinfo %>%
   mutate(new_group = sample(group, replace = FALSE))
 
 #Je calcule les différences pour chacune des 1000 distributions que je place à la i-ème coordonnée
-diff_simulations[i] <- mean(data_phis_c_expinfo$visit[data_phis_c_expinfo$new_group == "ExpInfo"]) - mean(data_phis_c_expinfo$visit[data_phis_c_expinfo$new_group=="Control"])
+diff_simulations_expinfo[i] <- mean(data_phis_c_expinfo$visit[data_phis_c_expinfo$new_group == "ExpInfo"]) - mean(data_phis_c_expinfo$visit[data_phis_c_expinfo$new_group=="Control"])
 }
 ```
 
 ```{r, eval = TRUE}
 #j'utilise le type tableau de données, qui convient à ggplot 
-data_simulations <- tibble(diff_simulations=diff_simulations)
+data_simulations_expinfo <- tibble(diff_simulations_expinfo=diff_simulations_expinfo)
 #je crée le graphique de la fonction de densité pour les différentes différences
-graph_expinfo <- ggplot(data_simulations, aes(x = diff_simulations)) +
+graph_expinfo <- ggplot(data_simulations_expinfo, aes(x = diff_simulations_expinfo)) +
   #Les caractéristiques d'affichage
   geom_density(color = 'black', fill = 'deepskyblue3', alpha = 0.5) +
   #La moyenne des différences aléatoires en noir
-  geom_vline(xintercept = mean(data_simulations$diff_simulations), color = 'black') +
+  geom_vline(xintercept = mean(data_simulations_expinfo$diff_simulations_expinfo), color = 'black') +
   #La moyenne réellement observé en coral
   geom_vline(xintercept = observed_difference_v_expinfo, color = 'coral') +
+  xlab("ExpInfo") + 
   theme_minimal()
 
 ```
@@ -268,33 +253,23 @@ graph_expinfo <- ggplot(data_simulations, aes(x = diff_simulations)) +
 plot_grid(graph_info, graph_exp, graph_expinfo, nrow = 3,  ncol = 3 )
 ```
 
-```{r, eval = TRUE, message = FALSE, warning =  FALSE}
-#Calcul de la one-sided et two-sided p-value
-
-(sum(data_simulations$diff_simulations <= observed_difference_v_expinfo)/1000)*100
-(sum(abs(data_simulations$diff_simulations) <= observed_difference_v_expinfo)/1000)*100
-```
-
 II. Outcome Fill
 
 A. Calcul des différences observées pour l'outcome 'fill' selon les différents groupes de traitement.
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
-observed_difference_f_exp = mean(data_phis_c$fill[data_phis_c$group == 'Exp']) - mean(data_phis_c$fill[data_phis_c$group == 'Control']) # je calcule la différence de moyenne pour la variable re78, en fonction de si l'individu est dans le groupe de traitement ou non.
-
-print(observed_difference_f_exp)
+observed_difference_f = mean(data_phis_c$fill[data_phis_c$group == 'Exp']) - mean(data_phis_c$fill[data_phis_c$group == 'Control']) 
+print(observed_difference_f)
   
 ```
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
-observed_difference_f_info = mean(data_phis_c$fill[data_phis_c$group == 'Info']) - mean(data_phis_c$fill[data_phis_c$group == 'Control']) # je calcule la différence de moyenne pour la variable re78, en fonction de si l'individu est dans le groupe de traitement ou non.
-
+observed_difference_f_info = mean(data_phis_c$fill[data_phis_c$group == 'Info']) - mean(data_phis_c$fill[data_phis_c$group == 'Control'])
 print(observed_difference_f_info)
   
 ```
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
-observed_difference_f_expinfo = mean(data_phis_c$fill[data_phis_c$group == 'ExpInfo']) - mean(data_phis_c$fill[data_phis_c$group == 'Control']) # je calcule la différence de moyenne pour la variable re78, en fonction de si l'individu est dans le groupe de traitement ou non.
-
+observed_difference_f_expinfo = mean(data_phis_c$fill[data_phis_c$group == 'ExpInfo']) - mean(data_phis_c$fill[data_phis_c$group == 'Control']) 
 print(observed_difference_f_expinfo)
   
 ```
@@ -309,7 +284,7 @@ data_phis_c_exp <- data_phis_c %>%
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 # vecteur de 1000 coordonnées pour enregistrer les différences
-diff_simulations <- rep(NA, 1000)
+diff_simulations_f_exp <- rep(NA, 1000)
 
 # boucle pour les simulations
 for (i in 1:1000){
@@ -320,29 +295,25 @@ data_phis_c_exp <- data_phis_c_exp %>%
   mutate(new_group = sample(group, replace = FALSE))
 
 #Je calcule les différences pour chacune des 1000 distributions que je place à la i-ème coordonnée
-diff_simulations[i] <- mean(data_phis_c_exp$fill[data_phis_c_exp$new_group == "Exp"]) - mean(data_phis_c_exp$fill[data_phis_c_exp$new_group=="Control"])
+diff_simulations_f_exp[i] <- mean(data_phis_c_exp$fill[data_phis_c_exp$new_group == "Exp"]) - mean(data_phis_c_exp$fill[data_phis_c_exp$new_group=="Control"])
 }
 ```
 
 ```{r, eval = TRUE}
 #j'utilise le type tableau de données, qui convient à ggplot 
-data_simulations <- tibble(diff_simulations=diff_simulations)
+data_simulations_f_exp <- tibble(diff_simulations_f_exp=diff_simulations_f_exp)
 #je crée le graphique de la fonction de densité pour les différentes différences
-graph_fill_exp <- ggplot(data_simulations, aes(x = diff_simulations)) +
+graph_fill_exp <- ggplot(data_simulations_f_exp, aes(x = diff_simulations_f_exp)) +
   #Les caractéristiques d'affichage
   geom_density(color = 'black', fill = 'deepskyblue3', alpha = 0.5) +
   #La moyenne des différences aléatoires en noir
-  geom_vline(xintercept = mean(data_simulations$diff_simulations), color = 'black') +
+  geom_vline(xintercept = mean(data_simulations_f_exp$diff_simulations_f_exp), color = 'black') +
   #La moyenne réellement observé en coral
   geom_vline(xintercept = observed_difference_f, color = 'coral') +
+  xlab("Exp") +
   theme_minimal()
 ```
-```{r, eval = TRUE, message = FALSE, warning =  FALSE}
-#Calcul de la one-sided et two-sided p-value
 
-(sum(data_simulations$diff_simulations <= observed_difference_f_exp)/1000)*100
-(sum(abs(data_simulations$diff_simulations) <= observed_difference_f_exp)/1000)*100
-```
 
 C. Randomization inference : traitement Info.
 
@@ -354,7 +325,7 @@ data_phis_c_info <- data_phis_c %>%
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 # vecteur de 1000 coordonnées pour enregistrer les différences
-diff_simulations <- rep(NA, 1000)
+diff_simulations_f_info <- rep(NA, 1000)
 
 # boucle pour les simulations
 for (i in 1:1000){
@@ -365,30 +336,24 @@ data_phis_c_info <- data_phis_c_info %>%
   mutate(new_group = sample(group, replace = FALSE))
 
 #Je calcule les différences pour chacune des 1000 distributions que je place à la i-ème coordonnée
-diff_simulations[i] <- mean(data_phis_c_info$fill[data_phis_c_info$new_group == "Info"]) - mean(data_phis_c_info$fill[data_phis_c_info$new_group=="Control"])
+diff_simulations_f_info[i] <- mean(data_phis_c_info$fill[data_phis_c_info$new_group == "Info"]) - mean(data_phis_c_info$fill[data_phis_c_info$new_group=="Control"])
 }
 ```
 
 ```{r, eval = TRUE}
 #j'utilise le type tableau de données, qui convient à ggplot 
-data_simulations <- tibble(diff_simulations=diff_simulations)
+data_simulations_f_info <- tibble(diff_simulations_f_info=diff_simulations_f_info)
 #je crée le graphique de la fonction de densité pour les différentes différences
-graph_fill_info <- ggplot(data_simulations, aes(x = diff_simulations)) +
+graph_fill_info <- ggplot(data_simulations_f_info, aes(x = diff_simulations_f_info)) +
   #Les caractéristiques d'affichage
   geom_density(color = 'black', fill = 'deepskyblue3', alpha = 0.5) +
   #La moyenne des différences aléatoires en noir
-  geom_vline(xintercept = mean(data_simulations$diff_simulations), color = 'black') +
+  geom_vline(xintercept = mean(data_simulations_f_info$diff_simulations_f_info), color = 'black') +
   #La moyenne réellement observé en coral
   geom_vline(xintercept = observed_difference_f_info, color = 'coral') +
+  xlab("Info") +
   theme_minimal()
 ```
-```{r, eval = TRUE, message = FALSE, warning =  FALSE}
-#Calcul de la one-sided et two-sided p-value
-
-(sum(data_simulations$diff_simulations <= observed_difference_f_info)/1000)*100
-(sum(abs(data_simulations$diff_simulations) <= observed_difference_f_info)/1000)*100
-```
-
 
 D. Randomization inference : traitement ExpInfo
 
@@ -400,7 +365,7 @@ data_phis_c_expinfo <- data_phis_c %>%
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 # vecteur de 1000 coordonnées pour enregistrer les différences
-diff_simulations <- rep(NA, 1000)
+diff_simulations_f_expinfo <- rep(NA, 1000)
 
 # boucle pour les simulations
 for (i in 1:1000){
@@ -411,21 +376,22 @@ data_phis_c_expinfo <- data_phis_c_expinfo %>%
   mutate(new_group = sample(group, replace = FALSE))
 
 #Je calcule les différences pour chacune des 1000 distributions que je place à la i-ème coordonnée
-diff_simulations[i] <- mean(data_phis_c_expinfo$fill[data_phis_c_expinfo$new_group == "ExpInfo"]) - mean(data_phis_c_expinfo$fill[data_phis_c_expinfo$new_group=="Control"])
+diff_simulations_f_expinfo[i] <- mean(data_phis_c_expinfo$fill[data_phis_c_expinfo$new_group == "ExpInfo"]) - mean(data_phis_c_expinfo$fill[data_phis_c_expinfo$new_group=="Control"])
 }
 ```
 
 ```{r, eval = TRUE}
 #j'utilise le type tableau de données, qui convient à ggplot 
-data_simulations <- tibble(diff_simulations=diff_simulations)
+data_simulations_f_expinfo <- tibble(diff_simulations_f_expinfo=diff_simulations_f_expinfo)
 #je crée le graphique de la fonction de densité pour les différentes différences
-graph_fill_expinfo <- ggplot(data_simulations, aes(x = diff_simulations)) +
+graph_fill_expinfo <- ggplot(data_simulations_f_expinfo, aes(x = diff_simulations_f_expinfo)) +
   #Les caractéristiques d'affichage
   geom_density(color = 'black', fill = 'deepskyblue3', alpha = 0.5) +
   #La moyenne des différences aléatoires en noir
-  geom_vline(xintercept = mean(data_simulations$diff_simulations), color = 'black') +
+  geom_vline(xintercept = mean(data_simulations_f_expinfo$diff_simulations_f_expinfo), color = 'black') +
   #La moyenne réellement observé en coral
   geom_vline(xintercept = observed_difference_f_expinfo, color = 'coral') +
+  xlab("ExpInfo") +
   theme_minimal()
 
 ```
@@ -435,22 +401,15 @@ graph_fill_expinfo <- ggplot(data_simulations, aes(x = diff_simulations)) +
 plot_grid(graph_fill_info, graph_fill_exp, graph_fill_expinfo, nrow = 3,  ncol = 3 )
 ```
 
-```{r, eval = TRUE, message = FALSE, warning =  FALSE}
-#Calcul de la one-sided et two-sided p-value
-
-(sum(data_simulations$diff_simulations <= observed_difference_f_expinfo)/1000)*100
-(sum(abs(data_simulations$diff_simulations) <= observed_difference_f_expinfo)/1000)*100
-```
-
 III. outcome Visit_fill
 
 
 A. Calcul des différences observées pour l'outcome 'visit_fill' selon les différents groupes de traitement.
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
-observed_difference_vf_exp = mean(data_phis_c$visit_fill[data_phis_c$group == 'Exp'], na.rm = TRUE) - mean(data_phis_c$visit_fill[data_phis_c$group == 'Control'], na.rm = TRUE) 
+observed_difference_vf = mean(data_phis_c$visit_fill[data_phis_c$group == 'Exp'], na.rm = TRUE) - mean(data_phis_c$visit_fill[data_phis_c$group == 'Control'], na.rm = TRUE) 
 
-print(observed_difference_vf_exp)
+print(observed_difference_vf)
   
 ```
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
@@ -461,8 +420,7 @@ print(observed_difference_vf_info)
 ```
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
-observed_difference_vf_expinfo = mean(data_phis_c$visit_fill[data_phis_c$group == 'ExpInfo'], na.rm = TRUE) - mean(data_phis_c$visit_fill[data_phis_c$group == 'Control'], na.rm = TRUE) # je calcule la différence de moyenne pour la variable re78, en fonction de si l'individu est dans le groupe de traitement ou non.
-
+observed_difference_vf_expinfo = mean(data_phis_c$visit_fill[data_phis_c$group == 'ExpInfo'], na.rm = TRUE) - mean(data_phis_c$visit_fill[data_phis_c$group == 'Control'], na.rm = TRUE) 
 print(observed_difference_vf_expinfo)
   
 ```
@@ -477,7 +435,7 @@ data_phis_c_exp <- data_phis_c %>%
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 # vecteur de 1000 coordonnées pour enregistrer les différences
-diff_simulations <- rep(NA, 1000)
+diff_simulations_vf_exp <- rep(NA, 1000)
 
 # boucle pour les simulations
 for (i in 1:1000){
@@ -488,29 +446,25 @@ data_phis_c_exp <- data_phis_c_exp %>%
   mutate(new_group = sample(group, replace = FALSE))
 
 #Je calcule les différences pour chacune des 1000 distributions que je place à la i-ème coordonnée
-diff_simulations[i] <- mean(data_phis_c_exp$visit_fill[data_phis_c_exp$new_group == "Exp"], na.rm = TRUE) - mean(data_phis_c_exp$visit_fill[data_phis_c_exp$new_group=="Control"], na.rm = TRUE)
+diff_simulations_vf_exp[i] <- mean(data_phis_c_exp$visit_fill[data_phis_c_exp$new_group == "Exp"], na.rm = TRUE) - mean(data_phis_c_exp$visit_fill[data_phis_c_exp$new_group=="Control"], na.rm = TRUE)
 }
 ```
 
 ```{r, eval = TRUE}
 #j'utilise le type tableau de données, qui convient à ggplot 
-data_simulations <- tibble(diff_simulations=diff_simulations)
+data_simulations_vf_exp <- tibble(diff_simulations_vf_exp=diff_simulations_vf_exp)
 #je crée le graphique de la fonction de densité pour les différentes différences
-graph_visitfill_exp <- ggplot(data_simulations, aes(x = diff_simulations)) +
+graph_visitfill_exp <- ggplot(data_simulations_vf_exp, aes(x = diff_simulations_vf_exp)) +
   #Les caractéristiques d'affichage
   geom_density(color = 'black', fill = 'deepskyblue3', alpha = 0.5) +
   #La moyenne des différences aléatoires en noir
-  geom_vline(xintercept = mean(data_simulations$diff_simulations), color = 'black') +
+  geom_vline(xintercept = mean(data_simulations_vf_exp$diff_simulations_vf_exp), color = 'black') +
   #La moyenne réellement observé en coral
   geom_vline(xintercept = observed_difference_vf, color = 'coral') +
+  xlab("Exp") +
   theme_minimal()
 ```
-```{r, eval = TRUE, message = FALSE, warning =  FALSE}
-#Calcul de la one-sided et two-sided p-value
 
-(sum(data_simulations$diff_simulations >= observed_difference_fv_exp)/1000)*100
-(sum(abs(data_simulations$diff_simulations) >= observed_difference_fv_exp)/1000)*100
-```
 
 C. Randomization inference : traitement Info.
 
@@ -522,7 +476,7 @@ data_phis_c_info <- data_phis_c %>%
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 # vecteur de 1000 coordonnées pour enregistrer les différences
-diff_simulations <- rep(NA, 1000)
+diff_simulations_vf_info <- rep(NA, 1000)
 
 # boucle pour les simulations
 for (i in 1:1000){
@@ -533,29 +487,23 @@ data_phis_c_info <- data_phis_c_info %>%
   mutate(new_group = sample(group, replace = FALSE))
 
 #Je calcule les différences pour chacune des 1000 distributions que je place à la i-ème coordonnée
-diff_simulations[i] <- mean(data_phis_c_info$visit_fill[data_phis_c_info$new_group == "Info"], na.rm = TRUE) - mean(data_phis_c_info$visit_fill[data_phis_c_info$new_group=="Control"], na.rm = TRUE)
+diff_simulations_vf_info[i] <- mean(data_phis_c_info$visit_fill[data_phis_c_info$new_group == "Info"], na.rm = TRUE) - mean(data_phis_c_info$visit_fill[data_phis_c_info$new_group=="Control"], na.rm = TRUE)
 }
 ```
 
 ```{r, eval = TRUE}
 #j'utilise le type tableau de données, qui convient à ggplot 
-data_simulations <- tibble(diff_simulations=diff_simulations)
+data_simulations_vf_info <- tibble(diff_simulations_vf_info=diff_simulations_vf_info)
 #je crée le graphique de la fonction de densité pour les différentes différences
-graph_visitfill_info <- ggplot(data_simulations, aes(x = diff_simulations)) +
+graph_visitfill_info <- ggplot(data_simulations_vf_info, aes(x = diff_simulations_vf_info)) +
   #Les caractéristiques d'affichage
   geom_density(color = 'black', fill = 'deepskyblue3', alpha = 0.5) +
   #La moyenne des différences aléatoires en noir
-  geom_vline(xintercept = mean(data_simulations$diff_simulations), color = 'black') +
+  geom_vline(xintercept = mean(data_simulations_vf_info$diff_simulations_vf_info), color = 'black') +
   #La moyenne réellement observé en coral
   geom_vline(xintercept = observed_difference_vf_info, color = 'coral') +
+  xlab("Info") +
   theme_minimal()
-```
-
-```{r, eval = TRUE, message = FALSE, warning =  FALSE}
-#Calcul de la one-sided et two-sided p-value
-
-(sum(data_simulations$diff_simulations <= observed_difference_vf_info)/1000)*100
-(sum(abs(data_simulations$diff_simulations) <= observed_difference_vf_info)/1000)*100
 ```
 
 D. Randomization inference : traitement ExpInfo
@@ -568,7 +516,7 @@ data_phis_c_expinfo <- data_phis_c %>%
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 # vecteur de 1000 coordonnées pour enregistrer les différences
-diff_simulations <- rep(NA, 1000)
+diff_simulations_vf_expinfo <- rep(NA, 1000)
 
 # boucle pour les simulations
 for (i in 1:1000){
@@ -579,36 +527,119 @@ data_phis_c_expinfo <- data_phis_c_expinfo %>%
   mutate(new_group = sample(group, replace = FALSE))
 
 #Je calcule les différences pour chacune des 1000 distributions que je place à la i-ème coordonnée
-diff_simulations[i] <- mean(data_phis_c_expinfo$visit_fill[data_phis_c_expinfo$new_group == "ExpInfo"], na.rm = TRUE) - mean(data_phis_c_expinfo$visit_fill[data_phis_c_expinfo$new_group=="Control"], na.rm = TRUE)
+diff_simulations_vf_expinfo[i] <- mean(data_phis_c_expinfo$visit_fill[data_phis_c_expinfo$new_group == "ExpInfo"], na.rm = TRUE) - mean(data_phis_c_expinfo$visit_fill[data_phis_c_expinfo$new_group=="Control"], na.rm = TRUE)
 }
 ```
 
 ```{r, eval = TRUE}
 #j'utilise le type tableau de données, qui convient à ggplot 
-data_simulations <- tibble(diff_simulations=diff_simulations)
+data_simulations_vf_expinfo <- tibble(diff_simulations_vf_expinfo=diff_simulations_vf_expinfo)
 #je crée le graphique de la fonction de densité pour les différentes différences
-graph_visitfill_expinfo <- ggplot(data_simulations, aes(x = diff_simulations)) +
+graph_visitfill_expinfo <- ggplot(data_simulations_vf_expinfo, aes(x = diff_simulations_vf_expinfo)) +
   #Les caractéristiques d'affichage
   geom_density(color = 'black', fill = 'deepskyblue3', alpha = 0.5) +
   #La moyenne des différences aléatoires en noir
-  geom_vline(xintercept = mean(data_simulations$diff_simulations), color = 'black') +
+  geom_vline(xintercept = mean(data_simulations_vf_expinfo$diff_simulations_vf_expinfo), color = 'black') +
   #La moyenne réellement observé en coral
   geom_vline(xintercept = observed_difference_vf_expinfo, color = 'coral') +
+  xlab("ExpInfo") +
   theme_minimal()
 
 ```
 
 
 ```{r, echo = TRUE, message = FALSE, warning = FALSE, fig.width = 10, fig.height = 5, fig.fullwidth=TRUE}
-plot_grid(graph_info, graph_exp, graph_expinfo,
-          graph_fill_info, graph_fill_exp, graph_fill_expinfo,
-          graph_visitfill_info, graph_visitfill_exp, graph_visitfill_expinfo,
-          nrow = 3,  ncol = 3 )
+first_row <- plot_grid(graph_info, graph_exp, graph_expinfo, labels = 'Visit', ncol = 3)
+second <- plot_grid(graph_fill_info, graph_fill_exp, graph_fill_expinfo, labels = 'Fill', ncol = 3)
+third <- plot_grid(graph_visitfill_info, graph_visitfill_exp, graph_visitfill_expinfo, labels = 'VisitFill', ncol = 3)
+plot_grid(first_row, second, third,  nrow = 3)
 ```
+
+
+Calcul des p-values
+
+I. Outcome Visit
+
+A. Exp
+```{r, eval = TRUE, message = FALSE, warning =  FALSE}
+#Calcul de la one-sided et two-sided p-value
+
+(sum(data_simulations$diff_simulations <= observed_difference_v)/184)*100
+(sum(abs(data_simulations$diff_simulations) <=  observed_difference_v)/184)*100
+```
+
+B. Info
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 #Calcul de la one-sided et two-sided p-value
 
-(sum(data_simulations$diff_simulations <= observed_difference_vf_expinfo)/1000)*100
-(sum(abs(data_simulations$diff_simulations) <= observed_difference_vf_expinfo)/1000)*100
+(sum(data_simulations_info$diff_simulations_info <= observed_difference_v_info)/184)*100
+(sum(abs(data_simulations_info$diff_simulations_info) <=  observed_difference_v_info)/184)*100
+```
+
+C. ExpInfo
+```{r, eval = TRUE, message = FALSE, warning =  FALSE}
+#Calcul de la one-sided et two-sided p-value
+
+(sum(data_simulations_expinfo$diff_simulations_expinfo <= observed_difference_v_expinfo)/184)*100
+(sum(abs(data_simulations_expinfo$diff_simulations_expinfo) <=  observed_difference_v_expinfo)/184)*100
+```
+
+
+II. Outcome Fill
+
+A. Exp
+```{r, eval = TRUE, message = FALSE, warning =  FALSE}
+#Calcul de la one-sided et two-sided p-value
+
+(sum(data_simulations_f_exp$diff_simulations_f_exp <= observed_difference_f)/184)*100
+(sum(abs(data_simulations_f_exp$diff_simulations_f_exp) <=  observed_difference_f)/184)*100
+```
+
+
+B. Info
+
+```{r, eval = TRUE, message = FALSE, warning =  FALSE}
+#Calcul de la one-sided et two-sided p-value
+
+(sum(data_simulations_f_info$diff_simulations_f_info <= observed_difference_f_info)/184)*100
+(sum(abs(data_simulations_f_info$diff_simulations_f_info) <=  observed_difference_f_info)/184)*100
+```
+
+C. ExpInfo
+
+```{r, eval = TRUE, message = FALSE, warning =  FALSE}
+#Calcul de la one-sided et two-sided p-value
+
+(sum(data_simulations_f_expinfo$diff_simulations_f_expinfo <= observed_difference_f_expinfo)/184)*100
+(sum(abs(data_simulations_f_expinfo$diff_simulations_f_expinfo) <=  observed_difference_f_expinfo)/184)*100
+```
+
+III. Outcome VisitFill
+
+A. Exp
+
+```{r, eval = TRUE, message = FALSE, warning =  FALSE}
+#Calcul de la one-sided et two-sided p-value
+
+(sum(data_simulations_vf_exp$diff_simulations_vf_exp <= observed_difference_vf)/184)*100
+(sum(abs(data_simulations_vf_exp$diff_simulations_vf_exp) <=  observed_difference_vf)/184)*100
+```
+
+B. Info
+
+```{r, eval = TRUE, message = FALSE, warning =  FALSE}
+#Calcul de la one-sided et two-sided p-value
+
+(sum(data_simulations_vf_info$diff_simulations_vf_info <= observed_difference_vf_info)/184)*100
+(sum(abs(data_simulations_vf_info$diff_simulations_vf_info) <=  observed_difference_vf_info)/184)*100
+```
+
+C. ExpInfo
+
+```{r, eval = TRUE, message = FALSE, warning =  FALSE}
+#Calcul de la one-sided et two-sided p-value
+
+(sum(data_simulations_vf_expinfo$diff_simulations_vf_expinfo <= observed_difference_vf_expinfo)/184)*100
+(sum(abs(data_simulations_vf_expinfo$diff_simulations_vf_expinfo) <=  observed_difference_vf_expinfo)/184)*100
 ```
