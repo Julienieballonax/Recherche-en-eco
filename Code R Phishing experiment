@@ -100,7 +100,6 @@ ggplot(data = data_phishing) +
 ```
 
 ```
-
 #Test randomization inference
 
 I. Outcome Visit
@@ -108,7 +107,7 @@ I. Outcome Visit
 A. Calcul des différences observées pour l'outcome 'Visit' selon les différents groupes de traitement.
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
-observed_difference_v_exp = mean(data_phis_c$visit[data_phis_c$group == 'Exp']) - mean(data_phis_c$visit[data_phis_c$group == 'Control']) 
+observed_difference_v = mean(data_phis_c$visit[data_phis_c$group == 'Exp']) - mean(data_phis_c$visit[data_phis_c$group == 'Control']) 
 
 print(observed_difference_v)
   
