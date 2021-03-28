@@ -138,10 +138,10 @@ data_phis_c_exp <- data_phis_c %>%
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 # vecteur de 1000 coordonnées pour enregistrer les différences
-diff_simulations <- rep(NA, 184)
+diff_simulations <- rep(NA, 1000)
 
 # boucle pour les simulations
-for (i in 1:184){
+for (i in 1:1000){
 
 # je prends les données
 data_phis_c_exp <- data_phis_c_exp %>%
@@ -170,8 +170,8 @@ graph_exp <- ggplot(data_simulations, aes(x = diff_simulations)) +
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 #Calcul de la one-sided et two-sided p-value
 
-(sum(data_simulations$diff_simulations >= observed_difference_v_exp)/184)*100
-(sum(abs(data_simulations$diff_simulations) >= observed_difference_v_exp)/184)*100
+(sum(data_simulations$diff_simulations <= observed_difference_v_exp)/1000)*100
+(sum(abs(data_simulations$diff_simulations) <= observed_difference_v_exp)/1000)*100
 ```
 
 
@@ -187,10 +187,10 @@ data_phis_c_info <- data_phis_c %>%
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 # vecteur de 1000 coordonnées pour enregistrer les différences
-diff_simulations <- rep(NA, 184)
+diff_simulations <- rep(NA, 1000)
 
 # boucle pour les simulations
-for (i in 1:184){
+for (i in 1:1000){
 
 # je prends les données
 data_phis_c_info <- data_phis_c_info %>%
@@ -219,8 +219,8 @@ graph_info <- ggplot(data_simulations, aes(x = diff_simulations)) +
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 #Calcul de la one-sided et two-sided p-value
 
-(sum(data_simulations$diff_simulations >= observed_difference_v_info)/184)*100
-(sum(abs(data_simulations$diff_simulations) >= observed_difference_v_info)/184)*100
+(sum(data_simulations$diff_simulations <= observed_difference_v_info)/1000)*100
+(sum(abs(data_simulations$diff_simulations) <= observed_difference_v_info)/1000)*100
 ```
 
 
@@ -234,10 +234,10 @@ data_phis_c_expinfo <- data_phis_c %>%
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 # vecteur de 1000 coordonnées pour enregistrer les différences
-diff_simulations <- rep(NA, 184)
+diff_simulations <- rep(NA, 1000)
 
 # boucle pour les simulations
-for (i in 1:184){
+for (i in 1:1000){
 
 # je prends les données
 data_phis_c_expinfo <- data_phis_c_expinfo %>%
@@ -271,8 +271,8 @@ plot_grid(graph_info, graph_exp, graph_expinfo, nrow = 3,  ncol = 3 )
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 #Calcul de la one-sided et two-sided p-value
 
-(sum(data_simulations$diff_simulations >= observed_difference_v_expinfo)/184)*100
-(sum(abs(data_simulations$diff_simulations) >= observed_difference_v_expinfo)/184)*100
+(sum(data_simulations$diff_simulations <= observed_difference_v_expinfo)/1000)*100
+(sum(abs(data_simulations$diff_simulations) <= observed_difference_v_expinfo)/1000)*100
 ```
 
 II. Outcome Fill
@@ -309,10 +309,10 @@ data_phis_c_exp <- data_phis_c %>%
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 # vecteur de 1000 coordonnées pour enregistrer les différences
-diff_simulations <- rep(NA, 184)
+diff_simulations <- rep(NA, 1000)
 
 # boucle pour les simulations
-for (i in 1:184){
+for (i in 1:1000){
 
 # je prends les données
 data_phis_c_exp <- data_phis_c_exp %>%
@@ -340,8 +340,8 @@ graph_fill_exp <- ggplot(data_simulations, aes(x = diff_simulations)) +
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 #Calcul de la one-sided et two-sided p-value
 
-(sum(data_simulations$diff_simulations >= observed_difference_f_exp)/184)*100
-(sum(abs(data_simulations$diff_simulations) >= observed_difference_f_exp)/184)*100
+(sum(data_simulations$diff_simulations <= observed_difference_f_exp)/1000)*100
+(sum(abs(data_simulations$diff_simulations) <= observed_difference_f_exp)/1000)*100
 ```
 
 C. Randomization inference : traitement Info.
@@ -354,10 +354,10 @@ data_phis_c_info <- data_phis_c %>%
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 # vecteur de 1000 coordonnées pour enregistrer les différences
-diff_simulations <- rep(NA, 184)
+diff_simulations <- rep(NA, 1000)
 
 # boucle pour les simulations
-for (i in 1:184){
+for (i in 1:1000){
 
 # je prends les données
 data_phis_c_info <- data_phis_c_info %>%
@@ -385,8 +385,8 @@ graph_fill_info <- ggplot(data_simulations, aes(x = diff_simulations)) +
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 #Calcul de la one-sided et two-sided p-value
 
-(sum(data_simulations$diff_simulations >= observed_difference_f_info)/184)*100
-(sum(abs(data_simulations$diff_simulations) >= observed_difference_f_info)/184)*100
+(sum(data_simulations$diff_simulations <= observed_difference_f_info)/1000)*100
+(sum(abs(data_simulations$diff_simulations) <= observed_difference_f_info)/1000)*100
 ```
 
 
@@ -400,10 +400,10 @@ data_phis_c_expinfo <- data_phis_c %>%
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 # vecteur de 1000 coordonnées pour enregistrer les différences
-diff_simulations <- rep(NA, 184)
+diff_simulations <- rep(NA, 1000)
 
 # boucle pour les simulations
-for (i in 1:184){
+for (i in 1:1000){
 
 # je prends les données
 data_phis_c_expinfo <- data_phis_c_expinfo %>%
@@ -438,8 +438,8 @@ plot_grid(graph_fill_info, graph_fill_exp, graph_fill_expinfo, nrow = 3,  ncol =
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 #Calcul de la one-sided et two-sided p-value
 
-(sum(data_simulations$diff_simulations >= observed_difference_f_expinfo)/184)*100
-(sum(abs(data_simulations$diff_simulations) >= observed_difference_f_expinfo)/184)*100
+(sum(data_simulations$diff_simulations <= observed_difference_f_expinfo)/1000)*100
+(sum(abs(data_simulations$diff_simulations) <= observed_difference_f_expinfo)/1000)*100
 ```
 
 III. outcome Visit_fill
@@ -477,10 +477,10 @@ data_phis_c_exp <- data_phis_c %>%
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 # vecteur de 1000 coordonnées pour enregistrer les différences
-diff_simulations <- rep(NA, 184)
+diff_simulations <- rep(NA, 1000)
 
 # boucle pour les simulations
-for (i in 1:184){
+for (i in 1:1000){
 
 # je prends les données
 data_phis_c_exp <- data_phis_c_exp %>%
@@ -508,8 +508,8 @@ graph_visitfill_exp <- ggplot(data_simulations, aes(x = diff_simulations)) +
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 #Calcul de la one-sided et two-sided p-value
 
-(sum(data_simulations$diff_simulations >= observed_difference_fv_exp)/184)*100
-(sum(abs(data_simulations$diff_simulations) >= observed_difference_fv_exp)/184)*100
+(sum(data_simulations$diff_simulations >= observed_difference_fv_exp)/1000)*100
+(sum(abs(data_simulations$diff_simulations) >= observed_difference_fv_exp)/1000)*100
 ```
 
 C. Randomization inference : traitement Info.
@@ -522,10 +522,10 @@ data_phis_c_info <- data_phis_c %>%
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 # vecteur de 1000 coordonnées pour enregistrer les différences
-diff_simulations <- rep(NA, 184)
+diff_simulations <- rep(NA, 1000)
 
 # boucle pour les simulations
-for (i in 1:184){
+for (i in 1:1000){
 
 # je prends les données
 data_phis_c_info <- data_phis_c_info %>%
@@ -554,8 +554,8 @@ graph_visitfill_info <- ggplot(data_simulations, aes(x = diff_simulations)) +
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 #Calcul de la one-sided et two-sided p-value
 
-(sum(data_simulations$diff_simulations >= observed_difference_vf_info)/184)*100
-(sum(abs(data_simulations$diff_simulations) >= observed_difference_vf_info)/184)*100
+(sum(data_simulations$diff_simulations <= observed_difference_vf_info)/1000)*100
+(sum(abs(data_simulations$diff_simulations) <= observed_difference_vf_info)/1000)*100
 ```
 
 D. Randomization inference : traitement ExpInfo
@@ -568,10 +568,10 @@ data_phis_c_expinfo <- data_phis_c %>%
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 # vecteur de 1000 coordonnées pour enregistrer les différences
-diff_simulations <- rep(NA, 184)
+diff_simulations <- rep(NA, 1000)
 
 # boucle pour les simulations
-for (i in 1:184){
+for (i in 1:1000){
 
 # je prends les données
 data_phis_c_expinfo <- data_phis_c_expinfo %>%
@@ -609,6 +609,6 @@ plot_grid(graph_info, graph_exp, graph_expinfo,
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 #Calcul de la one-sided et two-sided p-value
 
-(sum(data_simulations$diff_simulations >= observed_difference_vf_expinfo)/184)*100
-(sum(abs(data_simulations$diff_simulations) >= observed_difference_vf_expinfo)/184)*100
+(sum(data_simulations$diff_simulations <= observed_difference_vf_expinfo)/1000)*100
+(sum(abs(data_simulations$diff_simulations) <= observed_difference_vf_expinfo)/1000)*100
 ```
