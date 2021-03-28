@@ -88,13 +88,15 @@ data_phis_c %>%
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 ggplot(data = data_phishing) +
-  geom_boxplot(aes(x = as.character(group), y = age , color = as.character(group)))
+  geom_boxplot(aes(x = as.character(group), y = age , color = as.character(group))) +
+  ggtitle("Répartition de l'âge des individus")
 ```
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 ggplot(data = data_phishing) +
   geom_density(aes(x = age, color = division)) +
-  facet_wrap(~ group, scales = "free")
+  facet_wrap(~ group, scales = "free") + 
+  ggtitle("Répartition de l'âge des individus")
 ```
 
 ```
@@ -109,7 +111,7 @@ A. Calcul des différences observées pour l'outcome 'Visit' selon les différen
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 observed_difference_v_exp = mean(data_phis_c$visit[data_phis_c$group == 'Exp']) - mean(data_phis_c$visit[data_phis_c$group == 'Control']) # je calcule la différence de moyenne pour la variable re78, en fonction de si l'individu est dans le groupe de traitement ou non.
 
-print(observed_difference_v)
+print(observed_difference_v_exp)
   
 ```
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
@@ -165,6 +167,15 @@ graph_exp <- ggplot(data_simulations, aes(x = diff_simulations)) +
   theme_minimal()
 ```
 
+```{r, eval = TRUE, message = FALSE, warning =  FALSE}
+#Calcul de la one-sided et two-sided p-value
+
+(sum(data_simulations$diff_simulations >= observed_difference_v_exp)/184)*100
+(sum(abs(data_simulations$diff_simulations) >= observed_difference_v_exp)/184)*100
+```
+
+
+
 
 C. Randomization inference : traitement Info.
 
@@ -204,6 +215,14 @@ graph_info <- ggplot(data_simulations, aes(x = diff_simulations)) +
   geom_vline(xintercept = observed_difference_v_info, color = 'coral') +
   theme_minimal()
 ```
+
+```{r, eval = TRUE, message = FALSE, warning =  FALSE}
+#Calcul de la one-sided et two-sided p-value
+
+(sum(data_simulations$diff_simulations >= observed_difference_v_info)/184)*100
+(sum(abs(data_simulations$diff_simulations) >= observed_difference_v_info)/184)*100
+```
+
 
 D. Randomization inference : traitement ExpInfo
 
@@ -249,14 +268,21 @@ graph_expinfo <- ggplot(data_simulations, aes(x = diff_simulations)) +
 plot_grid(graph_info, graph_exp, graph_expinfo, nrow = 3,  ncol = 3 )
 ```
 
+```{r, eval = TRUE, message = FALSE, warning =  FALSE}
+#Calcul de la one-sided et two-sided p-value
+
+(sum(data_simulations$diff_simulations >= observed_difference_v_expinfo)/184)*100
+(sum(abs(data_simulations$diff_simulations) >= observed_difference_v_expinfo)/184)*100
+```
+
 II. Outcome Fill
 
 A. Calcul des différences observées pour l'outcome 'fill' selon les différents groupes de traitement.
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
-observed_difference_f = mean(data_phis_c$fill[data_phis_c$group == 'Exp']) - mean(data_phis_c$fill[data_phis_c$group == 'Control']) # je calcule la différence de moyenne pour la variable re78, en fonction de si l'individu est dans le groupe de traitement ou non.
+observed_difference_f_exp = mean(data_phis_c$fill[data_phis_c$group == 'Exp']) - mean(data_phis_c$fill[data_phis_c$group == 'Control']) # je calcule la différence de moyenne pour la variable re78, en fonction de si l'individu est dans le groupe de traitement ou non.
 
-print(observed_difference_f)
+print(observed_difference_f_exp)
   
 ```
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
@@ -311,7 +337,12 @@ graph_fill_exp <- ggplot(data_simulations, aes(x = diff_simulations)) +
   geom_vline(xintercept = observed_difference_f, color = 'coral') +
   theme_minimal()
 ```
+```{r, eval = TRUE, message = FALSE, warning =  FALSE}
+#Calcul de la one-sided et two-sided p-value
 
+(sum(data_simulations$diff_simulations >= observed_difference_f_exp)/184)*100
+(sum(abs(data_simulations$diff_simulations) >= observed_difference_f_exp)/184)*100
+```
 
 C. Randomization inference : traitement Info.
 
@@ -351,6 +382,13 @@ graph_fill_info <- ggplot(data_simulations, aes(x = diff_simulations)) +
   geom_vline(xintercept = observed_difference_f_info, color = 'coral') +
   theme_minimal()
 ```
+```{r, eval = TRUE, message = FALSE, warning =  FALSE}
+#Calcul de la one-sided et two-sided p-value
+
+(sum(data_simulations$diff_simulations >= observed_difference_f_info)/184)*100
+(sum(abs(data_simulations$diff_simulations) >= observed_difference_f_info)/184)*100
+```
+
 
 D. Randomization inference : traitement ExpInfo
 
@@ -397,15 +435,22 @@ graph_fill_expinfo <- ggplot(data_simulations, aes(x = diff_simulations)) +
 plot_grid(graph_fill_info, graph_fill_exp, graph_fill_expinfo, nrow = 3,  ncol = 3 )
 ```
 
+```{r, eval = TRUE, message = FALSE, warning =  FALSE}
+#Calcul de la one-sided et two-sided p-value
+
+(sum(data_simulations$diff_simulations >= observed_difference_f_expinfo)/184)*100
+(sum(abs(data_simulations$diff_simulations) >= observed_difference_f_expinfo)/184)*100
+```
+
 III. outcome Visit_fill
 
 
 A. Calcul des différences observées pour l'outcome 'visit_fill' selon les différents groupes de traitement.
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
-observed_difference_vf = mean(data_phis_c$visit_fill[data_phis_c$group == 'Exp'], na.rm = TRUE) - mean(data_phis_c$visit_fill[data_phis_c$group == 'Control'], na.rm = TRUE) 
+observed_difference_vf_exp = mean(data_phis_c$visit_fill[data_phis_c$group == 'Exp'], na.rm = TRUE) - mean(data_phis_c$visit_fill[data_phis_c$group == 'Control'], na.rm = TRUE) 
 
-print(observed_difference_vf)
+print(observed_difference_vf_exp)
   
 ```
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
@@ -460,7 +505,12 @@ graph_visitfill_exp <- ggplot(data_simulations, aes(x = diff_simulations)) +
   geom_vline(xintercept = observed_difference_vf, color = 'coral') +
   theme_minimal()
 ```
+```{r, eval = TRUE, message = FALSE, warning =  FALSE}
+#Calcul de la one-sided et two-sided p-value
 
+(sum(data_simulations$diff_simulations >= observed_difference_fv_exp)/184)*100
+(sum(abs(data_simulations$diff_simulations) >= observed_difference_fv_exp)/184)*100
+```
 
 C. Randomization inference : traitement Info.
 
@@ -499,6 +549,13 @@ graph_visitfill_info <- ggplot(data_simulations, aes(x = diff_simulations)) +
   #La moyenne réellement observé en coral
   geom_vline(xintercept = observed_difference_vf_info, color = 'coral') +
   theme_minimal()
+```
+
+```{r, eval = TRUE, message = FALSE, warning =  FALSE}
+#Calcul de la one-sided et two-sided p-value
+
+(sum(data_simulations$diff_simulations >= observed_difference_vf_info)/184)*100
+(sum(abs(data_simulations$diff_simulations) >= observed_difference_vf_info)/184)*100
 ```
 
 D. Randomization inference : traitement ExpInfo
@@ -547,4 +604,11 @@ plot_grid(graph_info, graph_exp, graph_expinfo,
           graph_fill_info, graph_fill_exp, graph_fill_expinfo,
           graph_visitfill_info, graph_visitfill_exp, graph_visitfill_expinfo,
           nrow = 3,  ncol = 3 )
+```
+
+```{r, eval = TRUE, message = FALSE, warning =  FALSE}
+#Calcul de la one-sided et two-sided p-value
+
+(sum(data_simulations$diff_simulations >= observed_difference_vf_expinfo)/184)*100
+(sum(abs(data_simulations$diff_simulations) >= observed_difference_vf_expinfo)/184)*100
 ```
