@@ -1,3 +1,24 @@
+---
+title: "Recherche"
+author: "Beaufils - Cochet - Dyèvre"
+date: "`r Sys.Date()`"
+output:
+  html_document: 
+    toc: true
+    toc_float:
+      collapsed: false
+      smooth_scroll: true
+      number_sections: true
+    theme: readable
+    df_print: paged
+    code_folding: hide
+---
+
+<style>
+body {
+text-align: justify}
+</style>
+
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 library(tidyverse)
 library(cowplot)
@@ -74,6 +95,7 @@ rep_sex = mean(data_phis_c$gender, na.rm = TRUE)*100
 moy_age
 rep_sex
 ```
+## Répartition de l'âge {.tabset}
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 data_phishing %>%
@@ -87,11 +109,14 @@ data_phis_c %>%
   summarise(nb_obs = n(), mean_age = mean(age, na.rm = TRUE), sex_repartition = mean(gender, na.rm = TRUE)*100, mean_int_employee = mean(int_employee, na.rm = TRUE)*100,)
 ```
 
+### Boxplot
+
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 ggplot(data = data_phishing) +
   geom_boxplot(aes(x = as.character(group), y = age , color = as.character(group))) +
   ggtitle("Répartition de l'âge des individus")
 ```
+### Densité
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 ggplot(data = data_phishing) +
@@ -101,9 +126,9 @@ ggplot(data = data_phishing) +
 ```
 
 ```
-#Test randomization inference
+##  Test randomization inference {.tabset}
 
-I. Outcome Visit
+### Outcome Visit
 
 A. Calcul des différences observées pour l'outcome 'Visit' selon les différents groupes de traitement.
 
@@ -253,7 +278,7 @@ graph_expinfo <- ggplot(data_simulations_expinfo, aes(x = diff_simulations_expin
 plot_grid(graph_info, graph_exp, graph_expinfo, nrow = 3,  ncol = 3 )
 ```
 
-II. Outcome Fill
+### Outcome Fill
 
 A. Calcul des différences observées pour l'outcome 'fill' selon les différents groupes de traitement.
 
@@ -401,7 +426,7 @@ graph_fill_expinfo <- ggplot(data_simulations_f_expinfo, aes(x = diff_simulation
 plot_grid(graph_fill_info, graph_fill_exp, graph_fill_expinfo, nrow = 3,  ncol = 3 )
 ```
 
-III. outcome Visit_fill
+### Outcome VisitFill
 
 
 A. Calcul des différences observées pour l'outcome 'visit_fill' selon les différents groupes de traitement.
@@ -547,6 +572,7 @@ graph_visitfill_expinfo <- ggplot(data_simulations_vf_expinfo, aes(x = diff_simu
 
 ```
 
+### Plot général
 
 ```{r, echo = TRUE, message = FALSE, warning = FALSE, fig.width = 10, fig.height = 5, fig.fullwidth=TRUE}
 first_row <- plot_grid(graph_info, graph_exp, graph_expinfo, labels = 'Visit', ncol = 3)
@@ -556,9 +582,9 @@ plot_grid(first_row, second, third,  nrow = 3)
 ```
 
 
-Calcul des p-values
+## Calcul des p-values {.tabset}
 
-I. Outcome Visit
+### Outcome Visit
 
 A. Exp
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
@@ -586,7 +612,7 @@ C. ExpInfo
 ```
 
 
-II. Outcome Fill
+### Outcome Fill
 
 A. Exp
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
@@ -615,7 +641,7 @@ C. ExpInfo
 (sum(abs(data_simulations_f_expinfo$diff_simulations_f_expinfo) <=  observed_difference_f_expinfo)/184)*100
 ```
 
-III. Outcome VisitFill
+### Outcome VisitFill
 
 A. Exp
 
