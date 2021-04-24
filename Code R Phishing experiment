@@ -3,15 +3,17 @@ title: "Recherche"
 author: "Beaufils - Cochet - Dyèvre"
 date: "`r Sys.Date()`"
 output:
-  html_document: 
-    toc: true
+  html_document:
+    toc: yes
     toc_float:
-      collapsed: false
-      smooth_scroll: true
-      number_sections: true
+      collapsed: no
+      smooth_scroll: yes
+      number_sections: yes
     theme: readable
     df_print: paged
     code_folding: hide
+  html_notebook:
+    toc: yes
 ---
 
 <style>
@@ -23,6 +25,7 @@ text-align: justify}
 library(tidyverse)
 library(stats)
 library(cowplot)
+library(haven)
 ```
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
@@ -275,7 +278,7 @@ diff_simulations[i] <- mean(data_phis_c_exp$visit[data_phis_c_exp$new_group == "
 
 diff_simulations_f_exp[i] <- mean(data_phis_c_exp$fill[data_phis_c_exp$new_group == "Exp"]) - mean(data_phis_c_exp$fill[data_phis_c_exp$new_group=="Control"])
 
-diff_simulations_vf_exp[i] <- mean(data_phis_c_exp$visit_fill[data_phis_c_exp$new_group == "Exp"]) - mean(data_phis_c_exp$visit_fill[data_phis_c_exp$new_group=="Control"])
+diff_simulations_vf_exp[i] <- mean(data_phis_c_exp$visit_fill[data_phis_c_exp$new_group == "Exp"], na.rm = TRUE) - mean(data_phis_c_exp$visit_fill[data_phis_c_exp$new_group=="Control"], na.rm = TRUE)
 }
 
 ```
@@ -356,8 +359,9 @@ diff_simulations_info[i] <- mean(data_phis_c_info$visit[data_phis_c_info$new_gro
 
 diff_simulations_f_info[i] <- mean(data_phis_c_info$fill[data_phis_c_info$new_group == "Info"]) - mean(data_phis_c_info$fill[data_phis_c_info$new_group=="Control"])
 
-diff_simulations_vf_info[i] <- mean(data_phis_c_info$visit_fill[data_phis_c_info$new_group == "Info"]) - mean(data_phis_c_info$visit_fill[data_phis_c_info$new_group=="Control"])
+diff_simulations_vf_info[i] <- mean(data_phis_c_info$visit_fill[data_phis_c_info$new_group == "Info"], na.rm = TRUE) - mean(data_phis_c_info$visit_fill[data_phis_c_info$new_group=="Control"], na.rm = TRUE)
 }
+
 ```
 
 ```{r, eval = TRUE}
@@ -438,7 +442,7 @@ diff_simulations_expinfo[i] <- mean(data_phis_c_expinfo$visit[data_phis_c_expinf
 
 diff_simulations_f_expinfo[i] <- mean(data_phis_c_expinfo$fill[data_phis_c_expinfo$new_group == "ExpInfo"]) - mean(data_phis_c_expinfo$fill[data_phis_c_expinfo$new_group=="Control"])
 
-diff_simulations_vf_expinfo[i] <- mean(data_phis_c_expinfo$visit_fill[data_phis_c_expinfo$new_group == "ExpInfo"]) - mean(data_phis_c_expinfo$visit_fill[data_phis_c_expinfo$new_group=="Control"])
+diff_simulations_vf_expinfo[i] <- mean(data_phis_c_expinfo$visit_fill[data_phis_c_expinfo$new_group == "ExpInfo"], na.rm = TRUE) - mean(data_phis_c_expinfo$visit_fill[data_phis_c_expinfo$new_group=="Control"], na.rm = TRUE)
 }
 ```
 
@@ -455,7 +459,6 @@ graph_expinfo <- ggplot(data_simulations_expinfo, aes(x = diff_simulations_expin
   geom_vline(xintercept = observed_difference_v_expinfo, color = 'coral') +
   xlab("ExpInfo") + 
   theme_minimal()
-
 ```
 
 
@@ -512,12 +515,17 @@ plot_grid(first_row, second, third,  nrow = 3)
 V. Calcul des p-values
 
 A. Exp
+
+- Visit
+
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 #Calcul de la one-sided et two-sided p-value
 
 (sum(data_simulations$diff_simulations <= observed_difference_v)/184)*100
 (sum(abs(data_simulations$diff_simulations) <=  observed_difference_v)/184)*100
 ```
+
+- Fill
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 #Calcul de la one-sided et two-sided p-value
@@ -526,6 +534,7 @@ A. Exp
 (sum(abs(data_simulations_f_exp$diff_simulations_f_exp) <=  observed_difference_f)/184)*100
 ```
 
+- Visit_fill
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 #Calcul de la one-sided et two-sided p-value
 
@@ -535,6 +544,8 @@ A. Exp
 
 B. Info
 
+- Visit
+
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 #Calcul de la one-sided et two-sided p-value
 
@@ -542,6 +553,7 @@ B. Info
 (sum(abs(data_simulations_info$diff_simulations_info) <=  observed_difference_v_info)/184)*100
 ```
 
+- Fill
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 #Calcul de la one-sided et two-sided p-value
@@ -550,6 +562,7 @@ B. Info
 (sum(abs(data_simulations_f_info$diff_simulations_f_info) <=  observed_difference_f_info)/184)*100
 ```
 
+- Visit_Fill
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 #Calcul de la one-sided et two-sided p-value
@@ -561,6 +574,8 @@ B. Info
 
 C. ExpInfo
 
+- Visit 
+
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 #Calcul de la one-sided et two-sided p-value
 
@@ -569,6 +584,8 @@ C. ExpInfo
 ```
 
 
+- Fill
+
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 #Calcul de la one-sided et two-sided p-value
 
@@ -576,6 +593,7 @@ C. ExpInfo
 (sum(abs(data_simulations_f_expinfo$diff_simulations_f_expinfo) <=  observed_difference_f_expinfo)/184)*100
 ```
 
+- Visit_fill
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 #Calcul de la one-sided et two-sided p-value
@@ -634,7 +652,7 @@ data_wtt_expinfo %>%
   Sans la division C
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
-data_wtt_c <- data_phishing_c %>%
+data_wtt_c <- data_phis_c %>%
   group_by(group, cluster) %>%
   summarise(prop_cluster = n()/7994, prop_fill = sum(fill)/n(), prop_visit = sum(visit)/n(),  prop_visit_fill = sum(visit_fill, na.rm = TRUE)/sum(visit))
 ```
@@ -677,3 +695,5 @@ data_wtt_expinfo_c %>%
   weighted.mean(x = data_wtt_expinfo_c$prop_visit, w = data_wtt_expinfo_c$prop_cluster)
   weighted.mean(x = data_wtt_expinfo_c$prop_visit_fill, w = data_wtt_expinfo_c$prop_cluster, na.rm = TRUE)
 ```
+
+
