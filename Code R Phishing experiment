@@ -585,7 +585,7 @@ C. ExpInfo
 ```
 
 Weighted t-test
-
+  Avec la division C
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 data_wtt <- data_phishing %>%
   group_by(group, cluster) %>%
@@ -629,4 +629,51 @@ data_wtt_expinfo %>%
   weighted.mean(x = data_wtt_expinfo$prop_fill, w = data_wtt_expinfo$prop_cluster)
   weighted.mean(x = data_wtt_expinfo$prop_visit, w = data_wtt_expinfo$prop_cluster)
   weighted.mean(x = data_wtt_expinfo$prop_visit_fill, w = data_wtt_expinfo$prop_cluster, na.rm = TRUE)
+```
+  
+  Sans la division C
+
+```{r, eval = TRUE, message = FALSE, warning =  FALSE}
+data_wtt_c <- data_phishing_c %>%
+  group_by(group, cluster) %>%
+  summarise(prop_cluster = n()/7994, prop_fill = sum(fill)/n(), prop_visit = sum(visit)/n(),  prop_visit_fill = sum(visit_fill, na.rm = TRUE)/sum(visit))
+```
+
+```{r, eval = TRUE, message = FALSE, warning =  FALSE}
+data_wtt_control_c <- data_wtt_c %>%
+  filter(group == 'Control')
+data_wtt_info_c <- data_wtt_c %>%
+  filter(group == 'Info')
+data_wtt_exp_c <- data_wtt_c %>%
+  filter(group == 'Exp')
+data_wtt_expinfo_c <- data_wtt_c %>%
+  filter(group == 'ExpInfo')
+```
+
+```{r, eval = TRUE, message = FALSE, warning =  FALSE}
+data_wtt_control_c %>%
+  weighted.mean(x = data_wtt_control_c$prop_fill, w = data_wtt_control_c$prop_cluster)
+  weighted.mean(x = data_wtt_control_c$prop_visit, w = data_wtt_control_c$prop_cluster)
+  weighted.mean(x = data_wtt_control_c$prop_visit_fill, w = data_wtt_control_c$prop_cluster, na.rm = TRUE)
+```
+
+```{r, eval = TRUE, message = FALSE, warning =  FALSE}
+data_wtt_info_c %>%
+  weighted.mean(x = data_wtt_info_c$prop_fill, w = data_wtt_info_c$prop_cluster)
+  weighted.mean(x = data_wtt_info_c$prop_visit, w = data_wtt_info_c$prop_cluster)
+  weighted.mean(x = data_wtt_info_c$prop_visit_fill, w = data_wtt_info_c$prop_cluster, na.rm = TRUE)
+```
+
+```{r, eval = TRUE, message = FALSE, warning =  FALSE}
+data_wtt_exp_c %>%
+  weighted.mean(x = data_wtt_exp_c$prop_fill, w = data_wtt_exp_c$prop_cluster)
+  weighted.mean(x = data_wtt_exp_c$prop_visit, w = data_wtt_exp_c$prop_cluster)
+  weighted.mean(x = data_wtt_exp_c$prop_visit_fill, w = data_wtt_exp_c$prop_cluster, na.rm = TRUE)
+```
+
+```{r, eval = TRUE, message = FALSE, warning =  FALSE}
+data_wtt_expinfo_c %>%
+  weighted.mean(x = data_wtt_expinfo_c$prop_fill, w = data_wtt_expinfo_c$prop_cluster)
+  weighted.mean(x = data_wtt_expinfo_c$prop_visit, w = data_wtt_expinfo_c$prop_cluster)
+  weighted.mean(x = data_wtt_expinfo_c$prop_visit_fill, w = data_wtt_expinfo_c$prop_cluster, na.rm = TRUE)
 ```
