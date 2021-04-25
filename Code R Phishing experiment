@@ -697,3 +697,8 @@ data_wtt_expinfo_c %>%
 ```
 
 
+```{r, eval = TRUE, message = FALSE, warning =  FALSE}
+
+lm(visit ~ group + cluster, data = data_phis_c)
+
+```
