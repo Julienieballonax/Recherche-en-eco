@@ -521,8 +521,8 @@ A. Exp
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 #Calcul de la one-sided et two-sided p-value
 
-(sum(data_simulations$diff_simulations <= observed_difference_v)/184)*100
-(sum(abs(data_simulations$diff_simulations) <=  observed_difference_v)/184)*100
+(sum(data_simulations$diff_simulations <= observed_difference_v)/1000)*100
+(sum(abs(data_simulations$diff_simulations) >=  abs(observed_difference_v))/1000)*100
 ```
 
 - Fill
@@ -530,16 +530,16 @@ A. Exp
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 #Calcul de la one-sided et two-sided p-value
 
-(sum(data_simulations_f_exp$diff_simulations_f_exp <= observed_difference_f)/184)*100
-(sum(abs(data_simulations_f_exp$diff_simulations_f_exp) <=  observed_difference_f)/184)*100
+(sum(data_simulations_f_exp$diff_simulations_f_exp <= observed_difference_f)/1000)*100
+(sum(abs(data_simulations_f_exp$diff_simulations_f_exp) >=  abs(observed_difference_f))/1000)*100
 ```
 
 - Visit_fill
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 #Calcul de la one-sided et two-sided p-value
 
-(sum(data_simulations_vf_exp$diff_simulations_vf_exp <= observed_difference_vf)/184)*100
-(sum(abs(data_simulations_vf_exp$diff_simulations_vf_exp) <=  observed_difference_vf)/184)*100
+(sum(data_simulations_vf_exp$diff_simulations_vf_exp <= observed_difference_vf)/1000)*100
+(sum(abs(data_simulations_vf_exp$diff_simulations_vf_exp) >=  abs(observed_difference_vf))/1000)*100
 ```
 
 B. Info
@@ -549,8 +549,8 @@ B. Info
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 #Calcul de la one-sided et two-sided p-value
 
-(sum(data_simulations_info$diff_simulations_info <= observed_difference_v_info)/184)*100
-(sum(abs(data_simulations_info$diff_simulations_info) <=  observed_difference_v_info)/184)*100
+(sum(data_simulations_info$diff_simulations_info <= observed_difference_v_info)/1000)*100
+(sum(abs(data_simulations_info$diff_simulations_info) >=  abs(observed_difference_v_info))/1000)*100
 ```
 
 - Fill
@@ -558,8 +558,8 @@ B. Info
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 #Calcul de la one-sided et two-sided p-value
 
-(sum(data_simulations_f_info$diff_simulations_f_info <= observed_difference_f_info)/184)*100
-(sum(abs(data_simulations_f_info$diff_simulations_f_info) <=  observed_difference_f_info)/184)*100
+(sum(data_simulations_f_info$diff_simulations_f_info <= observed_difference_f_info)/1000)*100
+(sum(abs(data_simulations_f_info$diff_simulations_f_info) >=  abs(observed_difference_f_info))/1000)*100
 ```
 
 - Visit_Fill
@@ -567,8 +567,8 @@ B. Info
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 #Calcul de la one-sided et two-sided p-value
 
-(sum(data_simulations_vf_info$diff_simulations_vf_info <= observed_difference_vf_info)/184)*100
-(sum(abs(data_simulations_vf_info$diff_simulations_vf_info) <=  observed_difference_vf_info)/184)*100
+(sum(data_simulations_vf_info$diff_simulations_vf_info <= observed_difference_vf_info)/1000)*100
+(sum(abs(data_simulations_vf_info$diff_simulations_vf_info) >=  abs(observed_difference_vf_info))/1000)*100
 ```
 
 
@@ -579,8 +579,8 @@ C. ExpInfo
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 #Calcul de la one-sided et two-sided p-value
 
-(sum(data_simulations_expinfo$diff_simulations_expinfo <= observed_difference_v_expinfo)/184)*100
-(sum(abs(data_simulations_expinfo$diff_simulations_expinfo) <=  observed_difference_v_expinfo)/184)*100
+(sum(data_simulations_expinfo$diff_simulations_expinfo <= observed_difference_v_expinfo)/1000)*100
+(sum(abs(data_simulations_expinfo$diff_simulations_expinfo) >=  abs(observed_difference_v_expinfo))/1000)*100
 ```
 
 
@@ -589,8 +589,8 @@ C. ExpInfo
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 #Calcul de la one-sided et two-sided p-value
 
-(sum(data_simulations_f_expinfo$diff_simulations_f_expinfo <= observed_difference_f_expinfo)/184)*100
-(sum(abs(data_simulations_f_expinfo$diff_simulations_f_expinfo) <=  observed_difference_f_expinfo)/184)*100
+(sum(data_simulations_f_expinfo$diff_simulations_f_expinfo <= observed_difference_f_expinfo)/1000)*100
+(sum(abs(data_simulations_f_expinfo$diff_simulations_f_expinfo) >=  abs(observed_difference_f_expinfo))/1000)*100
 ```
 
 - Visit_fill
@@ -598,8 +598,8 @@ C. ExpInfo
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 #Calcul de la one-sided et two-sided p-value
 
-(sum(data_simulations_vf_expinfo$diff_simulations_vf_expinfo <= observed_difference_vf_expinfo)/184)*100
-(sum(abs(data_simulations_vf_expinfo$diff_simulations_vf_expinfo) <=  observed_difference_vf_expinfo)/184)*100
+(sum(data_simulations_vf_expinfo$diff_simulations_vf_expinfo <= observed_difference_vf_expinfo)/1000)*100
+(sum(abs(data_simulations_vf_expinfo$diff_simulations_vf_expinfo) >=  abs(observed_difference_vf_expinfo))/1000)*100
 ```
 
 Weighted t-test
