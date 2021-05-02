@@ -26,6 +26,7 @@ library(tidyverse)
 library(stats)
 library(cowplot)
 library(haven)
+library(gtsummary)
 ```
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
@@ -669,36 +670,61 @@ data_wtt_expinfo_c <- data_wtt_c %>%
 ```
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
-data_wtt_control_c %>%
-  weighted.mean(x = data_wtt_control_c$prop_fill, w = data_wtt_control_c$prop_cluster)
-  weighted.mean(x = data_wtt_control_c$prop_visit, w = data_wtt_control_c$prop_cluster)
-  weighted.mean(x = data_wtt_control_c$prop_visit_fill, w = data_wtt_control_c$prop_cluster, na.rm = TRUE)
+  fc = weighted.mean(x = data_wtt_control_c$prop_fill, w = data_wtt_control_c$prop_cluster)*100
+  vc = weighted.mean(x = data_wtt_control_c$prop_visit, w = data_wtt_control_c$prop_cluster)*100
+  vfc = weighted.mean(x = data_wtt_control_c$prop_visit_fill, w = data_wtt_control_c$prop_cluster, na.rm = TRUE)*100
 ```
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
-data_wtt_info_c %>%
-  weighted.mean(x = data_wtt_info_c$prop_fill, w = data_wtt_info_c$prop_cluster)
-  weighted.mean(x = data_wtt_info_c$prop_visit, w = data_wtt_info_c$prop_cluster)
-  weighted.mean(x = data_wtt_info_c$prop_visit_fill, w = data_wtt_info_c$prop_cluster, na.rm = TRUE)
+  fi = weighted.mean(x = data_wtt_info_c$prop_fill, w = data_wtt_info_c$prop_cluster)*100
+  vi = weighted.mean(x = data_wtt_info_c$prop_visit, w = data_wtt_info_c$prop_cluster)*100
+  vfi = weighted.mean(x = data_wtt_info_c$prop_visit_fill, w = data_wtt_info_c$prop_cluster, na.rm = TRUE)*100
 ```
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
-data_wtt_exp_c %>%
-  weighted.mean(x = data_wtt_exp_c$prop_fill, w = data_wtt_exp_c$prop_cluster)
-  weighted.mean(x = data_wtt_exp_c$prop_visit, w = data_wtt_exp_c$prop_cluster)
-  weighted.mean(x = data_wtt_exp_c$prop_visit_fill, w = data_wtt_exp_c$prop_cluster, na.rm = TRUE)
+  fe = weighted.mean(x = data_wtt_exp_c$prop_fill, w = data_wtt_exp_c$prop_cluster)*100
+  ve = weighted.mean(x = data_wtt_exp_c$prop_visit, w = data_wtt_exp_c$prop_cluster)*100
+  vfe = weighted.mean(x = data_wtt_exp_c$prop_visit_fill, w = data_wtt_exp_c$prop_cluster, na.rm = TRUE)*100
 ```
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
-data_wtt_expinfo_c %>%
-  weighted.mean(x = data_wtt_expinfo_c$prop_fill, w = data_wtt_expinfo_c$prop_cluster)
-  weighted.mean(x = data_wtt_expinfo_c$prop_visit, w = data_wtt_expinfo_c$prop_cluster)
-  weighted.mean(x = data_wtt_expinfo_c$prop_visit_fill, w = data_wtt_expinfo_c$prop_cluster, na.rm = TRUE)
+  fei = weighted.mean(x = data_wtt_expinfo_c$prop_fill, w = data_wtt_expinfo_c$prop_cluster)*100
+  vei = weighted.mean(x = data_wtt_expinfo_c$prop_visit, w = data_wtt_expinfo_c$prop_cluster)*100
+  vfei = weighted.mean(x = data_wtt_expinfo_c$prop_visit_fill, w = data_wtt_expinfo_c$prop_cluster, na.rm = TRUE)*100
 ```
+
+```{r, eval = TRUE, message = FALSE, warning =  FALSE}
+group = c("Control", "Info", "Exp", "ExpInfo")
+valeurs_visit = c(vc,vi,ve,vei)
+valeurs_fill = c(fc,fi,fe,fei)
+valeurs_visit_fill = c(vfc,vfi,vfe,vfei)
+datarpz <- tibble(group, valeurs_visit, valeurs_fill, valeurs_visit_fill )
+gwttv <-  ggplot(datarpz, aes(valeurs_visit, group)) +
+        geom_point()
+gwttf <- ggplot(datarpz, aes(valeurs_fill, group)) +
+        geom_point()
+gwttvf <- ggplot(datarpz, aes(valeurs_visit_fill, group)) +
+        geom_point()
+
+plot_grid(gwttv, gwttf, gwttvf, nrow = 1)
+
+```
+
+```{r, eval = TRUE, message = FALSE, warning =  FALSE}
+
+mod <- lm(visit ~ group + as.factor(cluster), data = data_phis_c)
+mod %>%
+  tbl_regression()
+
+```
+
+
 
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 
-lm(visit ~ group + cluster, data = data_phis_c)
+mod <- glm(visit ~ group + as.factor(cluster), data = data_phis_c, family = binomial(logit))
+mod %>%
+  tbl_regression()
 
 ```
