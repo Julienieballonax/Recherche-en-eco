@@ -728,3 +728,76 @@ mod %>%
   tbl_regression()
 
 ```
+
+# Analyse par régression linéaire
+
+```{r, eval = TRUE, message = FALSE, warning =  FALSE}
+# ouverture des données
+data <-
+  read_csv(
+    "/Users/martinbeaufils/Downloads/phishing_dataset.csv"
+  ) %>%
+  # recodage de la variable de traitement
+  mutate(group = case_when(
+    group == 1 ~ "Control",
+    group == 2 ~ "Info",
+    group == 3 ~ "Exp",
+    group == 4 ~ "ExpInfo"
+  )) %>%
+  mutate(group = fct_relevel(group, "Control", "Info", "Exp", "ExpInfo")) %>%
+  # recodage de la variable âge
+  mutate(
+    age_categories = case_when(
+      age <= 25 ~ "16-25",
+      age >= 26 & age <= 35 ~ "26-35",
+      age >= 36 & age <= 45 ~ "36-45",
+      age >= 46 & age <= 55 ~ "46-55",
+      age > 55 ~ ">55"
+    )
+  ) %>%
+  mutate(age_categories = fct_relevel(age_categories, "16-25", "26-35", "36-45", "46-55")) %>%
+  # changement ordre variable division avec b pour référence
+  mutate(division = fct_relevel(division, "B", "A", "C", "D", "E"))
+```
+
+```{r, eval = TRUE, message = FALSE, warning =  FALSE}
+# on nest les données par outcome
+data_regression <- data %>%
+  pivot_longer(cols = c(visit, fill, visit_fill), names_to = "outcome", values_to = "value") %>%
+  group_by(outcome) %>%
+  nest()
+
+# on affiche la table
+data_regression
+```
+
+```{r, eval = TRUE, message = FALSE, warning =  FALSE}
+# on fait une régression
+function_regression <- function(data){
+  data %>%
+  lm(value ~ group, data = .) %>%
+  broom::tidy(., conf.int = TRUE) %>%
+  filter(term %in% c("groupExp", "groupExpInfo", "groupInfo")) %>%
+  select(term, estimate, conf.low, conf.high) %>%
+  mutate_at(vars(-term), ~ round(.*100, 1))
+}
+```
+
+```{r, eval = TRUE, message = FALSE, warning =  FALSE}
+# on fait tourner les régressions
+data_regression <- data_regression %>%
+  mutate(regression_output = map(data, ~ function_regression(.)))
+
+# on affiche la table
+data_regression
+```
+
+```{r, eval = TRUE, message = FALSE, warning =  FALSE}
+# on unnest les résultats
+data_regression <- data_regression %>%
+  select(-data) %>%
+  unnest(regression_output)
+
+# on affiche la table
+data_regression
+```
