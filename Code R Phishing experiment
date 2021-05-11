@@ -23,33 +23,46 @@ text-align: justify}
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 library(tidyverse)
-library(stats)
 library(cowplot)
-library(haven)
 library(gtsummary)
+#library(knitr) # pour créer des tables
 ```
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
-data_phishing <- read.csv("/Users/f-x/Downloads/phishing_dataset.csv")
+data_phishing <- read.csv("/Users/f-x/Downloads/phishing_dataset.csv") %>%
+  # recodage de la variable de traitement
+  mutate(group = case_when(
+    group == 1 ~ "Control",
+    group == 2 ~ "Info",
+    group == 3 ~ "Exp",
+    group == 4 ~ "ExpInfo"
+  )) %>%
+  
+  mutate(group = fct_relevel(group, "Control", "Info", "Exp", "ExpInfo")) %>%
+  # recodage de la variable âge
+  mutate(
+    age_categories = case_when(
+      age <= 25 ~ "16-25",
+      age >= 26 & age <= 35 ~ "26-35",
+      age >= 36 & age <= 45 ~ "36-45",
+      age >= 46 & age <= 55 ~ "46-55",
+      age > 55 ~ ">55"
+    )
+  ) %>%
+  mutate(age_categories = fct_relevel(age_categories, "16-25", "26-35", "36-45", "46-55")) %>%
+  #recodage de la variable genre 
+  mutate(gender = case_when(gender == "M" ~ 1,
+                            gender == "F" ~ 0)) %>%
+  # changement ordre variable division avec b pour référence
+  mutate(division = fct_relevel(division, "B", "A", "C", "D", "E")) 
+
 data_phis_c <- data_phishing %>%
   filter(division == 'A' | division == 'B' | division == 'D' | division == 'E')
 ```
 
-```{r, eval = TRUE, message = FALSE, warning =  FALSE}
-data_phishing <- data_phishing %>%
-  mutate(group = case_when(group == 1 ~ 'Control',
-                   group == 2 ~ 'Info',
-                   group == 3 ~ 'Exp',
-                   group == 4 ~ 'ExpInfo'))
-```
+Caractéristiques des unités et tests de ressemblance
 
-```{r, eval = TRUE, message = FALSE, warning =  FALSE}
-data_phis_c <- data_phis_c %>%
-  mutate(group = case_when(group == 1 ~ 'Control',
-                   group == 2 ~ 'Info',
-                   group == 3 ~ 'Exp',
-                   group == 4 ~ 'ExpInfo'))
-```
+- Nombre total d'unités par groupe
 
 "We implemented two interventions: information provision (Info) and experience (Exp).
 We used a 2x2 design and subjects were divided into four groups of roughly equal size: Control
@@ -67,16 +80,9 @@ data_phis_c %>%
   summarise(nb_group = n())
 ```
 
-```{r, eval = TRUE, message = FALSE, warning =  FALSE}
-data_phishing <- data_phishing %>%
-  mutate(gender = ifelse(gender == 'M', 1, 0))
-```
+- Nombre d'unités féminines et masculines
 
-```{r, eval = TRUE, message = FALSE, warning =  FALSE}
-data_phis_c <- data_phis_c %>%
-  mutate(gender = ifelse(gender == 'M', 1, 0))
-```
-
+"Most subjects were males (60,6%), [...]."
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 data_phishing %>%
@@ -89,37 +95,28 @@ data_phis_c %>%
   group_by(gender) %>%
   summarise(nb_obs = n())
 ```
+```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 
-"Most subjects were males (60,6%),
-with an average age of 47 years."
+rep_sex = mean(data_phishing$gender, na.rm = TRUE)*100
+rep_sex_c = mean(data_phis_c$gender, na.rm = TRUE)*100
+
+rep_sex
+rep_sex_c
+```
+
+- Age des unités
+
+* Moyenne globale
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 moy_age = mean(data_phishing$age, na.rm = TRUE)
-rep_sex = mean(data_phishing$gender, na.rm = TRUE)*100
+moy_age_c = mean(data_phis_c$age, na.rm = TRUE)
 
 moy_age
-rep_sex
+moy_age_c
 ```
 
-```{r, eval = TRUE, message = FALSE, warning =  FALSE}
-moy_age = mean(data_phis_c$age, na.rm = TRUE)
-rep_sex = mean(data_phis_c$gender, na.rm = TRUE)*100
-
-moy_age
-rep_sex
-```
-
-```{r, eval = TRUE, message = FALSE, warning =  FALSE}
-data_phishing %>%
-  group_by(group) %>%
-  summarise(nb_obs = n(), mean_age = mean(age, na.rm = TRUE), sex_repartition = mean(gender, na.rm = TRUE)*100, mean_int_employee = mean(int_employee, na.rm = TRUE)*100,)
-```
-
-```{r, eval = TRUE, message = FALSE, warning =  FALSE}
-data_phis_c %>%
-  group_by(group) %>%
-  summarise(nb_obs = n(), mean_age = mean(age, na.rm = TRUE), sex_repartition = mean(gender, na.rm = TRUE)*100, mean_int_employee = mean(int_employee, na.rm = TRUE)*100,)
-```
+* Age des unités en fonction du traitement
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 ggplot(data = data_phishing) +
@@ -142,6 +139,21 @@ ggplot(data = data_phis_c) +
   geom_density(aes(x = age, color = group)) 
 ```
 
+- Tableau récapitulatif des caractéristiques des unités en focntion du traitement
+
+
+```{r, eval = TRUE, message = FALSE, warning =  FALSE}
+data_phishing %>%
+  group_by(group) %>%
+  summarise(nb_obs = n(), mean_age = mean(age, na.rm = TRUE), sex_repartition = mean(gender, na.rm = TRUE)*100, mean_int_employee = mean(int_employee, na.rm = TRUE)*100,)
+```
+
+```{r, eval = TRUE, message = FALSE, warning =  FALSE}
+data_phis_c %>%
+  group_by(group) %>%
+  summarise(nb_obs = n(), mean_age = mean(age, na.rm = TRUE), sex_repartition = mean(gender, na.rm = TRUE)*100, mean_int_employee = mean(int_employee, na.rm = TRUE)*100,)
+```
+
 
 #Test randomization inference
 
@@ -149,6 +161,8 @@ ggplot(data = data_phis_c) +
 I. Calcul des différences observées pour les outcomes selon les différents groupes de traitement.
 
 A. Exp
+
+
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 observed_difference_v = mean(data_phis_c$visit[data_phis_c$group == 'Exp']) - mean(data_phis_c$visit[data_phis_c$group == 'Control']) 
 
@@ -604,128 +618,139 @@ C. ExpInfo
 ```
 
 Weighted t-test
-  Avec la division C
+
+
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
+#création des tables contenant les proportions des outcomes par cluster
 data_wtt <- data_phishing %>%
   group_by(group, cluster) %>%
   summarise(prop_cluster = n()/10929, prop_fill = sum(fill)/n(), prop_visit = sum(visit)/n(),  prop_visit_fill = sum(visit_fill, na.rm = TRUE)/sum(visit))
-```
 
-```{r, eval = TRUE, message = FALSE, warning =  FALSE}
-data_wtt_control <- data_wtt %>%
-  filter(group == 'Control')
-data_wtt_info <- data_wtt %>%
-  filter(group == 'Info')
-data_wtt_exp <- data_wtt %>%
-  filter(group == 'Exp')
-data_wtt_expinfo <- data_wtt %>%
-  filter(group == 'ExpInfo')
-```
-
-```{r, eval = TRUE, message = FALSE, warning =  FALSE}
-data_wtt_control %>%
-  weighted.mean(x = data_wtt_control$prop_fill, w = data_wtt_control$prop_cluster)
-  weighted.mean(x = data_wtt_control$prop_visit, w = data_wtt_control$prop_cluster)
-  weighted.mean(x = data_wtt_control$prop_visit_fill, w = data_wtt_control$prop_cluster, na.rm = TRUE)
-```
-
-```{r, eval = TRUE, message = FALSE, warning =  FALSE}
-data_wtt_info %>%
-  weighted.mean(x = data_wtt_info$prop_fill, w = data_wtt_info$prop_cluster)
-  weighted.mean(x = data_wtt_info$prop_visit, w = data_wtt_info$prop_cluster)
-  weighted.mean(x = data_wtt_info$prop_visit_fill, w = data_wtt_info$prop_cluster, na.rm = TRUE)
-```
-
-```{r, eval = TRUE, message = FALSE, warning =  FALSE}
-data_wtt_exp %>%
-  weighted.mean(x = data_wtt_exp$prop_fill, w = data_wtt_exp$prop_cluster)
-  weighted.mean(x = data_wtt_exp$prop_visit, w = data_wtt_exp$prop_cluster)
-  weighted.mean(x = data_wtt_exp$prop_visit_fill, w = data_wtt_exp$prop_cluster, na.rm = TRUE)
-```
-
-```{r, eval = TRUE, message = FALSE, warning =  FALSE}
-data_wtt_expinfo %>%
-  weighted.mean(x = data_wtt_expinfo$prop_fill, w = data_wtt_expinfo$prop_cluster)
-  weighted.mean(x = data_wtt_expinfo$prop_visit, w = data_wtt_expinfo$prop_cluster)
-  weighted.mean(x = data_wtt_expinfo$prop_visit_fill, w = data_wtt_expinfo$prop_cluster, na.rm = TRUE)
-```
-  
-  Sans la division C
-
-```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 data_wtt_c <- data_phis_c %>%
   group_by(group, cluster) %>%
-  summarise(prop_cluster = n()/7994, prop_fill = sum(fill)/n(), prop_visit = sum(visit)/n(),  prop_visit_fill = sum(visit_fill, na.rm = TRUE)/sum(visit))
-```
+  summarise(prop_cluster = n()/10929, prop_fill = sum(fill)/n(), prop_visit = sum(visit)/n(),  prop_visit_fill = sum(visit_fill, na.rm = TRUE)/sum(visit))
 
-```{r, eval = TRUE, message = FALSE, warning =  FALSE}
-data_wtt_control_c <- data_wtt_c %>%
-  filter(group == 'Control')
-data_wtt_info_c <- data_wtt_c %>%
-  filter(group == 'Info')
-data_wtt_exp_c <- data_wtt_c %>%
-  filter(group == 'Exp')
-data_wtt_expinfo_c <- data_wtt_c %>%
-  filter(group == 'ExpInfo')
-```
-
-```{r, eval = TRUE, message = FALSE, warning =  FALSE}
-  fc = weighted.mean(x = data_wtt_control_c$prop_fill, w = data_wtt_control_c$prop_cluster)*100
-  vc = weighted.mean(x = data_wtt_control_c$prop_visit, w = data_wtt_control_c$prop_cluster)*100
-  vfc = weighted.mean(x = data_wtt_control_c$prop_visit_fill, w = data_wtt_control_c$prop_cluster, na.rm = TRUE)*100
-```
-
-```{r, eval = TRUE, message = FALSE, warning =  FALSE}
-  fi = weighted.mean(x = data_wtt_info_c$prop_fill, w = data_wtt_info_c$prop_cluster)*100
-  vi = weighted.mean(x = data_wtt_info_c$prop_visit, w = data_wtt_info_c$prop_cluster)*100
-  vfi = weighted.mean(x = data_wtt_info_c$prop_visit_fill, w = data_wtt_info_c$prop_cluster, na.rm = TRUE)*100
-```
-
-```{r, eval = TRUE, message = FALSE, warning =  FALSE}
-  fe = weighted.mean(x = data_wtt_exp_c$prop_fill, w = data_wtt_exp_c$prop_cluster)*100
-  ve = weighted.mean(x = data_wtt_exp_c$prop_visit, w = data_wtt_exp_c$prop_cluster)*100
-  vfe = weighted.mean(x = data_wtt_exp_c$prop_visit_fill, w = data_wtt_exp_c$prop_cluster, na.rm = TRUE)*100
-```
-
-```{r, eval = TRUE, message = FALSE, warning =  FALSE}
-  fei = weighted.mean(x = data_wtt_expinfo_c$prop_fill, w = data_wtt_expinfo_c$prop_cluster)*100
-  vei = weighted.mean(x = data_wtt_expinfo_c$prop_visit, w = data_wtt_expinfo_c$prop_cluster)*100
-  vfei = weighted.mean(x = data_wtt_expinfo_c$prop_visit_fill, w = data_wtt_expinfo_c$prop_cluster, na.rm = TRUE)*100
-```
-
-```{r, eval = TRUE, message = FALSE, warning =  FALSE}
-group = c("Control", "Info", "Exp", "ExpInfo")
-valeurs_visit = c(vc,vi,ve,vei)
-valeurs_fill = c(fc,fi,fe,fei)
-valeurs_visit_fill = c(vfc,vfi,vfe,vfei)
-datarpz <- tibble(group, valeurs_visit, valeurs_fill, valeurs_visit_fill )
-gwttv <-  ggplot(datarpz, aes(valeurs_visit, group)) +
-        geom_point()
-gwttf <- ggplot(datarpz, aes(valeurs_fill, group)) +
-        geom_point()
-gwttvf <- ggplot(datarpz, aes(valeurs_visit_fill, group)) +
-        geom_point()
-
-plot_grid(gwttv, gwttf, gwttvf, nrow = 1)
 
 ```
 
+Groupe de Controle
+
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 
-mod <- lm(visit ~ group + as.factor(cluster), data = data_phis_c)
-mod %>%
-  tbl_regression()
+fc = weighted.mean(x = data_wtt$prop_fill[data_wtt$group == 'Control'], w = data_wtt$prop_cluster[data_wtt$group == 'Control'])
+
+vc = weighted.mean(x = data_wtt$prop_visit[data_wtt$group == 'Control'], w = data_wtt$prop_cluster[data_wtt$group == 'Control'])
+
+vfc = weighted.mean(x = data_wtt$prop_visit_fill[data_wtt$group == 'Control'], w = data_wtt$prop_cluster[data_wtt$group == 'Control'], na.rm = TRUE)
+
+
+#Sans division C
+
+fc_c = weighted.mean(x = data_wtt_c$prop_fill[data_wtt_c$group == 'Control'], w = data_wtt_c$prop_cluster[data_wtt_c$group == 'Control'])
+
+vc_c = weighted.mean(x = data_wtt_c$prop_visit[data_wtt_c$group == 'Control'], w = data_wtt_c$prop_cluster[data_wtt_c$group == 'Control'])
+
+vfc_c = weighted.mean(x = data_wtt_c$prop_visit_fill[data_wtt_c$group == 'Control'], w = data_wtt_c$prop_cluster[data_wtt_c$group == 'Control'], na.rm = TRUE)
 
 ```
 
+Groupe Info
+```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 
+vi = weighted.mean(x = data_wtt$prop_visit[data_wtt$group == 'Info'], w = data_wtt$prop_cluster[data_wtt$group == 'Info'])
 
+fi = weighted.mean(x = data_wtt$prop_fill[data_wtt$group == 'Info'], w = data_wtt$prop_cluster[data_wtt$group == 'Info'])
+
+vfi = weighted.mean(x = data_wtt$prop_visit_fill[data_wtt$group == 'Info'], w = data_wtt$prop_cluster[data_wtt$group == 'Info'], na.rm = TRUE)
+  
+#Sans division C
+
+vi_c= weighted.mean(x = data_wtt_c$prop_visit[data_wtt_c$group == 'Info'], w = data_wtt_c$prop_cluster[data_wtt_c$group == 'Info'])
+
+fi_c =weighted.mean(x = data_wtt_c$prop_fill[data_wtt_c$group == 'Info'], w = data_wtt_c$prop_cluster[data_wtt_c$group == 'Info'])
+
+vfi_c = weighted.mean(x = data_wtt_c$prop_visit_fill[data_wtt_c$group == 'Info'], w = data_wtt_c$prop_cluster[data_wtt_c$group == 'Info'], na.rm = TRUE)
+  
+```
+
+Groupe Exp
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 
-mod <- glm(visit ~ group + as.factor(cluster), data = data_phis_c, family = binomial(logit))
-mod %>%
-  tbl_regression()
+ve = weighted.mean(x = data_wtt$prop_visit[data_wtt$group == 'Exp'], w = data_wtt$prop_cluster[data_wtt$group == 'Exp'])
+
+fe = weighted.mean(x = data_wtt$prop_fill[data_wtt$group == 'Exp'], w = data_wtt$prop_cluster[data_wtt$group == 'Exp'])
+
+vfe = weighted.mean(x = data_wtt$prop_visit_fill[data_wtt$group == 'Exp'], w = data_wtt$prop_cluster[data_wtt$group == 'Exp'], na.rm = TRUE)
+  
+#Sans la division c
+
+ve_c = weighted.mean(x = data_wtt_c$prop_visit[data_wtt_c$group == 'Exp'], w = data_wtt_c$prop_cluster[data_wtt_c$group == 'Exp'])
+
+fe_c = weighted.mean(x = data_wtt_c$prop_fill[data_wtt_c$group == 'Exp'], w = data_wtt_c$prop_cluster[data_wtt_c$group == 'Exp'])
+
+vfe_c = weighted.mean(x = data_wtt_c$prop_visit_fill[data_wtt_c$group == 'Exp'], w = data_wtt_c$prop_cluster[data_wtt_c$group == 'Exp'], na.rm = TRUE)
+```
+
+Groupe ExpInfo
+
+```{r, eval = TRUE, message = FALSE, warning =  FALSE}
+
+vei = weighted.mean(x = data_wtt$prop_visit[data_wtt$group == 'ExpInfo'], w = data_wtt$prop_cluster[data_wtt$group == 'ExpInfo'])
+
+fei = weighted.mean(x = data_wtt$prop_fill[data_wtt$group == 'ExpInfo'], w = data_wtt$prop_cluster[data_wtt$group == 'ExpInfo'])
+
+vfei = weighted.mean(x = data_wtt$prop_visit_fill[data_wtt$group == 'ExpInfo'], w = data_wtt$prop_cluster[data_wtt$group == 'ExpInfo'], na.rm = TRUE)
+
+#Sans la division C
+
+vei_c = weighted.mean(x = data_wtt_c$prop_visit[data_wtt_c$group == 'ExpInfo'], w = data_wtt_c$prop_cluster[data_wtt_c$group == 'ExpInfo'])
+
+fei_c = weighted.mean(x = data_wtt_c$prop_fill[data_wtt_c$group == 'ExpInfo'], w = data_wtt_c$prop_cluster[data_wtt_c$group == 'ExpInfo'])
+
+vfei_c = weighted.mean(x = data_wtt_c$prop_visit_fill[data_wtt_c$group == 'ExpInfo'], w = data_wtt_c$prop_cluster[data_wtt_c$group == 'ExpInfo'], na.rm = TRUE)
+
+
+
+```
+  
+```{r, eval = TRUE, message = FALSE, warning =  FALSE, fig.width=8, fig.height=5} 
+
+dataggv <-data.frame(group = c('Control',"Info","Exp","ExpInfo"), visit_moyenne = c(vc,vi,ve,vei)*100 ,visit_moyenne_c = c(vc_c,vi_c,ve_c,vei_c)*100)
+
+dataggf <-data.frame(group = c('Control',"Info","Exp","ExpInfo"), fill_moyenne = c(fc,fi,fe,fei)*100 ,fill_moyenne_c = c(fc_c,fi_c,fe_c,fei_c)*100)
+
+dataggvf <-data.frame(group = c('Control',"Info","Exp","ExpInfo"), vf_moyenne = c(vfc,vfi,vfe,vfei)*100 ,vf_moyenne_c = c(vfc_c,vfi_c,vfe_c,vfei_c)*100)
+
+
+ggv = ggplot(dataggv, aes(x = group, y = visit_moyenne_c)) +
+geom_segment(aes(x = group, xend = group, y = 0, yend = visit_moyenne_c), colour = "gray60") +
+geom_point(size = 4, colour = "deepskyblue3") +
+ylim(0,40) +
+ggtitle("Proportion of Visits by Treatment Arm") +
+xlab("Treatment Arm") + ylab("Proportion (%)") +
+theme_minimal()
+
+
+ggf = ggplot(dataggf, aes(x = group, y = fill_moyenne_c)) +
+geom_segment(aes(x = group, xend = group, y = 0, yend = fill_moyenne_c), colour = "gray60") +
+geom_point(size = 4, colour = "deepskyblue3") +
+ylim(0,40) +
+ggtitle("Proportion of Fill by Treatment Arm") +
+xlab("Treatment Arm") + ylab("Proportion (%)") +
+theme_minimal()
+
+
+ggvf = ggplot(dataggvf, aes(x = group, y = vf_moyenne_c)) +
+geom_segment(aes(x = group, xend = group, y = 0, yend = vf_moyenne_c), colour = "gray60") +
+geom_point(size = 4, colour = "deepskyblue3") +
+ylim(0,40) +
+ggtitle("Proportion of Visit_Fill by Treatment Arm") +
+xlab("Treatment Arm") + ylab("Proportion (%)") +
+theme_minimal()
+
+
+plot_grid(ggv, ggf,  nrow = 1)
 
 ```
 
