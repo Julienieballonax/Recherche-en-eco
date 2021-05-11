@@ -732,6 +732,14 @@ mod %>%
 # Analyse par régression linéaire
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
+# chargement des packages
+library(tidyverse) # manipulation et visualisation des données
+library(haven) # chargement données au format stata
+library(knitr) # pour créer des tables
+library(kableExtra) # pour faire des tables esthétiques
+```
+
+```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 # ouverture des données
 data <-
   read_csv(
@@ -760,6 +768,7 @@ data <-
   mutate(division = fct_relevel(division, "B", "A", "C", "D", "E"))
 ```
 
+
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 # on nest les données par outcome
 data_regression <- data %>%
@@ -771,17 +780,21 @@ data_regression <- data %>%
 data_regression
 ```
 
+2. On crée une fonction pour faire une régression :
+
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 # on fait une régression
 function_regression <- function(data){
   data %>%
-  lm(value ~ group, data = .) %>%
+  lm(value ~ group + gender + as.factor(int_employee) + age_categories + division, data = .) %>%
   broom::tidy(., conf.int = TRUE) %>%
   filter(term %in% c("groupExp", "groupExpInfo", "groupInfo")) %>%
   select(term, estimate, conf.low, conf.high) %>%
   mutate_at(vars(-term), ~ round(.*100, 1))
 }
 ```
+
+3. On applique la fonction à l'aide de la commande `map()` :
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 # on fait tourner les régressions
@@ -792,6 +805,8 @@ data_regression <- data_regression %>%
 data_regression
 ```
 
+4. Il faut maintenant afficher les résultats. Il faut "unnest" le tableau de données :
+
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 # on unnest les résultats
 data_regression <- data_regression %>%
@@ -801,3 +816,117 @@ data_regression <- data_regression %>%
 # on affiche la table
 data_regression
 ```
+
+5. On peut tracer les intervalles de confiance à 95% :
+
+```{r, eval = TRUE, message = FALSE, warning =  FALSE, fig.width=8, fig.height=5} 
+# make the graph
+data_regression %>%
+  mutate(term = fct_relevel(term, "groupInfo", "groupExp", "groupExpInfo")) %>%
+  mutate(outcome = case_when(outcome == "visit" ~ "Visit", outcome == "fill" ~ "Fill", outcome == "visit_fill" ~ "Visit fill")) %>%
+  ggplot(.,
+         aes(
+           x = term,
+           y = estimate,
+           ymin = conf.low,
+           ymax = conf.high
+         )) +
+  geom_hline(
+    yintercept = 0,
+    color = "orange",
+    lwd = 0.3
+  ) +
+  geom_pointrange(
+    size = 0.8,
+    fatten = 2,
+    colour = "deepskyblue3"
+  ) +
+  scale_y_continuous(breaks = scales::pretty_breaks(n = 10)) +
+  coord_flip() +
+  facet_wrap(~ outcome) +
+  ylab("Average Marginal Effects") + xlab("") +
+  theme_minimal()
+```
+
+
+On teste maintenant la robustesse des résultats, pour cela on reproduit les mêmes régressions que précédement mais sans les variables de contrôle.
+
+```{r, eval = TRUE, message = FALSE, warning =  FALSE}
+# on nest les données par outcome
+data_regression2 <- data %>%
+  pivot_longer(cols = c(visit, fill, visit_fill), names_to = "outcome", values_to = "value") %>%
+  group_by(outcome) %>%
+  nest()
+
+# on affiche la table
+data_regression2
+```
+
+2. On crée une deuxième fonction pour faire une régression (sans les variables de contrôle) :
+
+```{r, eval = TRUE, message = FALSE, warning =  FALSE}
+# on fait une régression
+function_regression2 <- function(data){
+  data %>%
+  lm(value ~ group, data = .) %>%
+  broom::tidy(., conf.int = TRUE) %>%
+  filter(term %in% c("groupExp", "groupExpInfo", "groupInfo")) %>%
+  select(term, estimate, conf.low, conf.high) %>%
+  mutate_at(vars(-term), ~ round(.*100, 1))
+}
+```
+
+3. On applique la fonction à l'aide de la commande `map()` :
+
+```{r, eval = TRUE, message = FALSE, warning =  FALSE}
+# on fait tourner les régressions
+data_regression2 <- data_regression2 %>%
+  mutate(regression_output = map(data, ~ function_regression2(.)))
+
+# on affiche la table
+data_regression2
+```
+
+4. Il faut maintenant afficher les résultats. Il faut "unnest" le tableau de données :
+
+```{r, eval = TRUE, message = FALSE, warning =  FALSE}
+# on unnest les résultats
+data_regression2 <- data_regression2 %>%
+  select(-data) %>%
+  unnest(regression_output)
+
+# on affiche la table
+data_regression2
+```
+
+5. On peut tracer les intervalles de confiance à 95% :
+
+```{r, eval = TRUE, message = FALSE, warning =  FALSE, fig.width=8, fig.height=5} 
+# make the graph
+data_regression2 %>%
+  mutate(term = fct_relevel(term, "groupInfo", "groupExp", "groupExpInfo")) %>%
+  mutate(outcome = case_when(outcome == "visit" ~ "Visit", outcome == "fill" ~ "Fill", outcome == "visit_fill" ~ "Visit fill")) %>%
+  ggplot(.,
+         aes(
+           x = term,
+           y = estimate,
+           ymin = conf.low,
+           ymax = conf.high
+         )) +
+  geom_hline(
+    yintercept = 0,
+    color = "orange",
+    lwd = 0.3
+  ) +
+  geom_pointrange(
+    size = 0.8,
+    fatten = 2,
+    colour = "deepskyblue3"
+  ) +
+  scale_y_continuous(breaks = scales::pretty_breaks(n = 10)) +
+  coord_flip() +
+  facet_wrap(~ outcome) +
+  ylab("Average Marginal Effects") + xlab("") +
+  theme_minimal()
+```
+
