@@ -744,13 +744,13 @@ theme_minimal()
 ggvf = ggplot(dataggvf, aes(x = group, y = vf_moyenne_c)) +
 geom_segment(aes(x = group, xend = group, y = 0, yend = vf_moyenne_c), colour = "gray60") +
 geom_point(size = 4, colour = "deepskyblue3") +
-ylim(0,40) +
+ylim(0,80) +
 ggtitle("Proportion of Visit_Fill by Treatment Arm") +
 xlab("Treatment Arm") + ylab("Proportion (%)") +
 theme_minimal()
 
 
-plot_grid(ggv, ggf,  nrow = 1)
+plot_grid(ggv, ggf, ggvf)
 
 ```
 
