@@ -10,7 +10,7 @@ output:
       smooth_scroll: yes
       number_sections: yes
     theme: readable
-    df_print: paged
+    df_print: kable
     code_folding: hide
   html_notebook:
     toc: yes
@@ -25,7 +25,8 @@ text-align: justify}
 library(tidyverse)
 library(cowplot)
 library(gtsummary)
-#library(knitr) # pour créer des tables
+library(knitr) # pour créer des tables
+library(kableExtra)
 ```
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
@@ -58,6 +59,9 @@ data_phishing <- read.csv("/Users/f-x/Downloads/phishing_dataset.csv") %>%
 
 data_phis_c <- data_phishing %>%
   filter(division == 'A' | division == 'B' | division == 'D' | division == 'E')
+
+Outcome = c('Visit', 'Fill', 'Visit_Fill')
+Group = c('Control','Info','Exp','ExpInf')
 ```
 
 Caractéristiques des unités et tests de ressemblance
@@ -155,82 +159,69 @@ data_phis_c %>%
 ```
 
 
-#Test randomization inference
+#Randomization inference
 
 
-I. Calcul des différences observées pour les outcomes selon les différents groupes de traitement.
+We decided to focus our randomization inference by removing the C division from the analysis. Indeed, given the difficulties encountered by the researchers with this unit, it seemed to us biased to take it into account in this analysis.
+
+We have divided this analysis by looking at each treatment individually. In this way, we can first determine which of the treatments definitely reduce the likelihood of falling victim to a phishing attack.
+
+
+I. Calculation of ATEs for each treatment
 
 A. Exp
 
-
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
+
+
 observed_difference_v = mean(data_phis_c$visit[data_phis_c$group == 'Exp']) - mean(data_phis_c$visit[data_phis_c$group == 'Control']) 
-
-print(observed_difference_v)
-  
-```
-
-```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 observed_difference_f = mean(data_phis_c$fill[data_phis_c$group == 'Exp']) - mean(data_phis_c$fill[data_phis_c$group == 'Control']) 
-print(observed_difference_f)
-  
-```
-
-```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 observed_difference_vf = mean(data_phis_c$visit_fill[data_phis_c$group == 'Exp'], na.rm = TRUE) - mean(data_phis_c$visit_fill[data_phis_c$group == 'Control'], na.rm = TRUE) 
 
-print(observed_difference_vf)
-  
+
+print(data.frame(Outcome = c('Visit', 'Fill', 'Visit_Fill'), ATE = c(observed_difference_v,observed_difference_f, observed_difference_vf)))  
 ```
+
+The observed differences seem to establish a negative correlation between the 'Exp' treatment and the control group: this treatment reduced the different outcomes by 11 to 13 percentage points. For instance, the number of units which visited the website has been reduced by 13 percentage points, compared to the control group.  Let's see if this difference stands up to randomisation inference.
+
 
 B. Info
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 observed_difference_v_info = mean(data_phis_c$visit[data_phis_c$group == 'Info']) - mean(data_phis_c$visit[data_phis_c$group == 'Control']) 
-
-print(observed_difference_v_info)
-  
-```
-
-```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 observed_difference_f_info = mean(data_phis_c$fill[data_phis_c$group == 'Info']) - mean(data_phis_c$fill[data_phis_c$group == 'Control'])
 print(observed_difference_f_info)
-  
-```
-
-```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 observed_difference_vf_info = mean(data_phis_c$visit_fill[data_phis_c$group == 'Info'], na.rm = TRUE) - mean(data_phis_c$visit_fill[data_phis_c$group == 'Control'], na.rm = TRUE) 
 
-print(observed_difference_vf_info)
   
+print(data.frame(Outcome = c('Visit', 'Fill', 'Visit_Fill'), ATE = c(observed_difference_v_info,observed_difference_f_info, observed_difference_vf_info)))  
 ```
+
+The observed differences seem to establish a negative correlation between the 'Info' treatment and the control group: this treatment reduced the different outcomes by 11 to 13 percentage points. For instance, the number of units which visited the website has been reduced by 8 percentage points, compared to the control group.  Let's see if this difference stands up to randomisation inference.
+
 
 C. ExpInfo
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
+
 observed_difference_v_expinfo = mean(data_phis_c$visit[data_phis_c$group == 'ExpInfo']) - mean(data_phis_c$visit[data_phis_c$group == 'Control']) 
-print(observed_difference_v_expinfo)
-  
-```
-
-
-```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 observed_difference_f_expinfo = mean(data_phis_c$fill[data_phis_c$group == 'ExpInfo']) - mean(data_phis_c$fill[data_phis_c$group == 'Control']) 
 print(observed_difference_f_expinfo)
-  
-```
-
-
-```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 observed_difference_vf_expinfo = mean(data_phis_c$visit_fill[data_phis_c$group == 'ExpInfo'], na.rm = TRUE) - mean(data_phis_c$visit_fill[data_phis_c$group == 'Control'], na.rm = TRUE) 
 print(observed_difference_vf_expinfo)
-  
+
+print(data.frame(Outcome = c('Visit', 'Fill', 'Visit_Fill'), ATE = c(observed_difference_v_expinfo,observed_difference_f_expinfo, observed_difference_vf_expinfo))) 
+
 ```
 
+The observed differences seem to establish a negative correlation between the 'ExpInfo' treatment and the control group: this treatment reduced the different outcomes by 9 to 15 percentage points. For instance, the number of units which visited the website has been reduced by 10 percentage points, compared to the control group.  Let's see if this difference stands up to randomisation inference.
 
-II. Calcul des proportions de traités
 
-A. Traitement Exp
+II. Calculation of the proportions of treated units
+
+Here we calculate the proportions of treated units for each treatment compared to the numbers of control units. These proportions are necessary for randomization inference in a cluster experiment like ours.
+
+A. Exp
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 data_phis_c_exp <- data_phis_c %>%
@@ -241,7 +232,7 @@ data_phis_c_exp <- data_phis_c %>%
 prop_exp = sum(data_phis_c_exp$ind_group)/nrow(data_phis_c_exp)
 ```
 
-B. Traitement Info
+B. Info
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 data_phis_c_info <- data_phis_c %>%
@@ -252,7 +243,7 @@ data_phis_c_info <- data_phis_c %>%
 prop_info = sum(data_phis_c_info$ind_group)/nrow(data_phis_c_info)
 ```
 
-C. Traitement ExpInfo
+C. ExpInfo
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 data_phis_c_expinfo <- data_phis_c %>%
@@ -264,31 +255,31 @@ prop_expinfo = sum(data_phis_c_expinfo$ind_group)/nrow(data_phis_c_expinfo)
 ```
 
 
-III. Randomization inference
+III. Randomization inference loop
 
+
+As explained, our experiment is based on cluster allocation. Thus, it is necessary to randomise on the clusters and not on the units themselves. As each cluster consists of one and the same treatment, we randomised according to the proportion of treated to control group. 
 
 A. Exp
 
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
-# vecteur de 1000 coordonnées pour enregistrer les différences
 diff_simulations <- rep(NA, 1000)
 diff_simulations_f_exp <- rep(NA, 1000)
 diff_simulations_vf_exp <- rep(NA, 1000)
 
 
-# boucle pour les simulations
+#loop for simulations
 for (i in 1:1000){
 
-# je prends les données
 data_phis_c_exp <- data_phis_c_exp %>%
-#Je construis une nouvelle variable new treat (avec fonction mutate) qui mélange de manière aléatoire (fonction sample) les éléments de la variable treat
+#We construct a new treat variable (with mutate function) which randomly mixes (sample function) the elements of the treat variable  
   group_by(cluster) %>%
   mutate(new_group = rbinom(1, 1, prop_exp)) %>%
   mutate(new_group = case_when(new_group == 1 ~ 'Exp',
                                new_group == 0 ~ 'Control'))
 
-#Je calcule les différences pour chacune des 1000 distributions que je place à la i-ème coordonnée
+#We calculate the differences for each of the 1000 distributions that I place at the i-th coordinate
 diff_simulations[i] <- mean(data_phis_c_exp$visit[data_phis_c_exp$new_group == "Exp"]) - mean(data_phis_c_exp$visit[data_phis_c_exp$new_group=="Control"])
 
 diff_simulations_f_exp[i] <- mean(data_phis_c_exp$fill[data_phis_c_exp$new_group == "Exp"]) - mean(data_phis_c_exp$fill[data_phis_c_exp$new_group=="Control"])
@@ -301,75 +292,71 @@ diff_simulations_vf_exp[i] <- mean(data_phis_c_exp$visit_fill[data_phis_c_exp$ne
 
 
 ```{r, eval = TRUE}
-#j'utilise le type tableau de données, qui convient à ggplot 
+
 data_simulations <- tibble(diff_simulations=diff_simulations)
-#je crée le graphique de la fonction de densité pour les différentes différences
 graph_exp <- ggplot(data_simulations, aes(x = diff_simulations)) +
-  #Les caractéristiques d'affichage
   geom_density(color = 'black', fill = 'deepskyblue3', alpha = 0.5) +
-  #La moyenne des différences aléatoires en noir
+  #The average of the random differences in black
   geom_vline(xintercept = mean(data_simulations$diff_simulations), color = 'black') +
-  #La moyenne réellement observé en coral
+  #The actual average observed in coral
   geom_vline(xintercept = observed_difference_v, color = 'coral') +
-  xlab("Exp") +
+  xlab("Visit") +
   theme_minimal()
 
-```
-
-
-
-```{r, eval = TRUE}
-#j'utilise le type tableau de données, qui convient à ggplot 
 data_simulations_f_exp <- tibble(diff_simulations_f_exp=diff_simulations_f_exp)
-#je crée le graphique de la fonction de densité pour les différentes différences
 graph_fill_exp <- ggplot(data_simulations_f_exp, aes(x = diff_simulations_f_exp)) +
-  #Les caractéristiques d'affichage
   geom_density(color = 'black', fill = 'deepskyblue3', alpha = 0.5) +
-  #La moyenne des différences aléatoires en noir
   geom_vline(xintercept = mean(data_simulations_f_exp$diff_simulations_f_exp), color = 'black') +
-  #La moyenne réellement observé en coral
   geom_vline(xintercept = observed_difference_f, color = 'coral') +
-  xlab("Exp") +
+  xlab("Fill") +
   theme_minimal()
-```
 
-
-
-```{r, eval = TRUE}
-#j'utilise le type tableau de données, qui convient à ggplot 
 data_simulations_vf_exp <- tibble(diff_simulations_vf_exp=diff_simulations_vf_exp)
-#je crée le graphique de la fonction de densité pour les différentes différences
 graph_visitfill_exp <- ggplot(data_simulations_vf_exp, aes(x = diff_simulations_vf_exp)) +
-  #Les caractéristiques d'affichage
   geom_density(color = 'black', fill = 'deepskyblue3', alpha = 0.5) +
-  #La moyenne des différences aléatoires en noir
   geom_vline(xintercept = mean(data_simulations_vf_exp$diff_simulations_vf_exp), color = 'black') +
-  #La moyenne réellement observé en coral
   geom_vline(xintercept = observed_difference_vf, color = 'coral') +
-  xlab("Exp") +
+  xlab("Visit_Fill") +
   theme_minimal()
+
+
+print(plot_grid(graph_exp,graph_fill_exp,graph_visitfill_exp))
 ```
+
+P-values
+
+```{r, eval = TRUE, message = FALSE, warning =  FALSE}
+
+opve = (sum(data_simulations$diff_simulations <= observed_difference_v)/1000)*100
+tpve = (sum(abs(data_simulations$diff_simulations) >=  abs(observed_difference_v))/1000)*100
+
+opfe = (sum(data_simulations_f_exp$diff_simulations_f_exp <= observed_difference_f)/1000)*100
+tpfe = (sum(abs(data_simulations_f_exp$diff_simulations_f_exp) >=  abs(observed_difference_f))/1000)*100
+
+opvfe = (sum(data_simulations_vf_exp$diff_simulations_vf_exp <= observed_difference_vf)/1000)*100
+tpvfe = (sum(abs(data_simulations_vf_exp$diff_simulations_vf_exp) >=  abs(observed_difference_vf))/1000)*100
+
+data.frame(outcome = c('Visit','Fill','Visit_Fill'), one_sided_p_values = c(opve, opfe, opvfe), two_sided_p_values = c(tpve ,tpfe ,tpvfe))
+
+```
+As the p-values are relatively low, it seems consistent to reject the sharp null hypothesis for this treatment.
 
 
 B. Info
 
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
-# vecteur de 1000 coordonnées pour enregistrer les différences
 diff_simulations_info <- rep(NA, 1000)
 diff_simulations_f_info <- rep(NA, 1000)
 diff_simulations_vf_info <- rep(NA, 1000)
-# boucle pour les simulations
 for (i in 1:1000){
 
-# je prends les données
 data_phis_c_info <- data_phis_c_info %>%
   group_by(cluster) %>%
   mutate(new_group = rbinom(1, 1, prop_info)) %>%
   mutate(new_group = case_when(new_group == 1 ~ 'Info',
                                new_group == 0 ~ 'Control'))
 
-#Je calcule les différences pour chacune des 1000 distributions que je place à la i-ème coordonnée
 diff_simulations_info[i] <- mean(data_phis_c_info$visit[data_phis_c_info$new_group == "Info"]) - mean(data_phis_c_info$visit[data_phis_c_info$new_group=="Control"])
 
 diff_simulations_f_info[i] <- mean(data_phis_c_info$fill[data_phis_c_info$new_group == "Info"]) - mean(data_phis_c_info$fill[data_phis_c_info$new_group=="Control"])
@@ -380,79 +367,69 @@ diff_simulations_vf_info[i] <- mean(data_phis_c_info$visit_fill[data_phis_c_info
 ```
 
 ```{r, eval = TRUE}
-#j'utilise le type tableau de données, qui convient à ggplot 
 data_simulations_info <- tibble(diff_simulations_info=diff_simulations_info)
-#je crée le graphique de la fonction de densité pour les différentes différences
 graph_info <- ggplot(data_simulations_info, aes(x = diff_simulations_info)) +
-  #Les caractéristiques d'affichage
   geom_density(color = 'black', fill = 'deepskyblue3', alpha = 0.5) +
-  #La moyenne des différences aléatoires en noir
   geom_vline(xintercept = mean(data_simulations_info$diff_simulations_info), color = 'black') +
-  #La moyenne réellement observé en coral
   geom_vline(xintercept = observed_difference_v_info, color = 'coral') +
-  xlab("Info") +
+  xlab("Visit") +
   theme_minimal()
-```
 
-
-```{r, eval = TRUE}
-#j'utilise le type tableau de données, qui convient à ggplot 
 data_simulations_f_info <- tibble(diff_simulations_f_info=diff_simulations_f_info)
-#je crée le graphique de la fonction de densité pour les différentes différences
 graph_fill_info <- ggplot(data_simulations_f_info, aes(x = diff_simulations_f_info)) +
-  #Les caractéristiques d'affichage
   geom_density(color = 'black', fill = 'deepskyblue3', alpha = 0.5) +
-  #La moyenne des différences aléatoires en noir
   geom_vline(xintercept = mean(data_simulations_f_info$diff_simulations_f_info), color = 'black') +
-  #La moyenne réellement observé en coral
   geom_vline(xintercept = observed_difference_f_info, color = 'coral') +
-  xlab("Info") +
+  xlab("Fill") +
   theme_minimal()
-```
 
-
-```{r, eval = TRUE}
-#j'utilise le type tableau de données, qui convient à ggplot 
 data_simulations_vf_info <- tibble(diff_simulations_vf_info=diff_simulations_vf_info)
-#je crée le graphique de la fonction de densité pour les différentes différences
 graph_visitfill_info <- ggplot(data_simulations_vf_info, aes(x = diff_simulations_vf_info)) +
-  #Les caractéristiques d'affichage
   geom_density(color = 'black', fill = 'deepskyblue3', alpha = 0.5) +
-  #La moyenne des différences aléatoires en noir
   geom_vline(xintercept = mean(data_simulations_vf_info$diff_simulations_vf_info), color = 'black') +
-  #La moyenne réellement observé en coral
   geom_vline(xintercept = observed_difference_vf_info, color = 'coral') +
-  xlab("Info") +
+  xlab("Visit_Fill") +
   theme_minimal()
+
+plot_grid(graph_info,graph_fill_info,graph_visitfill_info)
 ```
 
+P-values
+
+```{r, eval = TRUE, message = FALSE, warning =  FALSE}
+#Calcul de la one-sided et two-sided p-value
+
+opvi = (sum(data_simulations_info$diff_simulations_info <= observed_difference_v_info)/1000)*100
+tpvi = (sum(abs(data_simulations_info$diff_simulations_info) >=  abs(observed_difference_v_info))/1000)*100
+
+opfi = (sum(data_simulations_f_info$diff_simulations_f_info <= observed_difference_f_info)/1000)*100
+tpfi = (sum(abs(data_simulations_f_info$diff_simulations_f_info) >=  abs(observed_difference_f_info))/1000)*100
+
+opvfi = (sum(data_simulations_vf_info$diff_simulations_vf_info <= observed_difference_vf_info)/1000)*100
+tpvfi = (sum(abs(data_simulations_vf_info$diff_simulations_vf_info) >=  abs(observed_difference_vf_info))/1000)*100
+
+data.frame(Outcome, one_sided_p_values = c(opvi, opfi, opvfi), two_sided_p_values = c(tpvi ,tpfi ,tpvfi))
+
+```
+
+As we see from the graph and table above, it is more difficult here to reject the sharp null hypothesis for this treatment and particularly for the 'Visit' outcome. Indeed, about 10% of the values are more extreme than that observed for this outcome. Nevertheless, the general trend seems to be in the direction of the effectiveness of the treatment.
 
 
 C. ExpInfo
 
-
-
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
-# vecteur de 1000 coordonnées pour enregistrer les différences
 diff_simulations_expinfo <- rep(NA, 1000)
 diff_simulations_f_expinfo <- rep(NA, 1000)
 diff_simulations_vf_expinfo <- rep(NA, 1000)
 
-# boucle pour les simulations
 for (i in 1:1000){
 
-# je prends les données
 data_phis_c_expinfo <- data_phis_c_expinfo %>%
   group_by(cluster) %>%
   mutate(new_group = rbinom(1,1,prop_expinfo)) %>%
   mutate(new_group = case_when(new_group == 1 ~ 'ExpInfo',
                                new_group == 0 ~ 'Control'))
 
-
-#Je construis une nouvelle variable new treat (avec fonction mutate) qui mélange de manière aléatoire (fonction sample) les éléments de la variable treat
-
-
-#Je calcule les différences pour chacune des 1000 distributions que je place à la i-ème coordonnée
 diff_simulations_expinfo[i] <- mean(data_phis_c_expinfo$visit[data_phis_c_expinfo$new_group == "ExpInfo"]) - mean(data_phis_c_expinfo$visit[data_phis_c_expinfo$new_group=="Control"])
 
 diff_simulations_f_expinfo[i] <- mean(data_phis_c_expinfo$fill[data_phis_c_expinfo$new_group == "ExpInfo"]) - mean(data_phis_c_expinfo$fill[data_phis_c_expinfo$new_group=="Control"])
@@ -461,161 +438,69 @@ diff_simulations_vf_expinfo[i] <- mean(data_phis_c_expinfo$visit_fill[data_phis_
 }
 ```
 
+
 ```{r, eval = TRUE}
-#j'utilise le type tableau de données, qui convient à ggplot 
+
 data_simulations_expinfo <- tibble(diff_simulations_expinfo=diff_simulations_expinfo)
-#je crée le graphique de la fonction de densité pour les différentes différences
 graph_expinfo <- ggplot(data_simulations_expinfo, aes(x = diff_simulations_expinfo)) +
-  #Les caractéristiques d'affichage
   geom_density(color = 'black', fill = 'deepskyblue3', alpha = 0.5) +
-  #La moyenne des différences aléatoires en noir
   geom_vline(xintercept = mean(data_simulations_expinfo$diff_simulations_expinfo), color = 'black') +
-  #La moyenne réellement observé en coral
   geom_vline(xintercept = observed_difference_v_expinfo, color = 'coral') +
-  xlab("ExpInfo") + 
+  xlab("Visit") + 
   theme_minimal()
-```
 
-
-
-
-```{r, eval = TRUE}
-#j'utilise le type tableau de données, qui convient à ggplot 
 data_simulations_f_expinfo <- tibble(diff_simulations_f_expinfo=diff_simulations_f_expinfo)
-#je crée le graphique de la fonction de densité pour les différentes différences
 graph_fill_expinfo <- ggplot(data_simulations_f_expinfo, aes(x = diff_simulations_f_expinfo)) +
-  #Les caractéristiques d'affichage
   geom_density(color = 'black', fill = 'deepskyblue3', alpha = 0.5) +
-  #La moyenne des différences aléatoires en noir
   geom_vline(xintercept = mean(data_simulations_f_expinfo$diff_simulations_f_expinfo), color = 'black') +
-  #La moyenne réellement observé en coral
   geom_vline(xintercept = observed_difference_f_expinfo, color = 'coral') +
-  xlab("ExpInfo") +
+  xlab("Fill") +
   theme_minimal()
 
-
-```
-
-
-
-```{r, eval = TRUE}
-#j'utilise le type tableau de données, qui convient à ggplot 
 data_simulations_vf_expinfo <- tibble(diff_simulations_vf_expinfo=diff_simulations_vf_expinfo)
-#je crée le graphique de la fonction de densité pour les différentes différences
 graph_visitfill_expinfo <- ggplot(data_simulations_vf_expinfo, aes(x = diff_simulations_vf_expinfo)) +
-  #Les caractéristiques d'affichage
   geom_density(color = 'black', fill = 'deepskyblue3', alpha = 0.5) +
-  #La moyenne des différences aléatoires en noir
   geom_vline(xintercept = mean(data_simulations_vf_expinfo$diff_simulations_vf_expinfo), color = 'black') +
-  #La moyenne réellement observé en coral
   geom_vline(xintercept = observed_difference_vf_expinfo, color = 'coral') +
-  xlab("ExpInfo") +
+  xlab("Visit_Fill") +
   theme_minimal()
 
+
+plot_grid(graph_expinfo,graph_fill_expinfo,graph_visitfill_expinfo)
 ```
 
+P-values 
+
+```{r, eval = TRUE, message = FALSE, warning =  FALSE}
+#Calcul de la one-sided et two-sided p-value
+
+opvei = (sum(data_simulations_expinfo$diff_simulations_expinfo <= observed_difference_v_expinfo)/1000)*100
+tpvei = (sum(abs(data_simulations_expinfo$diff_simulations_expinfo) >=  abs(observed_difference_v_expinfo))/1000)*100
+
+opfei = (sum(data_simulations_f_expinfo$diff_simulations_f_expinfo <= observed_difference_f_expinfo)/1000)*100
+tpfei = (sum(abs(data_simulations_f_expinfo$diff_simulations_f_expinfo) >=  abs(observed_difference_f_expinfo))/1000)*100
+
+opvfei = (sum(data_simulations_vf_expinfo$diff_simulations_vf_expinfo <= observed_difference_vf_expinfo)/1000)*100
+tpvfei = (sum(abs(data_simulations_vf_expinfo$diff_simulations_vf_expinfo) >=  abs(observed_difference_vf_expinfo))/1000)*100
+
+data.frame(Outcome, one_sided_p_values = c(opvei, opfei, opvfei), two_sided_p_values = c(tpvei ,tpfei 
+```
+
+As the p-values are relatively low, it seems consistent to reject the sharp null hypothesis for this treatment.
 
 
 
 IV. Résultat final
 
 ```{r, echo = TRUE, message = FALSE, warning = FALSE, fig.width = 10, fig.height = 5, fig.fullwidth=TRUE}
-first_row <- plot_grid(graph_info, graph_exp, graph_expinfo, labels = 'Visit', ncol = 3)
-second <- plot_grid(graph_fill_info, graph_fill_exp, graph_fill_expinfo, labels = 'Fill', ncol = 3)
-third <- plot_grid(graph_visitfill_info, graph_visitfill_exp, graph_visitfill_expinfo, labels = 'VisitFill', ncol = 3)
+first_row <- plot_grid(graph_exp, graph_fill_exp, graph_visitfill_exp, labels = 'Exp', ncol = 3)
+second <- plot_grid(graph_info, graph_fill_info, graph_visitfill_info, labels = 'Info', ncol = 3)
+third <- plot_grid(graph_expinfo, graph_fill_expinfo, graph_visitfill_expinfo, labels = 'ExpInfo', ncol = 3)
+
 plot_grid(first_row, second, third,  nrow = 3)
 ```
 
 
-V. Calcul des p-values
-
-A. Exp
-
-- Visit
-
-```{r, eval = TRUE, message = FALSE, warning =  FALSE}
-#Calcul de la one-sided et two-sided p-value
-
-(sum(data_simulations$diff_simulations <= observed_difference_v)/1000)*100
-(sum(abs(data_simulations$diff_simulations) >=  abs(observed_difference_v))/1000)*100
-```
-
-- Fill
-
-```{r, eval = TRUE, message = FALSE, warning =  FALSE}
-#Calcul de la one-sided et two-sided p-value
-
-(sum(data_simulations_f_exp$diff_simulations_f_exp <= observed_difference_f)/1000)*100
-(sum(abs(data_simulations_f_exp$diff_simulations_f_exp) >=  abs(observed_difference_f))/1000)*100
-```
-
-- Visit_fill
-```{r, eval = TRUE, message = FALSE, warning =  FALSE}
-#Calcul de la one-sided et two-sided p-value
-
-(sum(data_simulations_vf_exp$diff_simulations_vf_exp <= observed_difference_vf)/1000)*100
-(sum(abs(data_simulations_vf_exp$diff_simulations_vf_exp) >=  abs(observed_difference_vf))/1000)*100
-```
-
-B. Info
-
-- Visit
-
-```{r, eval = TRUE, message = FALSE, warning =  FALSE}
-#Calcul de la one-sided et two-sided p-value
-
-(sum(data_simulations_info$diff_simulations_info <= observed_difference_v_info)/1000)*100
-(sum(abs(data_simulations_info$diff_simulations_info) >=  abs(observed_difference_v_info))/1000)*100
-```
-
-- Fill
-
-```{r, eval = TRUE, message = FALSE, warning =  FALSE}
-#Calcul de la one-sided et two-sided p-value
-
-(sum(data_simulations_f_info$diff_simulations_f_info <= observed_difference_f_info)/1000)*100
-(sum(abs(data_simulations_f_info$diff_simulations_f_info) >=  abs(observed_difference_f_info))/1000)*100
-```
-
-- Visit_Fill
-
-```{r, eval = TRUE, message = FALSE, warning =  FALSE}
-#Calcul de la one-sided et two-sided p-value
-
-(sum(data_simulations_vf_info$diff_simulations_vf_info <= observed_difference_vf_info)/1000)*100
-(sum(abs(data_simulations_vf_info$diff_simulations_vf_info) >=  abs(observed_difference_vf_info))/1000)*100
-```
-
-
-C. ExpInfo
-
-- Visit 
-
-```{r, eval = TRUE, message = FALSE, warning =  FALSE}
-#Calcul de la one-sided et two-sided p-value
-
-(sum(data_simulations_expinfo$diff_simulations_expinfo <= observed_difference_v_expinfo)/1000)*100
-(sum(abs(data_simulations_expinfo$diff_simulations_expinfo) >=  abs(observed_difference_v_expinfo))/1000)*100
-```
-
-
-- Fill
-
-```{r, eval = TRUE, message = FALSE, warning =  FALSE}
-#Calcul de la one-sided et two-sided p-value
-
-(sum(data_simulations_f_expinfo$diff_simulations_f_expinfo <= observed_difference_f_expinfo)/1000)*100
-(sum(abs(data_simulations_f_expinfo$diff_simulations_f_expinfo) >=  abs(observed_difference_f_expinfo))/1000)*100
-```
-
-- Visit_fill
-
-```{r, eval = TRUE, message = FALSE, warning =  FALSE}
-#Calcul de la one-sided et two-sided p-value
-
-(sum(data_simulations_vf_expinfo$diff_simulations_vf_expinfo <= observed_difference_vf_expinfo)/1000)*100
-(sum(abs(data_simulations_vf_expinfo$diff_simulations_vf_expinfo) >=  abs(observed_difference_vf_expinfo))/1000)*100
-```
 
 Weighted t-test
 
@@ -753,6 +638,8 @@ theme_minimal()
 plot_grid(ggv, ggf, ggvf)
 
 ```
+
+
 
 # Analyse par régression linéaire
 
