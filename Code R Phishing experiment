@@ -10,7 +10,7 @@ output:
       smooth_scroll: yes
       number_sections: yes
     theme: readable
-    df_print: kable
+    df_print: paged
     code_folding: hide
   html_notebook:
     toc: yes
