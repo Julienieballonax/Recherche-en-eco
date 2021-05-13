@@ -31,7 +31,7 @@ library(kableExtra)
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 data_phishing <- read.csv("/Users/f-x/Downloads/phishing_dataset.csv") %>%
-  # recodage de la variable de traitement
+  # recoding of the treatment variable
   mutate(group = case_when(
     group == 1 ~ "Control",
     group == 2 ~ "Info",
@@ -40,7 +40,7 @@ data_phishing <- read.csv("/Users/f-x/Downloads/phishing_dataset.csv") %>%
   )) %>%
   
   mutate(group = fct_relevel(group, "Control", "Info", "Exp", "ExpInfo")) %>%
-  # recodage de la variable âge
+  # recoding of the age variable
   mutate(
     age_categories = case_when(
       age <= 25 ~ "16-25",
@@ -51,10 +51,10 @@ data_phishing <- read.csv("/Users/f-x/Downloads/phishing_dataset.csv") %>%
     )
   ) %>%
   mutate(age_categories = fct_relevel(age_categories, "16-25", "26-35", "36-45", "46-55")) %>%
-  #recodage de la variable genre 
+  # recoding of the gender variable 
   mutate(gender = case_when(gender == "M" ~ 1,
                             gender == "F" ~ 0)) %>%
-  # changement ordre variable division avec b pour référence
+  # change order variable division with B as reference
   mutate(division = fct_relevel(division, "B", "A", "C", "D", "E")) 
 
 data_phis_c <- data_phishing %>%
@@ -64,9 +64,9 @@ Outcome = c('Visit', 'Fill', 'Visit_Fill')
 Group = c('Control','Info','Exp','ExpInf')
 ```
 
-Caractéristiques des unités et tests de ressemblance
+Unit characteristics and similarity tests
 
-- Nombre total d'unités par groupe
+- Total number of units per group
 
 "We implemented two interventions: information provision (Info) and experience (Exp).
 We used a 2x2 design and subjects were divided into four groups of roughly equal size: Control
@@ -84,7 +84,7 @@ data_phis_c %>%
   summarise(nb_group = n())
 ```
 
-- Nombre d'unités féminines et masculines
+- Number of female and male units
 
 "Most subjects were males (60,6%), [...]."
 
@@ -108,9 +108,9 @@ rep_sex
 rep_sex_c
 ```
 
-- Age des unités
+- Age of the units
 
-* Moyenne globale
+* Overall average
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 moy_age = mean(data_phishing$age, na.rm = TRUE)
@@ -120,7 +120,7 @@ moy_age
 moy_age_c
 ```
 
-* Age des unités en fonction du traitement
+* Age of the units according to the treatment
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 ggplot(data = data_phishing) +
@@ -143,7 +143,7 @@ ggplot(data = data_phis_c) +
   geom_density(aes(x = age, color = group)) 
 ```
 
-- Tableau récapitulatif des caractéristiques des unités en focntion du traitement
+- Summary table of the characteristics of the units depending on the treatment
 
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
@@ -157,9 +157,9 @@ data_phis_c %>%
   group_by(group) %>%
   summarise(nb_obs = n(), mean_age = mean(age, na.rm = TRUE), sex_repartition = mean(gender, na.rm = TRUE)*100, mean_int_employee = mean(int_employee, na.rm = TRUE)*100,)
 ```
+Before the removal of division C due to an error on the part of the researchers, the different treatment groups had roughly the same characteristics. The removal of this division caused slight shifts in the distribution of the control variables in the treatment groups. These groups are no longer completely identical or of the same size. For example, there is a difference of about 400 units between the control group and the "Info" treatment group.
 
-
-#Randomization inference
+# Randomization inference
 
 
 We decided to focus our randomization inference by removing the C division from the analysis. Indeed, given the difficulties encountered by the researchers with this unit, it seemed to us biased to take it into account in this analysis.
@@ -397,7 +397,7 @@ plot_grid(graph_info,graph_fill_info,graph_visitfill_info)
 P-values
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
-#Calcul de la one-sided et two-sided p-value
+# Calculation of the one-sided and the two-sided p-value
 
 opvi = (sum(data_simulations_info$diff_simulations_info <= observed_difference_v_info)/1000)*100
 tpvi = (sum(abs(data_simulations_info$diff_simulations_info) >=  abs(observed_difference_v_info))/1000)*100
@@ -490,7 +490,7 @@ As the p-values are relatively low, it seems consistent to reject the sharp null
 
 
 
-IV. Résultat final
+IV. Final results
 
 ```{r, echo = TRUE, message = FALSE, warning = FALSE, fig.width = 10, fig.height = 5, fig.fullwidth=TRUE}
 first_row <- plot_grid(graph_exp, graph_fill_exp, graph_visitfill_exp, labels = 'Exp', ncol = 3)
@@ -506,7 +506,7 @@ Weighted t-test
 
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
-#création des tables contenant les proportions des outcomes par cluster
+#creation of tables containing the proportions of outcomes per cluster
 data_wtt <- data_phishing %>%
   group_by(group, cluster) %>%
   summarise(prop_cluster = n()/10929, prop_fill = sum(fill)/n(), prop_visit = sum(visit)/n(),  prop_visit_fill = sum(visit_fill, na.rm = TRUE)/sum(visit))
@@ -518,7 +518,7 @@ data_wtt_c <- data_phis_c %>%
 
 ```
 
-Groupe de Controle
+Control Group
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 
@@ -529,7 +529,7 @@ vc = weighted.mean(x = data_wtt$prop_visit[data_wtt$group == 'Control'], w = dat
 vfc = weighted.mean(x = data_wtt$prop_visit_fill[data_wtt$group == 'Control'], w = data_wtt$prop_cluster[data_wtt$group == 'Control'], na.rm = TRUE)
 
 
-#Sans division C
+# Without division C
 
 fc_c = weighted.mean(x = data_wtt_c$prop_fill[data_wtt_c$group == 'Control'], w = data_wtt_c$prop_cluster[data_wtt_c$group == 'Control'])
 
@@ -539,7 +539,7 @@ vfc_c = weighted.mean(x = data_wtt_c$prop_visit_fill[data_wtt_c$group == 'Contro
 
 ```
 
-Groupe Info
+Info Group
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 
 vi = weighted.mean(x = data_wtt$prop_visit[data_wtt$group == 'Info'], w = data_wtt$prop_cluster[data_wtt$group == 'Info'])
@@ -548,7 +548,7 @@ fi = weighted.mean(x = data_wtt$prop_fill[data_wtt$group == 'Info'], w = data_wt
 
 vfi = weighted.mean(x = data_wtt$prop_visit_fill[data_wtt$group == 'Info'], w = data_wtt$prop_cluster[data_wtt$group == 'Info'], na.rm = TRUE)
   
-#Sans division C
+# Without division C
 
 vi_c= weighted.mean(x = data_wtt_c$prop_visit[data_wtt_c$group == 'Info'], w = data_wtt_c$prop_cluster[data_wtt_c$group == 'Info'])
 
@@ -558,7 +558,7 @@ vfi_c = weighted.mean(x = data_wtt_c$prop_visit_fill[data_wtt_c$group == 'Info']
   
 ```
 
-Groupe Exp
+Exp Group
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 
@@ -568,7 +568,7 @@ fe = weighted.mean(x = data_wtt$prop_fill[data_wtt$group == 'Exp'], w = data_wtt
 
 vfe = weighted.mean(x = data_wtt$prop_visit_fill[data_wtt$group == 'Exp'], w = data_wtt$prop_cluster[data_wtt$group == 'Exp'], na.rm = TRUE)
   
-#Sans la division c
+# Without division C
 
 ve_c = weighted.mean(x = data_wtt_c$prop_visit[data_wtt_c$group == 'Exp'], w = data_wtt_c$prop_cluster[data_wtt_c$group == 'Exp'])
 
@@ -577,7 +577,7 @@ fe_c = weighted.mean(x = data_wtt_c$prop_fill[data_wtt_c$group == 'Exp'], w = da
 vfe_c = weighted.mean(x = data_wtt_c$prop_visit_fill[data_wtt_c$group == 'Exp'], w = data_wtt_c$prop_cluster[data_wtt_c$group == 'Exp'], na.rm = TRUE)
 ```
 
-Groupe ExpInfo
+ExpInfo Group
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 
@@ -587,7 +587,7 @@ fei = weighted.mean(x = data_wtt$prop_fill[data_wtt$group == 'ExpInfo'], w = dat
 
 vfei = weighted.mean(x = data_wtt$prop_visit_fill[data_wtt$group == 'ExpInfo'], w = data_wtt$prop_cluster[data_wtt$group == 'ExpInfo'], na.rm = TRUE)
 
-#Sans la division C
+# Without division C
 
 vei_c = weighted.mean(x = data_wtt_c$prop_visit[data_wtt_c$group == 'ExpInfo'], w = data_wtt_c$prop_cluster[data_wtt_c$group == 'ExpInfo'])
 
@@ -601,11 +601,11 @@ vfei_c = weighted.mean(x = data_wtt_c$prop_visit_fill[data_wtt_c$group == 'ExpIn
   
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE, fig.width=8, fig.height=5} 
 
-dataggv <-data.frame(group = c('Control',"Info","Exp","ExpInfo"), visit_moyenne = c(vc,vi,ve,vei)*100 ,visit_moyenne_c = c(vc_c,vi_c,ve_c,vei_c)*100)
+dataggv <- data.frame(group = c('Control',"Info","Exp","ExpInfo"), visit_moyenne = c(vc,vi,ve,vei)*100 ,visit_moyenne_c = c(vc_c,vi_c,ve_c,vei_c)*100)
 
-dataggf <-data.frame(group = c('Control',"Info","Exp","ExpInfo"), fill_moyenne = c(fc,fi,fe,fei)*100 ,fill_moyenne_c = c(fc_c,fi_c,fe_c,fei_c)*100)
+dataggf <- data.frame(group = c('Control',"Info","Exp","ExpInfo"), fill_moyenne = c(fc,fi,fe,fei)*100 ,fill_moyenne_c = c(fc_c,fi_c,fe_c,fei_c)*100)
 
-dataggvf <-data.frame(group = c('Control',"Info","Exp","ExpInfo"), vf_moyenne = c(vfc,vfi,vfe,vfei)*100 ,vf_moyenne_c = c(vfc_c,vfi_c,vfe_c,vfei_c)*100)
+dataggvf <- data.frame(group = c('Control',"Info","Exp","ExpInfo"), vf_moyenne = c(vfc,vfi,vfe,vfei)*100 ,vf_moyenne_c = c(vfc_c,vfi_c,vfe_c,vfei_c)*100)
 
 
 ggv = ggplot(dataggv, aes(x = group, y = visit_moyenne_c)) +
@@ -641,61 +641,23 @@ plot_grid(ggv, ggf, ggvf)
 
 
 
-# Analyse par régression linéaire
+# Linear regression analysis
+
+
+1. Nesting data by outcome
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
-# chargement des packages
-library(tidyverse) # manipulation et visualisation des données
-library(haven) # chargement données au format stata
-library(knitr) # pour créer des tables
-library(kableExtra) # pour faire des tables esthétiques
-```
-
-```{r, eval = TRUE, message = FALSE, warning =  FALSE}
-# ouverture des données
-data <-
-  read_csv(
-    "/Users/martinbeaufils/Downloads/phishing_dataset.csv"
-  ) %>%
-  # recodage de la variable de traitement
-  mutate(group = case_when(
-    group == 1 ~ "Control",
-    group == 2 ~ "Info",
-    group == 3 ~ "Exp",
-    group == 4 ~ "ExpInfo"
-  )) %>%
-  mutate(group = fct_relevel(group, "Control", "Info", "Exp", "ExpInfo")) %>%
-  # recodage de la variable âge
-  mutate(
-    age_categories = case_when(
-      age <= 25 ~ "16-25",
-      age >= 26 & age <= 35 ~ "26-35",
-      age >= 36 & age <= 45 ~ "36-45",
-      age >= 46 & age <= 55 ~ "46-55",
-      age > 55 ~ ">55"
-    )
-  ) %>%
-  mutate(age_categories = fct_relevel(age_categories, "16-25", "26-35", "36-45", "46-55")) %>%
-  # changement ordre variable division avec b pour référence
-  mutate(division = fct_relevel(division, "B", "A", "C", "D", "E"))
-```
-
-
-```{r, eval = TRUE, message = FALSE, warning =  FALSE}
-# on nest les données par outcome
 data_regression <- data %>%
   pivot_longer(cols = c(visit, fill, visit_fill), names_to = "outcome", values_to = "value") %>%
   group_by(outcome) %>%
   nest()
 
-# on affiche la table
 data_regression
 ```
 
-2. On crée une fonction pour faire une régression :
+2. Creating of a function to do a regression :
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
-# on fait une régression
 function_regression <- function(data){
   data %>%
   lm(value ~ group + gender + as.factor(int_employee) + age_categories + division, data = .) %>%
@@ -706,30 +668,29 @@ function_regression <- function(data){
 }
 ```
 
-3. On applique la fonction à l'aide de la commande `map()` :
+3. The function is applied using the command `map()` :
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
-# on fait tourner les régressions
+# application of the function
 data_regression <- data_regression %>%
   mutate(regression_output = map(data, ~ function_regression(.)))
 
-# on affiche la table
 data_regression
 ```
 
-4. Il faut maintenant afficher les résultats. Il faut "unnest" le tableau de données :
+4. The results must now be displayed. We need to "unnest" the data table:
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
-# on unnest les résultats
+# unnesting the result
 data_regression <- data_regression %>%
   select(-data) %>%
   unnest(regression_output)
 
-# on affiche la table
+# printing of the table
 data_regression
 ```
 
-5. On peut tracer les intervalles de confiance à 95% :
+5. The 95% confidence intervals can be plotted:
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE, fig.width=8, fig.height=5} 
 # make the graph
@@ -761,23 +722,20 @@ data_regression %>%
 ```
 
 
-On teste maintenant la robustesse des résultats, pour cela on reproduit les mêmes régressions que précédement mais sans les variables de contrôle.
+We now test the robustness of the results, for which we reproduce the same regressions as before but without the control variables.
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
-# on nest les données par outcome
 data_regression2 <- data %>%
   pivot_longer(cols = c(visit, fill, visit_fill), names_to = "outcome", values_to = "value") %>%
   group_by(outcome) %>%
   nest()
 
-# on affiche la table
 data_regression2
 ```
 
-2. On crée une deuxième fonction pour faire une régression (sans les variables de contrôle) :
+2. Creating of a second function to do a regression (without the control variables):
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
-# on fait une régression
 function_regression2 <- function(data){
   data %>%
   lm(value ~ group, data = .) %>%
@@ -788,18 +746,16 @@ function_regression2 <- function(data){
 }
 ```
 
-3. On applique la fonction à l'aide de la commande `map()` :
+3. The function is applied using the command `map()` :
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
-# on fait tourner les régressions
 data_regression2 <- data_regression2 %>%
   mutate(regression_output = map(data, ~ function_regression2(.)))
 
-# on affiche la table
 data_regression2
 ```
 
-4. Il faut maintenant afficher les résultats. Il faut "unnest" le tableau de données :
+The results must now be displayed. We need to "unnest" the data table:
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 # on unnest les résultats
@@ -811,7 +767,7 @@ data_regression2 <- data_regression2 %>%
 data_regression2
 ```
 
-5. On peut tracer les intervalles de confiance à 95% :
+5. The 95% confidence intervals can be plotted:
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE, fig.width=8, fig.height=5} 
 # make the graph
