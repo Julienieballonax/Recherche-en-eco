@@ -21,6 +21,26 @@ body {
 text-align: justify}
 </style>
 
+# Introduction 
+
+
+# Présentation des données et des variables
+
+The file “phishing_dataset.csv” gives the data obtained in the experiment. 
+
+```{r, eval = TRUE, message = FALSE, warning =  FALSE}
+head(data_phishing)
+```
+
+- Column “group” indicates in which treatment a subject was with “1”, “2”, “3” and “4” corresponding to “Control”, “Info”, “Exp” and “ExpInfo”, respectively. 
+- Columns “cluster” and “division” indicate at which basic unit and organizational division a subject is working. Indeed, the authors randomized the subjects at the level of the lowest known organizational unit, henceforth referred to as “basic unit”. In total there is 184 unique basic units, with an average of 61 subjects per basic unit. The authors have not opted for randomization at the individual level “to avoid contamination of the results by intervention spillover effects”. 
+- Column “age” indicates the age of the subject. 
+- Column “gender” indicates that a subject is female if the value is “F” and a male if the value is “M”. 
+- Column “int_employee” is a dummy variable indicating whether a subject is an internal employee. 
+- Columns “visit”, “fill” and “visit_fill” are response variables to the second phishing email at time T= 5. “visit” indicates whether subjects clicked the link and visited the website, “fill” indicates whether subjects filled in their password, and “visit_fill” indicates whether they filled in their password conditional on having visited the website. 
+- Similarly, columns “visit_1”, “fill_1” and “visit_fill_1” are response variables to the first phishing email at time T=1 (only groups Exp and ExpInfo received this email.). 
+
+
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 library(tidyverse)
 library(cowplot)
@@ -63,6 +83,7 @@ data_phis_c <- data_phishing %>%
 Outcome = c('Visit', 'Fill', 'Visit_Fill')
 Group = c('Control','Info','Exp','ExpInf')
 ```
+
 
 Unit characteristics and similarity tests
 
