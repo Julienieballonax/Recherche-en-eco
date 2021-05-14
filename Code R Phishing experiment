@@ -23,6 +23,11 @@ text-align: justify}
 
 # Introduction 
 
+This experiment was carried out in the Dutch Ministry of Economic Affairs. 
+The aim was to study different ways of preventing phishing attacks in order to determine the most effective one. 
+Phishing attacks are a type of cyber-attack that aim to get personal information from individuals by inviting them to click on the link of a fraudulent site. 
+To do this, hackers often pose as official organizations. 
+Here is our replication of this experiment.
 
 # Présentation des données et des variables
 
