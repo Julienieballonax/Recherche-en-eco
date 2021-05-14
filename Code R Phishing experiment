@@ -23,26 +23,42 @@ text-align: justify}
 
 # Introduction 
 
-This experiment was carried out in the Dutch Ministry of Economic Affairs. 
-The aim was to study different ways of preventing phishing attacks in order to determine the most effective one. 
-Phishing attacks are a type of cyber-attack that aim to get personal information from individuals by inviting them to click on the link of a fraudulent site. 
-To do this, hackers often pose as official organizations. 
-Here is our replication of this experiment.
+In March 2018, the film company Pathé was the victim of a phishing attack, causing an estimated loss of more than 19 million euros. In addition to significant financial damage, phishing poses a significant risk to the protection of personal data. It is therefore now necessary to prevent this type of attack.
+
+Phishing consists of obtaining personal data by gaining the user's trust, in particular by pretending to be an official institution. For an employee, it is for example an e-mail pretending to be the IT department of his company. The employee is then asked to enter his or her passwords in order to solve a fake IT problem. 
+
+Faced with these risks, prevention campaigns are becoming more and more numerous and 95% of companies claim to be conducting them. Nevertheless, it is difficult to know if these techniques are effective and which ones are the most efficient. 
+
+To answer these questions, Aurelien Baillon, Jeroen de Bruin, Aysil Emirmahmutoglu, Evelien van de Veer and Bram van Dijk from Erasmus University Rotterdam conducted an experiment at the Dutch Ministry of Economic Affairs and Climate Policy.
+
+The experiment was carried out on 10929 employees of the Ministry, without them being informed that they were participating in an experiment. The employees were divided according to the 184 core units of the Ministry. Each cluster was randomly assigned to one of four groups: Control, Exp, Info and ExpInfo. The experiment was divided into five periods (T in {1, . . . , 5}). At T = 2, T = 3, T = 4, the Info units received phishing prevention emails. At T = 1, the Exp units received a fake phishing email and a short debrief. The ExpInfo units received both types of treatment. At T = 5, all groups received a phishing email. 
+It was apparently not possible to ensure that the treatment units actually received and read their e-mails, which forms an obvious bias in the results of the experiment. In addition, a whole division of the ministry was unintentionally notified that the first phishing email was fake. Thus, The Control and Info units of division C received this notification as well. This may have affected the results, creating intervention spillover effects within that division. Therefore, we will comment on the results with and without this division, which will also allow us to test the robustness of the treatments. 
+
+
 
 # Présentation des données et des variables
+
+Presentation of data and variables
 
 The file “phishing_dataset.csv” gives the data obtained in the experiment. 
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
+data_phishing <- read.csv("/Users/f-x/Downloads/phishing_dataset.csv")
 head(data_phishing)
 ```
 
 - Column “group” indicates in which treatment a subject was with “1”, “2”, “3” and “4” corresponding to “Control”, “Info”, “Exp” and “ExpInfo”, respectively. 
+
 - Columns “cluster” and “division” indicate at which basic unit and organizational division a subject is working. Indeed, the authors randomized the subjects at the level of the lowest known organizational unit, henceforth referred to as “basic unit”. In total there is 184 unique basic units, with an average of 61 subjects per basic unit. The authors have not opted for randomization at the individual level “to avoid contamination of the results by intervention spillover effects”. 
+
 - Column “age” indicates the age of the subject. 
+
 - Column “gender” indicates that a subject is female if the value is “F” and a male if the value is “M”. 
+
 - Column “int_employee” is a dummy variable indicating whether a subject is an internal employee. 
+
 - Columns “visit”, “fill” and “visit_fill” are response variables to the second phishing email at time T= 5. “visit” indicates whether subjects clicked the link and visited the website, “fill” indicates whether subjects filled in their password, and “visit_fill” indicates whether they filled in their password conditional on having visited the website. 
+
 - Similarly, columns “visit_1”, “fill_1” and “visit_fill_1” are response variables to the first phishing email at time T=1 (only groups Exp and ExpInfo received this email.). 
 
 
@@ -55,7 +71,7 @@ library(kableExtra)
 ```
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
-data_phishing <- read.csv("/Users/f-x/Downloads/phishing_dataset.csv") %>%
+data_phishing <- data_phishing %>%
   # recoding of the treatment variable
   mutate(group = case_when(
     group == 1 ~ "Control",
@@ -88,7 +104,6 @@ data_phis_c <- data_phishing %>%
 Outcome = c('Visit', 'Fill', 'Visit_Fill')
 Group = c('Control','Info','Exp','ExpInf')
 ```
-
 
 Unit characteristics and similarity tests
 
