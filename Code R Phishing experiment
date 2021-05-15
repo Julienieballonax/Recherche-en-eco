@@ -694,7 +694,7 @@ data_regression <- data %>%
   group_by(outcome) %>%
   nest()
 
-data_regression #displayiing the data frame
+data_regression #displaying the data frame
 ```
 
 2. Creating of a function to do a regression :
