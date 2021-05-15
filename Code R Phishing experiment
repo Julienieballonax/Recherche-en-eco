@@ -684,6 +684,7 @@ plot_grid(ggv, ggf, ggvf) # displaying of the 3 plots together
 
 # Linear regression analysis
 
+# With division C
 
 1. Nesting data by outcome
 
@@ -729,7 +730,7 @@ data_regression <- data_regression %>%
   select(-data) %>%
   unnest(regression_output)
 
-# printing of the table
+# displaying of the table
 data_regression
 ```
 
@@ -763,10 +764,72 @@ data_regression %>%
   ylab("Average Marginal Effects") + xlab("") +
   theme_minimal()
 ```
+# Without division C
+
+```{r, eval = TRUE, message = FALSE, warning =  FALSE}
+# nesting data by outcome
+data_regression_c <- data_phis_c %>%
+  pivot_longer(cols = c(visit, fill, visit_fill), names_to = "outcome", values_to = "value") %>%
+  group_by(outcome) %>%
+  nest()
+
+data_regression #displaying the data frame
+```
+
+```{r, eval = TRUE, message = FALSE, warning =  FALSE}
+# application of the function
+data_regression_c <- data_regression_c %>%
+  mutate(regression_output = map(data, ~ function_regression(.)))
+
+data_regression_c
+```
+
+```{r, eval = TRUE, message = FALSE, warning =  FALSE}
+# unnesting the result
+data_regression_c <- data_regression_c %>%
+  select(-data) %>%
+  unnest(regression_output)
+
+# displaying of the table
+data_regression_c
+```
+
+5. The 95% confidence intervals can be plotted:
+
+```{r, eval = TRUE, message = FALSE, warning =  FALSE, fig.width=8, fig.height=5} 
+# make the graph
+data_regression_c %>%
+  mutate(term = fct_relevel(term, "groupInfo", "groupExp", "groupExpInfo")) %>%
+  mutate(outcome = case_when(outcome == "visit" ~ "Visit", outcome == "fill" ~ "Fill", outcome == "visit_fill" ~ "Visit fill")) %>%
+  ggplot(.,
+         aes(
+           x = term,
+           y = estimate,
+           ymin = conf.low,
+           ymax = conf.high
+         )) +
+  geom_hline(
+    yintercept = 0,
+    color = "orange",
+    lwd = 0.3
+  ) +
+  geom_pointrange(
+    size = 0.8,
+    fatten = 2,
+    colour = "deepskyblue3"
+  ) +
+  scale_y_continuous(breaks = scales::pretty_breaks(n = 10)) +
+  coord_flip() +
+  facet_wrap(~ outcome) +
+  ylab("Average Marginal Effects") + xlab("") +
+  theme_minimal()
+```
 
 # Robustness of the results
 
 We now test the robustness of the results, for which we reproduce the same regressions as before but without the control variables.
+
+# With the division C
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 data_regression2 <- data_phishing %>%
@@ -839,3 +902,60 @@ data_regression2 %>%
   theme_minimal()
 ```
 
+# Without the division C
+
+```{r, eval = TRUE, message = FALSE, warning =  FALSE}
+data_regression2_c <- data_phis_c %>%
+  pivot_longer(cols = c(visit, fill, visit_fill), names_to = "outcome", values_to = "value") %>%
+  group_by(outcome) %>%
+  nest()
+
+data_regression2_c
+```
+
+```{r, eval = TRUE, message = FALSE, warning =  FALSE}
+data_regression2_c <- data_regression2_c %>%
+  mutate(regression_output = map(data, ~ function_regression2(.)))
+
+data_regression2_c
+```
+
+The results must now be displayed. We need to "unnest" the data table:
+
+```{r, eval = TRUE, message = FALSE, warning =  FALSE}
+data_regression2_c <- data_regression2_c %>%
+  select(-data) %>%
+  unnest(regression_output)
+
+data_regression2_c
+```
+
+5. The 95% confidence intervals can be plotted:
+
+```{r, eval = TRUE, message = FALSE, warning =  FALSE, fig.width=8, fig.height=5} 
+data_regression2_c %>%
+  mutate(term = fct_relevel(term, "groupInfo", "groupExp", "groupExpInfo")) %>%
+  mutate(outcome = case_when(outcome == "visit" ~ "Visit", outcome == "fill" ~ "Fill", outcome == "visit_fill" ~ "Visit fill")) %>%
+  ggplot(.,
+         aes(
+           x = term,
+           y = estimate,
+           ymin = conf.low,
+           ymax = conf.high
+         )) +
+  geom_hline(
+    yintercept = 0,
+    color = "orange",
+    lwd = 0.3
+  ) +
+  geom_pointrange(
+    size = 0.8,
+    fatten = 2,
+    colour = "deepskyblue3"
+  ) +
+  scale_y_continuous(breaks = scales::pretty_breaks(n = 10)) +
+  coord_flip() +
+  facet_wrap(~ outcome) +
+  ylab("Average Marginal Effects") + xlab("") +
+  theme_minimal()
+```
