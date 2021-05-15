@@ -68,6 +68,7 @@ library(gtsummary)
 library(knitr)
 library(kableExtra)
 ```
+# Data cleaning
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 data_phishing <- data_phishing %>%
