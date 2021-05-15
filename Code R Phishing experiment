@@ -371,7 +371,7 @@ P-values
 opve = (sum(data_simulations$diff_simulations <= observed_difference_v)/1000)*100 # outcome Visit
 tpve = (sum(abs(data_simulations$diff_simulations) >=  abs(observed_difference_v))/1000)*100
 
-opfe = (sum(data_simulations_f_exp$diff_simulations_f_exp <= observed_difference_f)/1000)*100 # outocome Fill
+opfe = (sum(data_simulations_f_exp$diff_simulations_f_exp <= observed_difference_f)/1000)*100 # outcome Fill
 tpfe = (sum(abs(data_simulations_f_exp$diff_simulations_f_exp) >=  abs(observed_difference_f))/1000)*100
 
 opvfe = (sum(data_simulations_vf_exp$diff_simulations_vf_exp <= observed_difference_vf)/1000)*100 # outcome VisitFill
