@@ -689,7 +689,7 @@ plot_grid(ggv, ggf, ggvf) # displaying of the 3 plots together
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 # nesting data by outcome
-data_regression <- data %>%
+data_regression <- data_phishing %>%
   pivot_longer(cols = c(visit, fill, visit_fill), names_to = "outcome", values_to = "value") %>%
   group_by(outcome) %>%
   nest()
@@ -764,11 +764,12 @@ data_regression %>%
   theme_minimal()
 ```
 
+# Robustness of the results
 
 We now test the robustness of the results, for which we reproduce the same regressions as before but without the control variables.
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
-data_regression2 <- data %>%
+data_regression2 <- data_phishing %>%
   pivot_longer(cols = c(visit, fill, visit_fill), names_to = "outcome", values_to = "value") %>%
   group_by(outcome) %>%
   nest()
