@@ -774,7 +774,7 @@ data_regression_c <- data_phis_c %>%
   group_by(outcome) %>%
   nest()
 
-data_regression #displaying the data frame
+data_regression_c #displaying the data frame
 ```
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
