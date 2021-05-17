@@ -23,7 +23,7 @@ body {
 text-align: justify}
 </style>
 
-# Introduction 
+## Introduction 
 
 In March 2018, the film company Pathé was the victim of a phishing attack, causing an estimated loss of more than 19 million euros. In addition to significant financial damage, phishing poses a significant risk to the protection of personal data. It is therefore now necessary to prevent this type of attack.
 
@@ -40,7 +40,7 @@ The aim of the experiment was therefore to determine the effectiveness of differ
 In their experiment, the researchers did not use any means to check whether the treatments were actually taken or not.  They state that they sent several short emails to participants to encourage them to take the treatment. However, having no concrete information on whether or not the treatment was taken does not allow us to deal with the one-sided and two-sided non-compliance issues. That forms an obvious bias in the results of the experiment. In addition, a whole division of the ministry was unintentionally notified that the first phishing email was fake. Thus, The Control and Info units of division C received this notification as well. This may have affected the results, creating intervention spillover effects within that division. Therefore, we will comment on the results with and without this division, which will also allow us to test the robustness of the treatments. 
 
 
-# Presentation of data and variables
+## Presentation of data and variables
 
 The file “phishing_dataset.csv” gives the data obtained in the experiment. 
 
@@ -73,7 +73,7 @@ library(kableExtra)
 ```
 
 
-# Data cleaning
+## Data cleaning
 
 We first clean up the data, recoding the treatment indicators and adding the age categories. We also created a table without the C division, which will be useful for the analyses without this division. Finally, we created two vectors 'Group' and 'Outcome', which will be used for the analyses.
 
@@ -739,11 +739,11 @@ plot_grid(ggv, ggf, ggvf) # displaying of the 3 plots together
 
 
 
-# Linear regression analysis
+## Linear regression analysis {.tabset .tabset-pills}
 
 To automate the linear regression, we first nest the data by outcome. Then, we create a function to do a regression. The function is applied and finally we unnest the data table in order to display the results. After that, we can plot the results with the 95% confident intervals.
 
-# With division C
+### With division C
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 # nesting data by outcome
@@ -825,7 +825,18 @@ The order of efficiency for this outcome is the same than for the Fill outcome. 
 Thus, considering the analysis of these results, one could conclude that the most effective treatment is the ExpInfo one. Indeed, it is the one that allows the most to reduce the number of employees sharing their personal information. Conversely, the treatment that appears to be the least effective is the info one, even though its effect remains positive and not negligible.
 All treatments have a positive effect on the treated units. Our analysis allows to find the same conclusions as in the article. 
 
-# Without division C
+#### Seconde analyse
+
+```{r, eval = TRUE, message = FALSE}
+lm.object <- lm(visit ~ group + gender + as.factor(int_employee) + age_categories + division, data = data)
+```
+
+```{r, eval = TRUE, message = FALSE}
+lm.gtobject <- tbl_regression(lm.object, include = c(age_categories, gender))
+lm.gtobject
+```
+
+### Without division C
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 # nesting data by outcome
@@ -888,11 +899,11 @@ The results of the analysis without the division C remain essentially the same a
 Nevertheless, we observe that the differences in percentage points are all greater in this analysis. One way to explain this is that the control group in Division C was accidentally made aware of the experiment. It can therefore be assumed that these units were then more attentive to phishing emails, which would justify these larger effects.
 
 
-# Robustness of the results
+## Robustness of the results {.tabset .tabset-pills}
 
 We now test the robustness of the results, for which we reproduce the same regressions as before but without the control variables.
 
-# With the division C
+### With the division C
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 data_regression2 <- data_phishing %>%
@@ -958,7 +969,7 @@ data_regression2 %>%
 ```
 When comparing the linear regression analysis containing the division C with and without the control variables, the effects of the different treatments remain broadly the same. The differences between the two analyses for a treatment never exceed one percentage point. The results of this analysis can therefore be considered robust (as announced in the original paper).
 
-# Without the division C
+### Without the division C
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 data_regression2_c <- data_phis_c %>%
