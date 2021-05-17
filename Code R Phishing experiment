@@ -765,6 +765,18 @@ data_regression %>%
   ylab("Average Marginal Effects") + xlab("") +
   theme_minimal()
 ```
+Visit outcome:
+It can be seen here that the most effective treatment is the Exp one closely followed by the ExpInfo one. The less effective treatment is the Info one.
+
+Fill outcome: 
+For this outcome the most effective treatment is the ExpInfo one, the second is the Exp treatment and the less effective treatment is the Info one again.
+
+Visit Fill outcome:
+The order of efficiency for this outcome is the same than for the Fill outcome. Nevertheless, the differences of points of percentage with the control group are much highier for the Exp and ExpInfo treatment. On the contrary, for the Info treatment, the difference is smaller for this outcome. However, despite these larger differences (for the Exp and ExpInfo treatment), the confidence intervals are also larger. The precision of the effect of these treatments on this outcome is therefore less precise
+
+Thus, considering the analysis of these results, one could conclude that the most effective treatment is the ExpInfo one. Indeed, it is the one that allows the most to reduce the number of employees sharing their personal information. Conversely, the treatment that appears to be the least effective is the info one, even though its effect remains positive and not negligible.
+All treatments have a positive effect on the treated units. Our analysis allows to find the same conclusions as in the article. 
+
 # Without division C
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
@@ -825,6 +837,10 @@ data_regression_c %>%
   ylab("Average Marginal Effects") + xlab("") +
   theme_minimal()
 ```
+
+The results of the analysis without the division C remain essentially the same as announced in the original paper. There is just a difference for the outcome visit where the Exp treatment appears to be more effective than the ExpInfo one.
+Nevertheless, we observe that the differences in percentage points are all greater in this analysis. One way to explain this is that the control group in Division C was accidentally made aware of the experiment. It can therefore be assumed that these units were then more attentive to phishing emails, which would justify these larger effects.
+
 
 # Robustness of the results
 
