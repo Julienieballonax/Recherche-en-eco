@@ -742,9 +742,9 @@ plot_grid(ggv, ggf, ggvf) # displaying of the 3 plots together
 
 # Linear regression analysis
 
-# With division C
+To automate the linear regression, we first nest the data by outcome. Then, we create a function to do a regression. The function is applied and finally we unnest the data table in order to display the results. After that, we can plot the results with the 95% confident intervals.
 
-1. Nesting data by outcome
+# With division C
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 # nesting data by outcome
@@ -755,8 +755,6 @@ data_regression <- data_phishing %>%
 
 data_regression #displaying the data frame
 ```
-
-2. Creating of a function to do a regression :
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 # we do a regression
@@ -770,8 +768,6 @@ function_regression <- function(data){
 }
 ```
 
-3. The function is applied using the command `map()` :
-
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 # application of the function
 data_regression <- data_regression %>%
@@ -779,8 +775,6 @@ data_regression <- data_regression %>%
 
 data_regression
 ```
-
-4. The results must now be displayed. We need to "unnest" the data table:
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 # unnesting the result
@@ -791,8 +785,6 @@ data_regression <- data_regression %>%
 # displaying of the table
 data_regression
 ```
-
-5. The 95% confidence intervals can be plotted:
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE, fig.width=8, fig.height=5} 
 # make the graph
@@ -864,8 +856,6 @@ data_regression_c <- data_regression_c %>%
 data_regression_c
 ```
 
-5. The 95% confidence intervals can be plotted:
-
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE, fig.width=8, fig.height=5} 
 # make the graph
 data_regression_c %>%
@@ -914,8 +904,6 @@ data_regression2 <- data_phishing %>%
 data_regression2
 ```
 
-2. Creating of a second function to do a regression (without the control variables):
-
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 function_regression2 <- function(data){
   data %>%
@@ -927,16 +915,12 @@ function_regression2 <- function(data){
 }
 ```
 
-3. The function is applied using the command `map()` :
-
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 data_regression2 <- data_regression2 %>%
   mutate(regression_output = map(data, ~ function_regression2(.)))
 
 data_regression2
 ```
-
-The results must now be displayed. We need to "unnest" the data table:
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 data_regression2 <- data_regression2 %>%
@@ -945,8 +929,6 @@ data_regression2 <- data_regression2 %>%
 
 data_regression2
 ```
-
-5. The 95% confidence intervals can be plotted:
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE, fig.width=8, fig.height=5} 
 data_regression2 %>%
@@ -994,8 +976,6 @@ data_regression2_c <- data_regression2_c %>%
 data_regression2_c
 ```
 
-The results must now be displayed. We need to "unnest" the data table:
-
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 data_regression2_c <- data_regression2_c %>%
   select(-data) %>%
@@ -1003,8 +983,6 @@ data_regression2_c <- data_regression2_c %>%
 
 data_regression2_c
 ```
-
-5. The 95% confidence intervals can be plotted:
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE, fig.width=8, fig.height=5} 
 data_regression2_c %>%
