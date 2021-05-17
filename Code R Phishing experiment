@@ -956,6 +956,7 @@ data_regression2 %>%
   ylab("Average Marginal Effects") + xlab("") +
   theme_minimal()
 ```
+When comparing the linear regression analyses containing the division C with and without the control variables, the effects of the different treatments remain broadly the same. The differences between the two analyses for a treatment never exceed one percentage point. The results of this analysis can therefore be considered robust (as announced in the original paper).
 
 # Without the division C
 
@@ -1010,3 +1011,5 @@ data_regression2_c %>%
   ylab("Average Marginal Effects") + xlab("") +
   theme_minimal()
 ```
+
+For the analyses without C division, as before, the same results are found except for the Visit Fil outcome of the Info group where the effect drops from -10.4 percentage points compared to the control group to -7.9 percentage points. The results as a whole can therefore be considered quite robust. 
