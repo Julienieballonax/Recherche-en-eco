@@ -357,10 +357,6 @@ c(op,tpve)
 }
 ```
 
-III. Randomization inference loop
-
-
-As explained, our experiment is based on cluster allocation. Thus, it is necessary to randomise on the clusters and not on the units themselves. As each cluster consists of one and the same treatment, we randomised according to the proportion of treated to control group. 
 
 A. Exp
 
