@@ -1,3 +1,5 @@
+
+
 ---
 title: "Recherche"
 author: "Beaufils - Cochet - Dyèvre"
@@ -31,9 +33,11 @@ Faced with these risks, prevention campaigns are becoming more and more numerous
 
 To answer these questions, Aurelien Baillon, Jeroen de Bruin, Aysil Emirmahmutoglu, Evelien van de Veer and Bram van Dijk from Erasmus University Rotterdam conducted an experiment at the Dutch Ministry of Economic Affairs and Climate Policy.
 
-The experiment was carried out on 10929 employees of the Ministry, without them being informed that they were participating in an experiment. The employees were divided according to the 184 core units of the Ministry. Each cluster was randomly assigned to one of four groups: Control, Exp, Info and ExpInfo. The experiment was divided into five periods (T in {1, . . . , 5}). At T = 2, T = 3, T = 4, the Info units received phishing prevention emails. At T = 1, the Exp units received a fake phishing email and a short debrief. The ExpInfo units received both types of treatment. At T = 5, all groups received a phishing email. 
-It was apparently not possible to ensure that the treatment units actually received and read their e-mails, which forms an obvious bias in the results of the experiment. In addition, a whole division of the ministry was unintentionally notified that the first phishing email was fake. Thus, The Control and Info units of division C received this notification as well. This may have affected the results, creating intervention spillover effects within that division. Therefore, we will comment on the results with and without this division, which will also allow us to test the robustness of the treatments. 
+The experiment was carried out on 10929 employees of the Ministry, without them being informed that they were participating in an experiment. The employees were divided according to the 184 core units of the Ministry. Each cluster was randomly assigned to one of four groups: Control, Exp, Info and ExpInfo. The experiment was divided into five periods (T in {1, . . . , 5}). At T = 2, T = 3, T = 4, the Info units received phishing prevention emails. At T = 1, the Exp units received a fake phishing email and a short debrief. The ExpInfo units received both types of treatment. At T = 5, all groups received a fake phishing email. 
 
+The aim of the experiment was therefore to determine the effectiveness of different prevention campaigns. A secondary analysis was also to understand which age and gender characteristics are most likely to be victims of phishing attacks. This would allow prevention campaigns to be more targeted at those most at risk. 
+
+It was apparently not possible to ensure that the treatment units actually received and read their e-mails, which forms an obvious bias in the results of the experiment. In addition, a whole division of the ministry was unintentionally notified that the first phishing email was fake. Thus, The Control and Info units of division C received this notification as well. This may have affected the results, creating intervention spillover effects within that division. Therefore, we will comment on the results with and without this division, which will also allow us to test the robustness of the treatments. 
 
 
 
@@ -62,13 +66,17 @@ head(data_phishing)
 
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
-library(tidyverse)
-library(cowplot)
-library(gtsummary)
-library(knitr)
+library(tidyverse) 
+library(cowplot) #To create tables of charts
+library(gtsummary) #to make aesthetic regression tables
+library(knitr) #
 library(kableExtra)
 ```
+
+
 # Data cleaning
+
+We first clean up the data, recoding the treatment indicators and adding the age categories. We also created a table without the C division, which will be useful for the analyses without this division. Finally, we created two vectors 'Group' and 'Outcome', which will be used for the analyses.
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 data_phishing <- data_phishing %>%
@@ -92,7 +100,7 @@ data_phishing <- data_phishing %>%
     )
   ) %>%
   mutate(age_categories = fct_relevel(age_categories, "16-25", "26-35", "36-45", "46-55")) %>%
-  # recoding of the gender variable 
+  # recoding of the gender variable : O for Female, 1 for Male
   mutate(gender = case_when(gender == "M" ~ 1,
                             gender == "F" ~ 0)) %>%
   # change order variable division with B as reference
@@ -107,7 +115,12 @@ Group = c('Control','Info','Exp','ExpInf')
 
 Unit characteristics and similarity tests
 
+To begin with, we compared the characteristics of the different groups. For a ramdomized analysis, it is necessary that the units of the treatment and control groups are similar so that the treatment effect is not masked by other variables. As explained, there was a problem with division C. Therefore, we propose to compare the characteristics of the different groups, with and without this division.
+
+
 - Total number of units per group
+
+Regarding the age of the units, it is noted in the article : 
 
 "We implemented two interventions: information provision (Info) and experience (Exp).
 We used a 2x2 design and subjects were divided into four groups of roughly equal size: Control
@@ -119,19 +132,28 @@ data_phishing %>%
   summarise(nb_group = n()) #count of units by group
 ```
 
+There are no mistakes here. Now let's see without the C division.
+
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 data_phis_c %>%
   group_by(group) %>%
   summarise(nb_group = n())
 ```
 
+The problem here is that the groups are clearly no longer the same size. For example, there is a difference of about 400 units between the control group and the "Info" treatment group.
+
+
 - Number of female and male units
+
+Here we simply look at the gender distribution in the ministry, to check that there are no errors in the article. It is noted : 
 
 "Most subjects were males (60,6%), [...]."
 
+First, we calculate the total number of men (1) and women (0), with and without division C.
+
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 data_phishing %>%
-  group_by(gender) %>% 
+  group_by(gender) %>%
   summarise(nb_obs = n()) #count of units by gender
 ```
 
@@ -140,6 +162,9 @@ data_phis_c %>%
   group_by(gender) %>%
   summarise(nb_obs = n())
 ```
+
+Then, we calculate the distribution.
+
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 
 rep_sex = mean(data_phishing$gender, na.rm = TRUE)*100 # gender distribution among the units
@@ -149,7 +174,11 @@ rep_sex
 rep_sex_c
 ```
 
+The figures are therefore consistent with the researchers' claims, and removing division C does not pose a large bias.
+
 - Age of the units
+
+Here we look at the age distribution among the units. According to the paper: "[...] an average age of 47 years."
 
 * Overall average
 
@@ -161,23 +190,29 @@ moy_age
 moy_age_c
 ```
 
+The numbers are consistent. We then look at the age distribution, according to the treatment. We first check with division C, then without. We use charts to make it more lisible.
+
 * Age of the units according to the treatment
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 ggplot(data = data_phishing) + # boxplot showing the age distribution according to the treatement
-  geom_boxplot(aes(x = as.character(group), y = age , color = as.character(group)))
+  geom_boxplot(aes(x = group, y = age , color = group)) +
+  xlab('Group')
 ```
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 ggplot(data = data_phishing) + # plot showing the age distribution according to the treatement
-  geom_density(aes(x = age, color = group))
+  geom_density(aes(x = age, color = group)) 
 ```
 
+Here too the groups seem similar with the C division. Let's see without.
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 ggplot(data = data_phis_c) +
-  geom_boxplot(aes(x = as.character(group), y = age , color = as.character(group)))
+  geom_boxplot(aes(x = group, y = age , color = group))
 ```
+
+Visually, the average age per group seems to differ.
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 ggplot(data = data_phis_c) +
@@ -198,7 +233,9 @@ data_phis_c %>%
   group_by(group) %>%
   summarise(nb_obs = n(), mean_age = mean(age, na.rm = TRUE), sex_repartition = mean(gender, na.rm = TRUE)*100, mean_int_employee = mean(int_employee, na.rm = TRUE)*100,)
 ```
-Before the removal of division C due to an error on the part of the researchers, the different treatment groups had roughly the same characteristics. The removal of this division caused slight shifts in the distribution of the control variables in the treatment groups. These groups are no longer completely identical or of the same size. For example, there is a difference of about 400 units between the control group and the "Info" treatment group.
+
+Before the removal of division C due to an error on the part of the researchers, the different treatment groups had roughly the same characteristics. The removal of this division caused slight shifts in the distribution of the control variables in the treatment groups. These groups are no longer completely identical or of the same size. 
+
 
 # Randomization inference
 
@@ -220,10 +257,10 @@ observed_difference_f = mean(data_phis_c$fill[data_phis_c$group == 'Exp']) - mea
 observed_difference_vf = mean(data_phis_c$visit_fill[data_phis_c$group == 'Exp'], na.rm = TRUE) - mean(data_phis_c$visit_fill[data_phis_c$group == 'Control'], na.rm = TRUE) 
 
 
-print(data.frame(Outcome = c('Visit', 'Fill', 'Visit_Fill'), ATE = c(observed_difference_v,observed_difference_f, observed_difference_vf)))  # displaying differences
+print(data.frame(Outcome, ATE = c(observed_difference_v,observed_difference_f, observed_difference_vf)))  # displaying differences
 ```
 
-The observed differences seem to establish a negative correlation between the 'Exp' treatment and the control group: this treatment reduced the different outcomes by 11 to 13 percentage points. For instance, the number of units which visited the website has been reduced by 13 percentage points, compared to the control group.  Let's see if this difference stands up to randomisation inference.
+The observed differences seem to establish a negative correlation between the 'Exp' treatment and the control group: this treatment reduced the different outcomes by 11 to 13 percentage points. For instance, the number of units which visited the website has been reduced by 13 percentage points, compared to the control group.
 
 
 B. Info
@@ -238,7 +275,7 @@ observed_difference_vf_info = mean(data_phis_c$visit_fill[data_phis_c$group == '
 print(data.frame(Outcome = c('Visit', 'Fill', 'Visit_Fill'), ATE = c(observed_difference_v_info,observed_difference_f_info, observed_difference_vf_info)))  # displaying differences
 ```
 
-The observed differences seem to establish a negative correlation between the 'Info' treatment and the control group: this treatment reduced the different outcomes by 11 to 13 percentage points. For instance, the number of units which visited the website has been reduced by 8 percentage points, compared to the control group.  Let's see if this difference stands up to randomisation inference.
+The observed differences seem to establish a negative correlation between the 'Info' treatment and the control group: this treatment reduced the different outcomes by 11 to 13 percentage points. For instance, the number of units which visited the website has been reduced by 8 percentage points, compared to the control group.
 
 
 C. ExpInfo
@@ -295,6 +332,30 @@ data_phis_c_expinfo <- data_phis_c %>%
 prop_expinfo = sum(data_phis_c_expinfo$ind_group)/nrow(data_phis_c_expinfo) # proportion of units receiving the ExpInfo treatment
 ```
 
+
+III. Randomization inference loop
+
+
+As explained, our experiment is based on cluster allocation. Thus, it is necessary to randomise on the clusters and not on the units themselves. As each cluster consists of one and the same treatment, we randomised according to the proportion of treated to control group. 
+
+Groundwork
+
+* RI Function
+
+* Graph function
+
+* P_values function
+
+```{r, eval = TRUE, message = FALSE, warning =  FALSE}
+p_values <- function(diff_simul, obs){
+
+data_simulations <- tibble(diff_simulations= diff_simulations)
+op = (sum(data_simulations$diff_simulations <= obs)/1000)*100
+tpve = (sum(abs(data_simulations$diff_simulations) >=  abs(obs))/1000)*100
+
+c(op,tpve)
+}
+```
 
 III. Randomization inference loop
 
