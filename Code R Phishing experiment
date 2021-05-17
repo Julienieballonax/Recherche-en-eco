@@ -830,37 +830,45 @@ All treatments have a positive effect on the treated units. Our analysis allows 
 
 #### Second analysis
 
+We are now trying to understand which category is more likely to fall victim to a phishing attack. To do this, we run linear regressions, taking women and the age group 16-25 as the reference gender and age group. 
+
+We first recode the variable 'gender' to have clearer tables
+
+```{r, eval = TRUE, message = FALSE}
+
+data_phishing <- data_phishing %>%
+  mutate(gender = case_when(gender == 1 ~ "M",
+                            gender == 0 ~ "F"))
+```
+
 Visit
 
 ```{r, eval = TRUE, message = FALSE}
-lm.object_v <- lm(visit ~ group + gender + as.factor(int_employee) + age_categories + division, data = data_phishing)
-```
+lm_object <- lm(visit ~ group + gender + as.factor(int_employee) + age_categories + division, data = data_phishing) 
+lm_gtobject <- tbl_regression(lm_object, include = c(gender, age_categories)) %>%
+  bold_labels()
+lm_gtobject
 
-```{r, eval = TRUE, message = FALSE}
-lm.gtobject_v <- tbl_regression(lm.object_v, include = c(age_categories, gender))
-lm.gtobject_v
 ```
 
 Fill
 
 ```{r, eval = TRUE, message = FALSE}
-lm.object_f <- lm(fill ~ group + gender + as.factor(int_employee) + age_categories + division, data = data_phishing)
-```
+lm_object <- lm(fill ~ group + gender + as.factor(int_employee) + age_categories + division, data = data_phishing) 
+lm_gtobject <- tbl_regression(lm_object, include = c(gender, age_categories)) %>%
+  bold_labels()
+lm_gtobject
 
-```{r, eval = TRUE, message = FALSE}
-lm.gtobject_f <- tbl_regression(lm.object_f, include = c(age_categories, gender))
-lm.gtobject_f
 ```
 
 Visit Fill
 
 ```{r, eval = TRUE, message = FALSE}
-lm.object_vf <- lm(visit_fill ~ group + gender + as.factor(int_employee) + age_categories + division, data = data_phishing)
-```
+lm_object <- lm(visit_fill ~ group + gender + as.factor(int_employee) + age_categories + division, data = data_phishing) 
+lm_gtobject <- tbl_regression(lm_object, include = c(gender, age_categories)) %>%
+  bold_labels()
+lm_gtobject
 
-```{r, eval = TRUE, message = FALSE}
-lm.gtobject_vf <- tbl_regression(lm.object_vf, include = c(age_categories, gender))
-lm.gtobject_vf
 ```
 
 It can be seen that the older people are, the more likely they are to be duped by phishing emails. This observation is made in the original paper and is relatively predictable taking into account the familiarity of different generations with hacking risks and new technologies.
@@ -931,38 +939,49 @@ Nevertheless, we observe that the differences in percentage points are all great
 
 #### Second analysis
 
+We first recode the variable 'gender' to have clearer tables.
+
+```{r, eval = TRUE, message = FALSE}
+
+data_phis_c <- data_phis_c %>%
+  mutate(gender = case_when(gender == 1 ~ "M",
+                            gender == 0 ~ "F"))
+```
+
 Visit
 
-```{r, eval = TRUE, message = FALSE}
-lm.object_v <- lm(visit ~ group + gender + as.factor(int_employee) + age_categories + division, data = data_phis_c)
-```
 
 ```{r, eval = TRUE, message = FALSE}
-lm.gtobject_v <- tbl_regression(lm.object_v, include = c(age_categories, gender))
-lm.gtobject_v
+lm_object <- lm(visit ~ group + gender + as.factor(int_employee) + age_categories + division, data = data_phis_c) 
+lm_gtobject <- tbl_regression(lm_object, include = c(gender, age_categories)) %>%
+  bold_labels()
+lm_gtobject
+
 ```
+
+
 
 Fill
 
 ```{r, eval = TRUE, message = FALSE}
-lm.object_f <- lm(fill ~ group + gender + as.factor(int_employee) + age_categories + division, data = data_phis_c)
+lm_object <- lm(fill ~ group + gender + as.factor(int_employee) + age_categories + division, data = data_phis_c) 
+lm_gtobject <- tbl_regression(lm_object, include = c(gender, age_categories)) %>%
+  bold_labels()
+lm_gtobject
+
 ```
 
-```{r, eval = TRUE, message = FALSE}
-lm.gtobject_f <- tbl_regression(lm.object_f, include = c(age_categories, gender))
-lm.gtobject_f
-```
 
 Visit Fill
 
 ```{r, eval = TRUE, message = FALSE}
-lm.object_vf <- lm(visit_fill ~ group + gender + as.factor(int_employee) + age_categories + division, data = data_phis_c)
+lm_object <- lm(visit_fill ~ group + gender + as.factor(int_employee) + age_categories + division, data = data_phis_c) 
+lm_gtobject <- tbl_regression(lm_object, include = c(gender, age_categories)) %>%
+  bold_labels()
+lm_gtobject
+
 ```
 
-```{r, eval = TRUE, message = FALSE}
-lm.gtobject_vf <- tbl_regression(lm.object_vf, include = c(age_categories, gender))
-lm.gtobject_vf
-```
 
 Without the division C, the results are broadly the same as when the analysis is done with the division C, except for the Visit Fill outcome where individuals aged 26 to 55 are less likely to be duped than younger individuals (age range 16 to 25). Above 55 years of age, individuals are more likely to be duped than younger people. the results therefore seem to contradict each other. we therefore find the non-robust result mentioned in the original paper by the authors.
 
