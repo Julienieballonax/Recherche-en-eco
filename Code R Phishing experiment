@@ -37,8 +37,7 @@ The experiment was carried out on 10929 employees of the Ministry, without them 
 
 The aim of the experiment was therefore to determine the effectiveness of different prevention campaigns. A secondary analysis was also to understand which age and gender characteristics are most likely to be victims of phishing attacks. This would allow prevention campaigns to be more targeted at those most at risk. 
 
-It was apparently not possible to ensure that the treatment units actually received and read their e-mails, which forms an obvious bias in the results of the experiment. In addition, a whole division of the ministry was unintentionally notified that the first phishing email was fake. Thus, The Control and Info units of division C received this notification as well. This may have affected the results, creating intervention spillover effects within that division. Therefore, we will comment on the results with and without this division, which will also allow us to test the robustness of the treatments. 
-
+In their experiment, the researchers did not use any means to check whether the treatments were actually taken or not.  They state that they sent several short emails to participants to encourage them to take the treatment. However, having no concrete information on whether or not the treatment was taken does not allow us to deal with the one-sided and two-sided non-compliance issues. That forms an obvious bias in the results of the experiment. In addition, a whole division of the ministry was unintentionally notified that the first phishing email was fake. Thus, The Control and Info units of division C received this notification as well. This may have affected the results, creating intervention spillover effects within that division. Therefore, we will comment on the results with and without this division, which will also allow us to test the robustness of the treatments. 
 
 
 # Presentation of data and variables
