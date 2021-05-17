@@ -45,7 +45,7 @@ In their experiment, the researchers did not use any means to check whether the 
 The file “phishing_dataset.csv” gives the data obtained in the experiment. 
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
-data_phishing <- read.csv("/Users/f-x/Downloads/phishing_dataset.csv") # data loading
+data_phishing <- read.csv("/Users/martinbeaufils/Downloads/phishing_dataset.csv") # data loading
 head(data_phishing)
 ```
 
@@ -236,7 +236,7 @@ data_phis_c %>%
 Before the removal of division C due to an error on the part of the researchers, the different treatment groups had roughly the same characteristics. The removal of this division caused slight shifts in the distribution of the control variables in the treatment groups. These groups are no longer completely identical or of the same size. 
 
 
-# Randomization inference
+## Randomization inference
 
 
 We decided to focus our randomization inference by removing the C division from the analysis. Indeed, given the difficulties encountered by the researchers with this unit, it seemed to us biased to take it into account in this analysis.
@@ -600,7 +600,7 @@ plot_grid(first_row, second_row, third_row,  nrow = 3) # displaying final result
 
 
 
-Weighted t-test
+## Weighted t-test
 
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
@@ -616,7 +616,7 @@ data_wtt_c <- data_phis_c %>%
 
 ```
 
-Control Group
+#### Control Group
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 
@@ -637,7 +637,8 @@ vfc_c = weighted.mean(x = data_wtt_c$prop_visit_fill[data_wtt_c$group == 'Contro
 
 ```
 
-Info Group
+#### Info Group
+
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 
 vi = weighted.mean(x = data_wtt$prop_visit[data_wtt$group == 'Info'], w = data_wtt$prop_cluster[data_wtt$group == 'Info']) # calculation of the weighted average by the proportion of clusters of the average outcome (Visit) for the Info group
@@ -656,7 +657,7 @@ vfi_c = weighted.mean(x = data_wtt_c$prop_visit_fill[data_wtt_c$group == 'Info']
   
 ```
 
-Exp Group
+#### Exp Group
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 
@@ -675,7 +676,7 @@ fe_c = weighted.mean(x = data_wtt_c$prop_fill[data_wtt_c$group == 'Exp'], w = da
 vfe_c = weighted.mean(x = data_wtt_c$prop_visit_fill[data_wtt_c$group == 'Exp'], w = data_wtt_c$prop_cluster[data_wtt_c$group == 'Exp'], na.rm = TRUE)
 ```
 
-ExpInfo Group
+#### ExpInfo Group
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 
@@ -744,6 +745,8 @@ plot_grid(ggv, ggf, ggvf) # displaying of the 3 plots together
 To automate the linear regression, we first nest the data by outcome. Then, we create a function to do a regression. The function is applied and finally we unnest the data table in order to display the results. After that, we can plot the results with the 95% confident intervals.
 
 ### With division C
+
+#### First analysis
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 # nesting data by outcome
@@ -825,18 +828,46 @@ The order of efficiency for this outcome is the same than for the Fill outcome. 
 Thus, considering the analysis of these results, one could conclude that the most effective treatment is the ExpInfo one. Indeed, it is the one that allows the most to reduce the number of employees sharing their personal information. Conversely, the treatment that appears to be the least effective is the info one, even though its effect remains positive and not negligible.
 All treatments have a positive effect on the treated units. Our analysis allows to find the same conclusions as in the article. 
 
-#### Seconde analyse
+#### Second analysis
+
+Visit
 
 ```{r, eval = TRUE, message = FALSE}
-lm.object <- lm(visit ~ group + gender + as.factor(int_employee) + age_categories + division, data = data)
+lm.object_v <- lm(visit ~ group + gender + as.factor(int_employee) + age_categories + division, data = data_phishing)
 ```
 
 ```{r, eval = TRUE, message = FALSE}
-lm.gtobject <- tbl_regression(lm.object, include = c(age_categories, gender))
-lm.gtobject
+lm.gtobject_v <- tbl_regression(lm.object_v, include = c(age_categories, gender))
+lm.gtobject_v
 ```
 
-### Without division C
+Fill
+
+```{r, eval = TRUE, message = FALSE}
+lm.object_f <- lm(fill ~ group + gender + as.factor(int_employee) + age_categories + division, data = data_phishing)
+```
+
+```{r, eval = TRUE, message = FALSE}
+lm.gtobject_f <- tbl_regression(lm.object_f, include = c(age_categories, gender))
+lm.gtobject_f
+```
+
+Visit Fill
+
+```{r, eval = TRUE, message = FALSE}
+lm.object_vf <- lm(visit_fill ~ group + gender + as.factor(int_employee) + age_categories + division, data = data_phishing)
+```
+
+```{r, eval = TRUE, message = FALSE}
+lm.gtobject_vf <- tbl_regression(lm.object_vf, include = c(age_categories, gender))
+lm.gtobject_vf
+```
+
+It can be seen that the older people are, the more likely they are to be duped by phishing emails. This observation is made in the original paper and is relatively predictable taking into account the familiarity of different generations with hacking risks and new technologies.
+
+### Without the division C
+
+#### First analysis
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 # nesting data by outcome
@@ -898,6 +929,42 @@ data_regression_c %>%
 The results of the analysis without the division C remain essentially the same as announced in the original paper. There is just a difference for the outcome visit where the Exp treatment appears to be more effective than the ExpInfo one.
 Nevertheless, we observe that the differences in percentage points are all greater in this analysis. One way to explain this is that the control group in Division C was accidentally made aware of the experiment. It can therefore be assumed that these units were then more attentive to phishing emails, which would justify these larger effects.
 
+#### Second analysis
+
+Visit
+
+```{r, eval = TRUE, message = FALSE}
+lm.object_v <- lm(visit ~ group + gender + as.factor(int_employee) + age_categories + division, data = data_phis_c)
+```
+
+```{r, eval = TRUE, message = FALSE}
+lm.gtobject_v <- tbl_regression(lm.object_v, include = c(age_categories, gender))
+lm.gtobject_v
+```
+
+Fill
+
+```{r, eval = TRUE, message = FALSE}
+lm.object_f <- lm(fill ~ group + gender + as.factor(int_employee) + age_categories + division, data = data_phis_c)
+```
+
+```{r, eval = TRUE, message = FALSE}
+lm.gtobject_f <- tbl_regression(lm.object_f, include = c(age_categories, gender))
+lm.gtobject_f
+```
+
+Visit Fill
+
+```{r, eval = TRUE, message = FALSE}
+lm.object_vf <- lm(visit_fill ~ group + gender + as.factor(int_employee) + age_categories + division, data = data_phis_c)
+```
+
+```{r, eval = TRUE, message = FALSE}
+lm.gtobject_vf <- tbl_regression(lm.object_vf, include = c(age_categories, gender))
+lm.gtobject_vf
+```
+
+Without the division C, the results are broadly the same as when the analysis is done with the division C, except for the Visit Fill outcome where individuals aged 26 to 55 are less likely to be duped than younger individuals (age range 16 to 25). Above 55 years of age, individuals are more likely to be duped than younger people. the results therefore seem to contradict each other. we therefore find the non-robust result mentioned in the original paper by the authors.
 
 ## Robustness of the results {.tabset .tabset-pills}
 
