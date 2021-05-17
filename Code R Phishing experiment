@@ -1023,4 +1023,4 @@ data_regression2_c %>%
   theme_minimal()
 ```
 
-For the analysis without the division C, as before, the same results are found except for the Visit Fil outcome of the Info group where the effect drops from -10.4 percentage points compared to the control group to -7.9 percentage points. The results as a whole can therefore be considered quite robust. 
+For the analysis without the division C, as before, the same results are found except for the Visit Fill outcome of the Info group where the effect drops from -10.4 percentage points compared to the control group to -7.9 percentage points. The results as a whole can therefore be considered quite robust. 
