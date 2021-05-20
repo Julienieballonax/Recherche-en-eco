@@ -110,10 +110,11 @@ Outcome = c('Visit', 'Fill', 'Visit_Fill')
 Group = c('Control','Info','Exp','ExpInf')
 ```
 
+## Testing the "balance" of the treatment
+
 Unit characteristics and similarity tests
 
 To begin with, we compared the characteristics of the different groups. For a ramdomized analysis, it is necessary that the units of the treatment and control groups are similar so that the treatment effect is not masked by other variables. As explained, there was a problem with division C. Therefore, we propose to compare the characteristics of the different groups, with and without this division.
-
 
 - Total number of units per group
 
