@@ -38,12 +38,13 @@ The aim of the experiment was therefore to determine the effectiveness of differ
 In their experiment, the researchers did not use any means to check whether the treatments were actually taken or not.  They state that they sent several short emails to participants to encourage them to take the treatment. However, having no concrete information on whether or not the treatment was taken does not allow us to deal with the one-sided and two-sided non-compliance issues. That forms an obvious bias in the results of the experiment. In addition, a whole division of the ministry was unintentionally notified that the first phishing email was fake. Thus, The Control and Info units of division C received this notification as well. This may have affected the results, creating intervention spillover effects within that division. Therefore, we will comment on the results with and without this division, which will also allow us to test the robustness of the treatments. 
 
 
+
 ## Presentation of data and variables
 
 The file “phishing_dataset.csv” gives the data obtained in the experiment. 
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
-data_phishing <- read.csv("/Users/martinbeaufils/Downloads/phishing_dataset.csv") # data loading
+data_phishing <- read.csv("/Users/f-x/Downloads/phishing_dataset.csv") # data loading
 head(data_phishing)
 ```
 
@@ -69,6 +70,7 @@ library(gtsummary) #to make aesthetic regression tables
 library(knitr) #
 library(kableExtra)
 ```
+
 
 
 ## Data cleaning
@@ -110,19 +112,21 @@ Outcome = c('Visit', 'Fill', 'Visit_Fill')
 Group = c('Control','Info','Exp','ExpInf')
 ```
 
-## Testing the "balance" of the treatment
+## Treatment balance
 
-Unit characteristics and similarity tests
 
 To begin with, we compared the characteristics of the different groups. For a ramdomized analysis, it is necessary that the units of the treatment and control groups are similar so that the treatment effect is not masked by other variables. As explained, there was a problem with division C. Therefore, we propose to compare the characteristics of the different groups, with and without this division.
 
-- Total number of units per group
 
-Regarding the age of the units, it is noted in the article : 
+#### Total number of units per group {.tabset .tabset-pills}
+
+Regarding the number of the units, it is noted in the article : 
 
 "We implemented two interventions: information provision (Info) and experience (Exp).
 We used a 2x2 design and subjects were divided into four groups of roughly equal size: Control
 (2723 employees), Info (2740), Exp (2724) and ExpInfo (2742)."
+
+##### With division C
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 data_phishing %>%
@@ -132,6 +136,8 @@ data_phishing %>%
 
 There are no mistakes here. Now let's see without the C division.
 
+##### Without division C
+
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 data_phis_c %>%
   group_by(group) %>%
@@ -140,8 +146,7 @@ data_phis_c %>%
 
 The problem here is that the groups are clearly no longer the same size. For example, there is a difference of about 400 units between the control group and the "Info" treatment group.
 
-
-- Number of female and male units
+#### Number of female and male units {.tabset .tabset-pills}
 
 Here we simply look at the gender distribution in the ministry, to check that there are no errors in the article. It is noted : 
 
@@ -149,11 +154,15 @@ Here we simply look at the gender distribution in the ministry, to check that th
 
 First, we calculate the total number of men (1) and women (0), with and without division C.
 
+##### With division C
+
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 data_phishing %>%
   group_by(gender) %>%
   summarise(nb_obs = n()) #count of units by gender
 ```
+
+##### Without division C
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 data_phis_c %>%
@@ -161,64 +170,78 @@ data_phis_c %>%
   summarise(nb_obs = n())
 ```
 
+##### Comparison
+
 Then, we calculate the distribution.
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 
 rep_sex = mean(data_phishing$gender, na.rm = TRUE)*100 # gender distribution among the units
 rep_sex_c = mean(data_phis_c$gender, na.rm = TRUE)*100 
-
-rep_sex
-rep_sex_c
+kbl((data.frame(GM = c('gender_mean'),With_division_C = c(rep_sex), Without_division_C = c(rep_sex_c)))) %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed"))
 ```
 
 The figures are therefore consistent with the researchers' claims, and removing division C does not pose a large bias.
 
-- Age of the units
+#### Age of the units {.tabset .tabset-pills}
 
 Here we look at the age distribution among the units. According to the paper: "[...] an average age of 47 years."
 
-* Overall average
+##### Overall average
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
-moy_age = mean(data_phishing$age, na.rm = TRUE) # age distribution among the units
-moy_age_c = mean(data_phis_c$age, na.rm = TRUE)
+mean_age = mean(data_phishing$age, na.rm = TRUE) # age distribution among the units
+mean_age_c = mean(data_phis_c$age, na.rm = TRUE)
 
-moy_age
-moy_age_c
+kbl((data.frame(AG = c('age_mean'), With_division_C = c(mean_age), Without_division_C = c(mean_age_c)))) %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed"))
 ```
 
 The numbers are consistent. We then look at the age distribution, according to the treatment. We first check with division C, then without. We use charts to make it more lisible.
 
-* Age of the units according to the treatment
+##### With division C
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 ggplot(data = data_phishing) + # boxplot showing the age distribution according to the treatement
   geom_boxplot(aes(x = group, y = age , color = group)) +
-  xlab('Group')
+  xlab('Group') +
+  labs(title = 'Age boxplot') +
+  theme(plot.title = element_text(hjust = 0.5))
 ```
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 ggplot(data = data_phishing) + # plot showing the age distribution according to the treatement
-  geom_density(aes(x = age, color = group)) 
+  geom_density(aes(x = age, color = group)) +
+  labs(title = 'Age distribution') +
+  theme(plot.title = element_text(hjust = 0.5))
 ```
 
 Here too the groups seem similar with the C division. Let's see without.
 
+##### Without division C
+
+
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 ggplot(data = data_phis_c) +
-  geom_boxplot(aes(x = group, y = age , color = group))
+  geom_boxplot(aes(x = group, y = age , color = group)) +  
+  xlab('Group') +
+  labs(title = 'Age boxplot (without division C)') +
+  theme(plot.title = element_text(hjust = 0.5))
 ```
 
 Visually, the average age per group seems to differ.
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 ggplot(data = data_phis_c) +
-  geom_density(aes(x = age, color = group)) 
+  geom_density(aes(x = age, color = group)) +
+  labs(title = 'Age distribution without division C') +
+  theme(plot.title = element_text(hjust = 0.5))
 ```
 
-- Summary table of the characteristics of the units depending on the treatment
+#### Summary table of the characteristics of the units depending on the treatment {.tabset .tabset-pills}
 
+##### With division C
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 data_phishing %>%
@@ -226,36 +249,37 @@ data_phishing %>%
   summarise(nb_obs = n(), mean_age = mean(age, na.rm = TRUE), sex_repartition = mean(gender, na.rm = TRUE)*100, mean_int_employee = mean(int_employee, na.rm = TRUE)*100,) # mean of the different characteristics of the units
 ```
 
+##### Without division C
+
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 data_phis_c %>%
   group_by(group) %>%
   summarise(nb_obs = n(), mean_age = mean(age, na.rm = TRUE), sex_repartition = mean(gender, na.rm = TRUE)*100, mean_int_employee = mean(int_employee, na.rm = TRUE)*100,)
 ```
 
+
 Before the removal of division C due to an error on the part of the researchers, the different treatment groups had roughly the same characteristics. The removal of this division caused slight shifts in the distribution of the control variables in the treatment groups. These groups are no longer completely identical or of the same size. 
 
-
 ## Randomization inference
-
 
 We decided to focus our randomization inference by removing the C division from the analysis. Indeed, given the difficulties encountered by the researchers with this unit, it seemed to us biased to take it into account in this analysis.
 
 We have divided this analysis by looking at each treatment individually. In this way, we can first determine which of the treatments definitely reduce the likelihood of falling victim to a phishing attack.
 
 
-I. Calculation of ATEs for each treatment
+#### Calculation of ATEs for each treatment
 
 A. Exp
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 
-
 observed_difference_v = mean(data_phis_c$visit[data_phis_c$group == 'Exp']) - mean(data_phis_c$visit[data_phis_c$group == 'Control']) # difference of the averages for each treatment (for the Exp group)
 observed_difference_f = mean(data_phis_c$fill[data_phis_c$group == 'Exp']) - mean(data_phis_c$fill[data_phis_c$group == 'Control']) 
 observed_difference_vf = mean(data_phis_c$visit_fill[data_phis_c$group == 'Exp'], na.rm = TRUE) - mean(data_phis_c$visit_fill[data_phis_c$group == 'Control'], na.rm = TRUE) 
+#displaying differences
+kbl(data.frame(Outcome, ATE = c(observed_difference_v,observed_difference_f, observed_difference_vf)))%>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed"))
 
-
-print(data.frame(Outcome, ATE = c(observed_difference_v,observed_difference_f, observed_difference_vf)))  # displaying differences
 ```
 
 The observed differences seem to establish a negative correlation between the 'Exp' treatment and the control group: this treatment reduced the different outcomes by 11 to 13 percentage points. For instance, the number of units which visited the website has been reduced by 13 percentage points, compared to the control group.
@@ -269,11 +293,12 @@ observed_difference_f_info = mean(data_phis_c$fill[data_phis_c$group == 'Info'])
 print(observed_difference_f_info)
 observed_difference_vf_info = mean(data_phis_c$visit_fill[data_phis_c$group == 'Info'], na.rm = TRUE) - mean(data_phis_c$visit_fill[data_phis_c$group == 'Control'], na.rm = TRUE) 
 
-  
-print(data.frame(Outcome = c('Visit', 'Fill', 'Visit_Fill'), ATE = c(observed_difference_v_info,observed_difference_f_info, observed_difference_vf_info)))  # displaying differences
+# displaying differences  
+kbl((data.frame(Outcome = c('Visit', 'Fill', 'Visit_Fill'), ATE = c(observed_difference_v_info,observed_difference_f_info, observed_difference_vf_info)))) %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed"))
 ```
 
-The observed differences seem to establish a negative correlation between the 'Info' treatment and the control group: this treatment reduced the different outcomes by 11 to 13 percentage points. For instance, the number of units which visited the website has been reduced by 8 percentage points, compared to the control group.
+The observed differences seem to establish a negative correlation between the 'Info' treatment and the control group: this treatment reduced the different outcomes by 7 to 8 percentage points. For instance, the number of units which visited the website has been reduced by 8 percentage points, compared to the control group.
 
 
 C. ExpInfo
@@ -282,11 +307,13 @@ C. ExpInfo
 
 observed_difference_v_expinfo = mean(data_phis_c$visit[data_phis_c$group == 'ExpInfo']) - mean(data_phis_c$visit[data_phis_c$group == 'Control']) # difference of the averages for each treatment (for the ExpInfo group)
 observed_difference_f_expinfo = mean(data_phis_c$fill[data_phis_c$group == 'ExpInfo']) - mean(data_phis_c$fill[data_phis_c$group == 'Control']) 
-print(observed_difference_f_expinfo)
-observed_difference_vf_expinfo = mean(data_phis_c$visit_fill[data_phis_c$group == 'ExpInfo'], na.rm = TRUE) - mean(data_phis_c$visit_fill[data_phis_c$group == 'Control'], na.rm = TRUE) 
-print(observed_difference_vf_expinfo)
 
-print(data.frame(Outcome = c('Visit', 'Fill', 'Visit_Fill'), ATE = c(observed_difference_v_expinfo,observed_difference_f_expinfo, observed_difference_vf_expinfo))) # displaying differences
+observed_difference_vf_expinfo = mean(data_phis_c$visit_fill[data_phis_c$group == 'ExpInfo'], na.rm = TRUE) - mean(data_phis_c$visit_fill[data_phis_c$group == 'Control'], na.rm = TRUE) 
+
+
+# displaying differences
+kbl((data.frame(Outcome = c('Visit', 'Fill', 'Visit_Fill'), ATE = c(observed_difference_v_expinfo,observed_difference_f_expinfo, observed_difference_vf_expinfo)))) %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed"))
 
 ```
 
@@ -433,7 +460,8 @@ tpfe = (sum(abs(data_simulations_f_exp$diff_simulations_f_exp) >=  abs(observed_
 opvfe = (sum(data_simulations_vf_exp$diff_simulations_vf_exp <= observed_difference_vf)/1000)*100 # outcome VisitFill
 tpvfe = (sum(abs(data_simulations_vf_exp$diff_simulations_vf_exp) >=  abs(observed_difference_vf))/1000)*100
 
-data.frame(outcome = c('Visit','Fill','Visit_Fill'), one_sided_p_values = c(opve, opfe, opvfe), two_sided_p_values = c(tpve ,tpfe ,tpvfe))
+kbl(data.frame(outcome = c('Visit','Fill','Visit_Fill'), one_sided_p_values = c(opve, opfe, opvfe), two_sided_p_values = c(tpve ,tpfe ,tpvfe))) %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed"))
 
 ```
 As the p-values are relatively low, it seems consistent to reject the sharp null hypothesis for this treatment.
@@ -505,7 +533,8 @@ tpfi = (sum(abs(data_simulations_f_info$diff_simulations_f_info) >=  abs(observe
 opvfi = (sum(data_simulations_vf_info$diff_simulations_vf_info <= observed_difference_vf_info)/1000)*100 # outcome VisitFill
 tpvfi = (sum(abs(data_simulations_vf_info$diff_simulations_vf_info) >=  abs(observed_difference_vf_info))/1000)*100
 
-data.frame(Outcome, one_sided_p_values = c(opvi, opfi, opvfi), two_sided_p_values = c(tpvi ,tpfi ,tpvfi))
+kbl(data.frame(Outcome, one_sided_p_values = c(opvi, opfi, opvfi), two_sided_p_values = c(tpvi ,tpfi ,tpvfi))) %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed"))
 
 ```
 
@@ -580,7 +609,8 @@ tpfei = (sum(abs(data_simulations_f_expinfo$diff_simulations_f_expinfo) >=  abs(
 opvfei = (sum(data_simulations_vf_expinfo$diff_simulations_vf_expinfo <= observed_difference_vf_expinfo)/1000)*100 # outcome VisitFill
 tpvfei = (sum(abs(data_simulations_vf_expinfo$diff_simulations_vf_expinfo) >=  abs(observed_difference_vf_expinfo))/1000)*100
 
-data.frame(Outcome, one_sided_p_values = c(opvei, opfei, opvfei), two_sided_p_values = c(tpvei ,tpfei, tpvfei))
+kbl(data.frame(Outcome, one_sided_p_values = c(opvei, opfei, opvfei), two_sided_p_values = c(tpvei ,tpfei, tpvfei))) %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed"))
 ```
 
 As the p-values are relatively low, it seems consistent to reject the sharp null hypothesis for this treatment.
@@ -599,23 +629,22 @@ plot_grid(first_row, second_row, third_row,  nrow = 3) # displaying final result
 
 
 
-## Weighted t-test
+## Weighted t-test {.tabset .tabset-pills}
 
+### With division C
+
+We first create tables that will be useful for this analysis and calculate the proportions of units treated for each treatment.
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 #creation of tables containing the proportions of outcomes per cluster
 data_wtt <- data_phishing %>%
   group_by(group, cluster) %>%
   summarise(prop_cluster = n()/10929, prop_fill = sum(fill)/n(), prop_visit = sum(visit)/n(),  prop_visit_fill = sum(visit_fill, na.rm = TRUE)/sum(visit))
-
-data_wtt_c <- data_phis_c %>%
-  group_by(group, cluster) %>%
-  summarise(prop_cluster = n()/10929, prop_fill = sum(fill)/n(), prop_visit = sum(visit)/n(),  prop_visit_fill = sum(visit_fill, na.rm = TRUE)/sum(visit))
-
-
 ```
 
-#### Control Group
+Then for each group, we calculate the weighted averages of each outcome.
+
+* Control Group
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 
@@ -624,8 +653,101 @@ fc = weighted.mean(x = data_wtt$prop_fill[data_wtt$group == 'Control'], w = data
 vc = weighted.mean(x = data_wtt$prop_visit[data_wtt$group == 'Control'], w = data_wtt$prop_cluster[data_wtt$group == 'Control']) # calculation of the weighted average by the proportion of clusters of the average outcome (Visit) for the Control group
 
 vfc = weighted.mean(x = data_wtt$prop_visit_fill[data_wtt$group == 'Control'], w = data_wtt$prop_cluster[data_wtt$group == 'Control'], na.rm = TRUE) # calculation of the weighted average by the proportion of clusters of the average outcome (VisitFill) for the Control group
+```
+
+* Info Group
+
+```{r, eval = TRUE, message = FALSE, warning =  FALSE}
+
+vi = weighted.mean(x = data_wtt$prop_visit[data_wtt$group == 'Info'], w = data_wtt$prop_cluster[data_wtt$group == 'Info']) # calculation of the weighted average by the proportion of clusters of the average outcome (Visit) for the Info group
+
+fi = weighted.mean(x = data_wtt$prop_fill[data_wtt$group == 'Info'], w = data_wtt$prop_cluster[data_wtt$group == 'Info']) # calculation of the weighted average by the proportion of clusters of the average outcome (Fill) for the Info group
+
+vfi = weighted.mean(x = data_wtt$prop_visit_fill[data_wtt$group == 'Info'], w = data_wtt$prop_cluster[data_wtt$group == 'Info'], na.rm = TRUE) # calculation of the weighted average by the proportion of clusters of the average outcome (VisitFill) for the Info group
+```
+
+* Exp
+
+```{r, eval = TRUE, message = FALSE, warning =  FALSE}
+
+ve = weighted.mean(x = data_wtt$prop_visit[data_wtt$group == 'Exp'], w = data_wtt$prop_cluster[data_wtt$group == 'Exp']) # calculation of the weighted average by the proportion of clusters of the average outcome (Visit) for the Exp group
+
+fe = weighted.mean(x = data_wtt$prop_fill[data_wtt$group == 'Exp'], w = data_wtt$prop_cluster[data_wtt$group == 'Exp']) # calculation of the weighted average by the proportion of clusters of the average outcome (Fill) for the Exp group
+
+vfe = weighted.mean(x = data_wtt$prop_visit_fill[data_wtt$group == 'Exp'], w = data_wtt$prop_cluster[data_wtt$group == 'Exp'], na.rm = TRUE) # calculation of the weighted average by the proportion of clusters of the average outcome (VisitFill) for the Exp group
+```
+
+* ExpInfo Group
+
+```{r, eval = TRUE, message = FALSE, warning =  FALSE}
+
+vei = weighted.mean(x = data_wtt$prop_visit[data_wtt$group == 'ExpInfo'], w = data_wtt$prop_cluster[data_wtt$group == 'ExpInfo']) # calculation of the weighted average by the proportion of clusters of the average outcome (Visit) for the ExpInfo group
+
+fei = weighted.mean(x = data_wtt$prop_fill[data_wtt$group == 'ExpInfo'], w = data_wtt$prop_cluster[data_wtt$group == 'ExpInfo']) # calculation of the weighted average by the proportion of clusters of the average outcome (Fill) for the ExpInfo group
+
+vfei = weighted.mean(x = data_wtt$prop_visit_fill[data_wtt$group == 'ExpInfo'], w = data_wtt$prop_cluster[data_wtt$group == 'ExpInfo'], na.rm = TRUE) # calculation of the weighted average by the proportion of clusters of the average outcome (VisitFill) for the ExpInfo group
+```
+
+* Global Chart
+
+```{r, eval = TRUE, message = FALSE, warning =  FALSE, fig.width=8, fig.height=5} 
+
+dataggv <- data.frame(group = c('Control',"Info","Exp","ExpInfo"), visit_mean = c(vc,vi,ve,vei)*100) # creation of data tables to allow plotting results
+
+dataggf <- data.frame(group = c('Control',"Info","Exp","ExpInfo"), fill_mean = c(fc,fi,fe,fei)*100)
+
+dataggvf <- data.frame(group = c('Control',"Info","Exp","ExpInfo"), vf_mean = c(vfc,vfi,vfe,vfei)*100)
+```
 
 
+```{r, eval = TRUE, message = FALSE, warning =  FALSE, fig.width=8, fig.height=5} 
+
+ggv = ggplot(dataggv, aes(x = group, y = visit_mean)) +
+geom_segment(aes(x = group, xend = group, y = 0, yend = visit_mean), colour = "gray60") +
+geom_point(size = 4, colour = "deepskyblue3") +
+ylim(0,40) +
+ggtitle("Proportion of Visits by Treatment Arm") +
+xlab("Treatment Arm") + ylab("Proportion (%)") +
+theme_minimal()
+
+
+ggf = ggplot(dataggf, aes(x = group, y = fill_mean)) +
+geom_segment(aes(x = group, xend = group, y = 0, yend = fill_mean), colour = "gray60") +
+geom_point(size = 4, colour = "deepskyblue3") +
+ylim(0,40) +
+ggtitle("Proportion of Fill by Treatment Arm") +
+xlab("Treatment Arm") + ylab("Proportion (%)") +
+theme_minimal()
+
+
+ggvf = ggplot(dataggvf, aes(x = group, y = vf_mean)) +
+geom_segment(aes(x = group, xend = group, y = 0, yend = vf_mean), colour = "gray60") +
+geom_point(size = 4, colour = "deepskyblue3") +
+ylim(0,80) +
+ggtitle("Proportion of Visit_Fill by Treatment Arm") +
+xlab("Treatment Arm") + ylab("Proportion (%)") +
+theme_minimal()
+
+plot_grid(ggv, ggf, ggvf) # displaying of the 3 plots together
+```
+
+Overall, the figure shows that the control group has the highest proportion of units that visited the phishing site and filled in the form. Of all the units that visited the site, the control group also filled in the form the most (visit_fill outcome). This first weighted average analysis therefore allows us to estimate the beneficial effect of the treatment: the treatment groups have the lowest percentage of visits and form fillings.
+
+On average, it seems that the Exp and ExpInfo treatments are the most effective on each outcome.
+
+### Without division C
+
+```{r, eval = TRUE, message = FALSE, warning =  FALSE}
+#creation of tables containing the proportions of outcomes per cluster
+data_wtt_c <- data_phis_c %>%
+  group_by(group, cluster) %>%
+  summarise(prop_cluster = n()/10929, prop_fill = sum(fill)/n(), prop_visit = sum(visit)/n(),  prop_visit_fill = sum(visit_fill, na.rm = TRUE)/sum(visit))
+
+```
+
+* Control Group
+
+```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 # Without division C
 
 fc_c = weighted.mean(x = data_wtt_c$prop_fill[data_wtt_c$group == 'Control'], w = data_wtt_c$prop_cluster[data_wtt_c$group == 'Control'])
@@ -636,16 +758,9 @@ vfc_c = weighted.mean(x = data_wtt_c$prop_visit_fill[data_wtt_c$group == 'Contro
 
 ```
 
-#### Info Group
+* Info Group
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
-
-vi = weighted.mean(x = data_wtt$prop_visit[data_wtt$group == 'Info'], w = data_wtt$prop_cluster[data_wtt$group == 'Info']) # calculation of the weighted average by the proportion of clusters of the average outcome (Visit) for the Info group
-
-fi = weighted.mean(x = data_wtt$prop_fill[data_wtt$group == 'Info'], w = data_wtt$prop_cluster[data_wtt$group == 'Info']) # calculation of the weighted average by the proportion of clusters of the average outcome (Fill) for the Info group
-
-vfi = weighted.mean(x = data_wtt$prop_visit_fill[data_wtt$group == 'Info'], w = data_wtt$prop_cluster[data_wtt$group == 'Info'], na.rm = TRUE) # calculation of the weighted average by the proportion of clusters of the average outcome (VisitFill) for the Info group
-  
 # Without division C
 
 vi_c= weighted.mean(x = data_wtt_c$prop_visit[data_wtt_c$group == 'Info'], w = data_wtt_c$prop_cluster[data_wtt_c$group == 'Info'])
@@ -656,16 +771,10 @@ vfi_c = weighted.mean(x = data_wtt_c$prop_visit_fill[data_wtt_c$group == 'Info']
   
 ```
 
-#### Exp Group
+* Exp Group
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 
-ve = weighted.mean(x = data_wtt$prop_visit[data_wtt$group == 'Exp'], w = data_wtt$prop_cluster[data_wtt$group == 'Exp']) # calculation of the weighted average by the proportion of clusters of the average outcome (Visit) for the Exp group
-
-fe = weighted.mean(x = data_wtt$prop_fill[data_wtt$group == 'Exp'], w = data_wtt$prop_cluster[data_wtt$group == 'Exp']) # calculation of the weighted average by the proportion of clusters of the average outcome (Fill) for the Exp group
-
-vfe = weighted.mean(x = data_wtt$prop_visit_fill[data_wtt$group == 'Exp'], w = data_wtt$prop_cluster[data_wtt$group == 'Exp'], na.rm = TRUE) # calculation of the weighted average by the proportion of clusters of the average outcome (VisitFill) for the Exp group
-  
 # Without division C
 
 ve_c = weighted.mean(x = data_wtt_c$prop_visit[data_wtt_c$group == 'Exp'], w = data_wtt_c$prop_cluster[data_wtt_c$group == 'Exp'])
@@ -675,16 +784,9 @@ fe_c = weighted.mean(x = data_wtt_c$prop_fill[data_wtt_c$group == 'Exp'], w = da
 vfe_c = weighted.mean(x = data_wtt_c$prop_visit_fill[data_wtt_c$group == 'Exp'], w = data_wtt_c$prop_cluster[data_wtt_c$group == 'Exp'], na.rm = TRUE)
 ```
 
-#### ExpInfo Group
+* ExpInfo Group
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
-
-vei = weighted.mean(x = data_wtt$prop_visit[data_wtt$group == 'ExpInfo'], w = data_wtt$prop_cluster[data_wtt$group == 'ExpInfo']) # calculation of the weighted average by the proportion of clusters of the average outcome (Visit) for the ExpInfo group
-
-fei = weighted.mean(x = data_wtt$prop_fill[data_wtt$group == 'ExpInfo'], w = data_wtt$prop_cluster[data_wtt$group == 'ExpInfo']) # calculation of the weighted average by the proportion of clusters of the average outcome (Fill) for the ExpInfo group
-
-vfei = weighted.mean(x = data_wtt$prop_visit_fill[data_wtt$group == 'ExpInfo'], w = data_wtt$prop_cluster[data_wtt$group == 'ExpInfo'], na.rm = TRUE) # calculation of the weighted average by the proportion of clusters of the average outcome (VisitFill) for the ExpInfo group
-
 # Without division C
 
 vei_c = weighted.mean(x = data_wtt_c$prop_visit[data_wtt_c$group == 'ExpInfo'], w = data_wtt_c$prop_cluster[data_wtt_c$group == 'ExpInfo'])
@@ -693,21 +795,23 @@ fei_c = weighted.mean(x = data_wtt_c$prop_fill[data_wtt_c$group == 'ExpInfo'], w
 
 vfei_c = weighted.mean(x = data_wtt_c$prop_visit_fill[data_wtt_c$group == 'ExpInfo'], w = data_wtt_c$prop_cluster[data_wtt_c$group == 'ExpInfo'], na.rm = TRUE)
 
-
-
 ```
-  
+
+* Global Chart
+
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE, fig.width=8, fig.height=5} 
 
-dataggv <- data.frame(group = c('Control',"Info","Exp","ExpInfo"), visit_moyenne = c(vc,vi,ve,vei)*100 ,visit_moyenne_c = c(vc_c,vi_c,ve_c,vei_c)*100) # creation of data tables to allow plotting results
+dataggv <- data.frame(group = c('Control',"Info","Exp","ExpInfo") ,visit_mean_c = c(vc_c,vi_c,ve_c,vei_c)*100) # creation of data tables to allow plotting results
 
-dataggf <- data.frame(group = c('Control',"Info","Exp","ExpInfo"), fill_moyenne = c(fc,fi,fe,fei)*100 ,fill_moyenne_c = c(fc_c,fi_c,fe_c,fei_c)*100)
+dataggf <- data.frame(group = c('Control',"Info","Exp","ExpInfo") ,fill_mean_c = c(fc_c,fi_c,fe_c,fei_c)*100)
 
-dataggvf <- data.frame(group = c('Control',"Info","Exp","ExpInfo"), vf_moyenne = c(vfc,vfi,vfe,vfei)*100 ,vf_moyenne_c = c(vfc_c,vfi_c,vfe_c,vfei_c)*100)
+dataggvf <- data.frame(group = c('Control',"Info","Exp","ExpInfo") ,vf_mean_c = c(vfc_c,vfi_c,vfe_c,vfei_c)*100)
+```
 
+```{r, eval = TRUE, message = FALSE, warning =  FALSE, fig.width=8, fig.height=5} 
 
-ggv = ggplot(dataggv, aes(x = group, y = visit_moyenne_c)) +
-geom_segment(aes(x = group, xend = group, y = 0, yend = visit_moyenne_c), colour = "gray60") +
+ggv = ggplot(dataggv, aes(x = group, y = visit_mean_c)) +
+geom_segment(aes(x = group, xend = group, y = 0, yend = visit_mean_c), colour = "gray60") +
 geom_point(size = 4, colour = "deepskyblue3") +
 ylim(0,40) +
 ggtitle("Proportion of Visits by Treatment Arm") +
@@ -715,8 +819,8 @@ xlab("Treatment Arm") + ylab("Proportion (%)") +
 theme_minimal()
 
 
-ggf = ggplot(dataggf, aes(x = group, y = fill_moyenne_c)) +
-geom_segment(aes(x = group, xend = group, y = 0, yend = fill_moyenne_c), colour = "gray60") +
+ggf = ggplot(dataggf, aes(x = group, y = fill_mean_c)) +
+geom_segment(aes(x = group, xend = group, y = 0, yend = fill_mean_c), colour = "gray60") +
 geom_point(size = 4, colour = "deepskyblue3") +
 ylim(0,40) +
 ggtitle("Proportion of Fill by Treatment Arm") +
@@ -724,8 +828,8 @@ xlab("Treatment Arm") + ylab("Proportion (%)") +
 theme_minimal()
 
 
-ggvf = ggplot(dataggvf, aes(x = group, y = vf_moyenne_c)) +
-geom_segment(aes(x = group, xend = group, y = 0, yend = vf_moyenne_c), colour = "gray60") +
+ggvf = ggplot(dataggvf, aes(x = group, y = vf_mean_c)) +
+geom_segment(aes(x = group, xend = group, y = 0, yend = vf_mean_c), colour = "gray60") +
 geom_point(size = 4, colour = "deepskyblue3") +
 ylim(0,80) +
 ggtitle("Proportion of Visit_Fill by Treatment Arm") +
@@ -737,7 +841,7 @@ plot_grid(ggv, ggf, ggvf) # displaying of the 3 plots together
 
 ```
 
-
+Here we find approximately the same results with the same trend: the effects of all treatments seem beneficial and the Exp and Expinfo treatments seem to show the best results. 
 
 ## Linear regression analysis {.tabset .tabset-pills}
 
@@ -842,7 +946,7 @@ data_phishing <- data_phishing %>%
 
 Visit
 
-```{r, eval = TRUE, message = FALSE, warning = FALSE}
+```{r, eval = TRUE, message = FALSE}
 lm_object <- lm(visit ~ group + gender + as.factor(int_employee) + age_categories + division, data = data_phishing) 
 lm_gtobject <- tbl_regression(lm_object, include = c(gender, age_categories)) %>%
   bold_labels()
@@ -852,7 +956,7 @@ lm_gtobject
 
 Fill
 
-```{r, eval = TRUE, message = FALSE, warning = FALSE}
+```{r, eval = TRUE, message = FALSE}
 lm_object <- lm(fill ~ group + gender + as.factor(int_employee) + age_categories + division, data = data_phishing) 
 lm_gtobject <- tbl_regression(lm_object, include = c(gender, age_categories)) %>%
   bold_labels()
@@ -862,7 +966,7 @@ lm_gtobject
 
 Visit Fill
 
-```{r, eval = TRUE, message = FALSE, warning = FALSE}
+```{r, eval = TRUE, message = FALSE}
 lm_object <- lm(visit_fill ~ group + gender + as.factor(int_employee) + age_categories + division, data = data_phishing) 
 lm_gtobject <- tbl_regression(lm_object, include = c(gender, age_categories)) %>%
   bold_labels()
@@ -950,7 +1054,7 @@ data_phis_c <- data_phis_c %>%
 Visit
 
 
-```{r, eval = TRUE, message = FALSE, warning = FALSE}
+```{r, eval = TRUE, message = FALSE}
 lm_object <- lm(visit ~ group + gender + as.factor(int_employee) + age_categories + division, data = data_phis_c) 
 lm_gtobject <- tbl_regression(lm_object, include = c(gender, age_categories)) %>%
   bold_labels()
@@ -962,7 +1066,7 @@ lm_gtobject
 
 Fill
 
-```{r, eval = TRUE, message = FALSE, warning = FALSE}
+```{r, eval = TRUE, message = FALSE}
 lm_object <- lm(fill ~ group + gender + as.factor(int_employee) + age_categories + division, data = data_phis_c) 
 lm_gtobject <- tbl_regression(lm_object, include = c(gender, age_categories)) %>%
   bold_labels()
@@ -973,7 +1077,7 @@ lm_gtobject
 
 Visit Fill
 
-```{r, eval = TRUE, message = FALSE, warning = FALSE}
+```{r, eval = TRUE, message = FALSE}
 lm_object <- lm(visit_fill ~ group + gender + as.factor(int_employee) + age_categories + division, data = data_phis_c) 
 lm_gtobject <- tbl_regression(lm_object, include = c(gender, age_categories)) %>%
   bold_labels()
