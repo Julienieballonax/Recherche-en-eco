@@ -1,5 +1,3 @@
-
-
 ---
 title: "Recherche"
 author: "Beaufils - Cochet - Dyèvre"
@@ -843,7 +841,7 @@ data_phishing <- data_phishing %>%
 
 Visit
 
-```{r, eval = TRUE, message = FALSE}
+```{r, eval = TRUE, message = FALSE, warning = FALSE}
 lm_object <- lm(visit ~ group + gender + as.factor(int_employee) + age_categories + division, data = data_phishing) 
 lm_gtobject <- tbl_regression(lm_object, include = c(gender, age_categories)) %>%
   bold_labels()
@@ -853,7 +851,7 @@ lm_gtobject
 
 Fill
 
-```{r, eval = TRUE, message = FALSE}
+```{r, eval = TRUE, message = FALSE, warning = FALSE}
 lm_object <- lm(fill ~ group + gender + as.factor(int_employee) + age_categories + division, data = data_phishing) 
 lm_gtobject <- tbl_regression(lm_object, include = c(gender, age_categories)) %>%
   bold_labels()
@@ -863,7 +861,7 @@ lm_gtobject
 
 Visit Fill
 
-```{r, eval = TRUE, message = FALSE}
+```{r, eval = TRUE, message = FALSE, warning = FALSE}
 lm_object <- lm(visit_fill ~ group + gender + as.factor(int_employee) + age_categories + division, data = data_phishing) 
 lm_gtobject <- tbl_regression(lm_object, include = c(gender, age_categories)) %>%
   bold_labels()
@@ -951,7 +949,7 @@ data_phis_c <- data_phis_c %>%
 Visit
 
 
-```{r, eval = TRUE, message = FALSE}
+```{r, eval = TRUE, message = FALSE, warning = FALSE}
 lm_object <- lm(visit ~ group + gender + as.factor(int_employee) + age_categories + division, data = data_phis_c) 
 lm_gtobject <- tbl_regression(lm_object, include = c(gender, age_categories)) %>%
   bold_labels()
@@ -963,7 +961,7 @@ lm_gtobject
 
 Fill
 
-```{r, eval = TRUE, message = FALSE}
+```{r, eval = TRUE, message = FALSE, warning = FALSE}
 lm_object <- lm(fill ~ group + gender + as.factor(int_employee) + age_categories + division, data = data_phis_c) 
 lm_gtobject <- tbl_regression(lm_object, include = c(gender, age_categories)) %>%
   bold_labels()
@@ -974,7 +972,7 @@ lm_gtobject
 
 Visit Fill
 
-```{r, eval = TRUE, message = FALSE}
+```{r, eval = TRUE, message = FALSE, warning = FALSE}
 lm_object <- lm(visit_fill ~ group + gender + as.factor(int_employee) + age_categories + division, data = data_phis_c) 
 lm_gtobject <- tbl_regression(lm_object, include = c(gender, age_categories)) %>%
   bold_labels()
