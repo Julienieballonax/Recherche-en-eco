@@ -1088,7 +1088,7 @@ t
 ```
 
 
-Without the division C, the results are broadly the same as when the analysis is done with the division C, except for the Visit Fill outcome where individuals aged 26 to 55 are less likely to be duped than younger individuals (age range 16 to 25). Above 55 years of age, individuals are more likely to be duped than younger people. the results therefore seem to contradict each other. we therefore find the non-robust result mentioned in the original paper by the authors.
+Without the division C, the results are broadly the same as when the analysis is done with the division C, except for the Visit Fill outcome where individuals aged 26 to 55 are less likely to be duped than younger individuals (age range 16 to 25). Above 55 years of age, individuals are more likely to be duped than younger people. The results therefore seem to contradict each other. We therefore find the non-robust result mentioned in the original paper by the authors.
 
 ## Robustness of the results {.tabset .tabset-pills}
 
@@ -1215,3 +1215,9 @@ data_regression2_c %>%
 ```
 
 For the analysis without the division C, as before, the same results are found except for the Visit Fill outcome of the Info group where the effect drops from -10.4 percentage points compared to the control group to -7.9 percentage points. The results as a whole can therefore be considered quite robust. 
+
+
+## Conclusion
+
+In conclusion, our results obtained leads to the same conclusions as the original paper. The three treatments proposed by the researchers to prevent phishing attacks do have a beneficial effect on individuals. The ExpInfo treatment combining experiential and informational learning (which are the other two treatments) is more effective. However, the difference with the other treatments is not significant. The authors therefore deduced that the costs of these treatments raised the question of combining them.
+Nevertheless, it is clear that the exclusion of division C is somewhat biased. Indeed, it unbalances the different treatment groups and leads to contradictory results when looking at the link between the age of the individuals and the probability that they give up their personal information.
