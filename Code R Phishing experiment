@@ -948,9 +948,8 @@ Visit
 
 ```{r, eval = TRUE, message = FALSE}
 lm_object <- lm(visit ~ group + gender + as.factor(int_employee) + age_categories + division, data = data_phishing) 
-lm_gtobject <- tbl_regression(lm_object, include = c(gender, age_categories)) %>%
+lm_gtobjectv <- tbl_regression(lm_object, include = c(gender, age_categories)) %>%
   bold_labels()
-lm_gtobject
 
 ```
 
@@ -958,9 +957,8 @@ Fill
 
 ```{r, eval = TRUE, message = FALSE}
 lm_object <- lm(fill ~ group + gender + as.factor(int_employee) + age_categories + division, data = data_phishing) 
-lm_gtobject <- tbl_regression(lm_object, include = c(gender, age_categories)) %>%
+lm_gtobjectf <- tbl_regression(lm_object, include = c(gender, age_categories)) %>%
   bold_labels()
-lm_gtobject
 
 ```
 
@@ -968,14 +966,14 @@ Visit Fill
 
 ```{r, eval = TRUE, message = FALSE}
 lm_object <- lm(visit_fill ~ group + gender + as.factor(int_employee) + age_categories + division, data = data_phishing) 
-lm_gtobject <- tbl_regression(lm_object, include = c(gender, age_categories)) %>%
+lm_gtobjectvf <- tbl_regression(lm_object, include = c(gender, age_categories)) %>%
   bold_labels()
-lm_gtobject
 
+a <- tbl_merge(tbls = list(lm_gtobjectv, lm_gtobjectf, lm_gtobjectvf), tab_spanner = c("**Visit**", "**Fill**", "**Visit Fill**"))
+a
 ```
 
 It can be seen that the older people are, the more likely they are to be duped by phishing emails. This observation is made in the original paper and is relatively predictable taking into account the familiarity of different generations with hacking risks and new technologies.
-Furthermore, these results show that men are more likely to be duped by phishing emails than women (apart from the Visit Fill outcome).
 
 ### Without the division C
 
@@ -1057,9 +1055,8 @@ Visit
 
 ```{r, eval = TRUE, message = FALSE}
 lm_object <- lm(visit ~ group + gender + as.factor(int_employee) + age_categories + division, data = data_phis_c) 
-lm_gtobject <- tbl_regression(lm_object, include = c(gender, age_categories)) %>%
+lm_gtobject_v <- tbl_regression(lm_object, include = c(gender, age_categories)) %>%
   bold_labels()
-lm_gtobject
 
 ```
 
@@ -1069,9 +1066,9 @@ Fill
 
 ```{r, eval = TRUE, message = FALSE}
 lm_object <- lm(fill ~ group + gender + as.factor(int_employee) + age_categories + division, data = data_phis_c) 
-lm_gtobject <- tbl_regression(lm_object, include = c(gender, age_categories)) %>%
+lm_gtobject_f <- tbl_regression(lm_object, include = c(gender, age_categories)) %>%
   bold_labels()
-lm_gtobject
+
 
 ```
 
@@ -1080,15 +1077,18 @@ Visit Fill
 
 ```{r, eval = TRUE, message = FALSE}
 lm_object <- lm(visit_fill ~ group + gender + as.factor(int_employee) + age_categories + division, data = data_phis_c) 
-lm_gtobject <- tbl_regression(lm_object, include = c(gender, age_categories)) %>%
+lm_gtobject_vf<- tbl_regression(lm_object, include = c(gender, age_categories)) %>%
   bold_labels()
-lm_gtobject
+
+
+
+t <- tbl_merge(tbls = list(lm_gtobject_v, lm_gtobject_f, lm_gtobject_vf), tab_spanner = c("**Visit**", "**Fill**", "**Visit Fill**"))
+t
 
 ```
 
 
 Without the division C, the results are broadly the same as when the analysis is done with the division C, except for the Visit Fill outcome where individuals aged 26 to 55 are less likely to be duped than younger individuals (age range 16 to 25). Above 55 years of age, individuals are more likely to be duped than younger people. the results therefore seem to contradict each other. we therefore find the non-robust result mentioned in the original paper by the authors.
-For the gender comparison, the same results are found as for the analysis with division C.
 
 ## Robustness of the results {.tabset .tabset-pills}
 
