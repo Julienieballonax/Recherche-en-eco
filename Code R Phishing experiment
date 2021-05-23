@@ -1,6 +1,6 @@
 ---
-title: "Recherche"
-author: "Beaufils - Cochet - Dyèvre"
+title: "Reproduction of a randomized experiment - Informing, simulating experience, or both: A field experiment on phishing risks"
+author: "Martin Beaufils - Julien Cochet - François-Xavier Dyèvre"
 date: "`r Sys.Date()`"
 output:
   html_document:
@@ -21,6 +21,7 @@ body {
 text-align: justify}
 </style>
 
+
 ## Introduction 
 
 In March 2018, the film company Pathé was the victim of a phishing attack, causing an estimated loss of more than 19 million euros. In addition to significant financial damage, phishing poses a significant risk to the protection of personal data. It is therefore now necessary to prevent this type of attack.
@@ -36,6 +37,7 @@ The experiment was carried out on 10929 employees of the Ministry, without them 
 The aim of the experiment was therefore to determine the effectiveness of different prevention campaigns. A secondary analysis was also to understand which age and gender characteristics are most likely to be victims of phishing attacks. This would allow prevention campaigns to be more targeted at those most at risk. 
 
 In their experiment, the researchers did not use any means to check whether the treatments were actually taken or not.  They state that they sent several short emails to participants to encourage them to take the treatment. However, having no concrete information on whether or not the treatment was taken does not allow us to deal with the one-sided and two-sided non-compliance issues. That forms an obvious bias in the results of the experiment. In addition, a whole division of the ministry was unintentionally notified that the first phishing email was fake. Thus, The Control and Info units of division C received this notification as well. This may have affected the results, creating intervention spillover effects within that division. Therefore, we will comment on the results with and without this division, which will also allow us to test the robustness of the treatments. 
+
 
 
 
@@ -61,7 +63,6 @@ head(data_phishing)
 - Columns “visit”, “fill” and “visit_fill” are response variables to the second phishing email at time T= 5. “visit” indicates whether subjects clicked the link and visited the website, “fill” indicates whether subjects filled in their password, and “visit_fill” indicates whether they filled in their password conditional on having visited the website. 
 
 - Similarly, columns “visit_1”, “fill_1” and “visit_fill_1” are response variables to the first phishing email at time T=1 (only groups Exp and ExpInfo received this email.). 
-
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 library(tidyverse) 
@@ -184,6 +185,7 @@ kbl((data.frame(GM = c('gender_mean'),With_division_C = c(rep_sex), Without_divi
 
 The figures are therefore consistent with the researchers' claims, and removing division C does not pose a large bias.
 
+
 #### Age of the units {.tabset .tabset-pills}
 
 Here we look at the age distribution among the units. According to the paper: "[...] an average age of 47 years."
@@ -239,6 +241,7 @@ ggplot(data = data_phis_c) +
   theme(plot.title = element_text(hjust = 0.5))
 ```
 
+
 #### Summary table of the characteristics of the units depending on the treatment {.tabset .tabset-pills}
 
 ##### With division C
@@ -260,16 +263,17 @@ data_phis_c %>%
 
 Before the removal of division C due to an error on the part of the researchers, the different treatment groups had roughly the same characteristics. The removal of this division caused slight shifts in the distribution of the control variables in the treatment groups. These groups are no longer completely identical or of the same size. 
 
-## Randomization inference
+## Randomization inference {.tabset .tabset-pills}
+
 
 We decided to focus our randomization inference by removing the C division from the analysis. Indeed, given the difficulties encountered by the researchers with this unit, it seemed to us biased to take it into account in this analysis.
 
 We have divided this analysis by looking at each treatment individually. In this way, we can first determine which of the treatments definitely reduce the likelihood of falling victim to a phishing attack.
 
+### Exp
 
-#### Calculation of ATEs for each treatment
+#### Calculation of ATEs 
 
-A. Exp
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 
@@ -284,47 +288,9 @@ kbl(data.frame(Outcome, ATE = c(observed_difference_v,observed_difference_f, obs
 
 The observed differences seem to establish a negative correlation between the 'Exp' treatment and the control group: this treatment reduced the different outcomes by 11 to 13 percentage points. For instance, the number of units which visited the website has been reduced by 13 percentage points, compared to the control group.
 
-
-B. Info
-
-```{r, eval = TRUE, message = FALSE, warning =  FALSE}
-observed_difference_v_info = mean(data_phis_c$visit[data_phis_c$group == 'Info']) - mean(data_phis_c$visit[data_phis_c$group == 'Control']) # difference of the averages for each treatment (for the Info group)
-observed_difference_f_info = mean(data_phis_c$fill[data_phis_c$group == 'Info']) - mean(data_phis_c$fill[data_phis_c$group == 'Control'])
-print(observed_difference_f_info)
-observed_difference_vf_info = mean(data_phis_c$visit_fill[data_phis_c$group == 'Info'], na.rm = TRUE) - mean(data_phis_c$visit_fill[data_phis_c$group == 'Control'], na.rm = TRUE) 
-
-# displaying differences  
-kbl((data.frame(Outcome = c('Visit', 'Fill', 'Visit_Fill'), ATE = c(observed_difference_v_info,observed_difference_f_info, observed_difference_vf_info)))) %>%
-  kable_styling(bootstrap_options = c("striped", "hover", "condensed"))
-```
-
-The observed differences seem to establish a negative correlation between the 'Info' treatment and the control group: this treatment reduced the different outcomes by 7 to 8 percentage points. For instance, the number of units which visited the website has been reduced by 8 percentage points, compared to the control group.
-
-
-C. ExpInfo
-
-```{r, eval = TRUE, message = FALSE, warning =  FALSE}
-
-observed_difference_v_expinfo = mean(data_phis_c$visit[data_phis_c$group == 'ExpInfo']) - mean(data_phis_c$visit[data_phis_c$group == 'Control']) # difference of the averages for each treatment (for the ExpInfo group)
-observed_difference_f_expinfo = mean(data_phis_c$fill[data_phis_c$group == 'ExpInfo']) - mean(data_phis_c$fill[data_phis_c$group == 'Control']) 
-
-observed_difference_vf_expinfo = mean(data_phis_c$visit_fill[data_phis_c$group == 'ExpInfo'], na.rm = TRUE) - mean(data_phis_c$visit_fill[data_phis_c$group == 'Control'], na.rm = TRUE) 
-
-
-# displaying differences
-kbl((data.frame(Outcome = c('Visit', 'Fill', 'Visit_Fill'), ATE = c(observed_difference_v_expinfo,observed_difference_f_expinfo, observed_difference_vf_expinfo)))) %>%
-  kable_styling(bootstrap_options = c("striped", "hover", "condensed"))
-
-```
-
-The observed differences seem to establish a negative correlation between the 'ExpInfo' treatment and the control group: this treatment reduced the different outcomes by 9 to 15 percentage points. For instance, the number of units which visited the website has been reduced by 10 percentage points, compared to the control group.  Let's see if this difference stands up to randomisation inference.
-
-
-II. Calculation of the proportions of treated units
+#### Calculation of the proportions of treated units
 
 Here we calculate the proportions of treated units for each treatment compared to the numbers of control units. These proportions are necessary for randomization inference in a cluster experiment like ours.
-
-A. Exp
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 data_phis_c_exp <- data_phis_c %>%
@@ -335,56 +301,9 @@ data_phis_c_exp <- data_phis_c %>%
 prop_exp = sum(data_phis_c_exp$ind_group)/nrow(data_phis_c_exp) # proportion of units receiving the Exp treatment
 ```
 
-B. Info
-
-```{r, eval = TRUE, message = FALSE, warning =  FALSE}
-data_phis_c_info <- data_phis_c %>%
-  filter(group == 'Control' | group == 'Info') %>%
-  mutate(ind_group = ifelse(group == 'Info',1,0)) # creation of an indicator worth 1 if the unit is treated and 0 otherwise
-                            
-
-prop_info = sum(data_phis_c_info$ind_group)/nrow(data_phis_c_info) # proportion of units receiving the Info treatment
-```
-
-C. ExpInfo
-
-```{r, eval = TRUE, message = FALSE, warning =  FALSE}
-data_phis_c_expinfo <- data_phis_c %>%
-  filter(group == 'Control' | group == 'ExpInfo') %>%
-  mutate(ind_group = ifelse(group == 'ExpInfo',1,0)) # creation of an indicator worth 1 if the unit is treated and 0 otherwise
-                            
-
-prop_expinfo = sum(data_phis_c_expinfo$ind_group)/nrow(data_phis_c_expinfo) # proportion of units receiving the ExpInfo treatment
-```
-
-
-III. Randomization inference loop
-
+#### Randomization inference loop
 
 As explained, our experiment is based on cluster allocation. Thus, it is necessary to randomise on the clusters and not on the units themselves. As each cluster consists of one and the same treatment, we randomised according to the proportion of treated to control group. 
-
-Groundwork
-
-* RI Function
-
-* Graph function
-
-* P_values function
-
-```{r, eval = TRUE, message = FALSE, warning =  FALSE}
-p_values <- function(diff_simul, obs){
-
-data_simulations <- tibble(diff_simulations= diff_simulations)
-op = (sum(data_simulations$diff_simulations <= obs)/1000)*100
-tpve = (sum(abs(data_simulations$diff_simulations) >=  abs(obs))/1000)*100
-
-c(op,tpve)
-}
-```
-
-
-A. Exp
-
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 diff_simulations <- rep(NA, 1000)
@@ -412,7 +331,7 @@ diff_simulations_vf_exp[i] <- mean(data_phis_c_exp$visit_fill[data_phis_c_exp$ne
 
 ```
 
-
+#### Charts
 
 ```{r, eval = TRUE}
 
@@ -446,7 +365,7 @@ graph_visitfill_exp <- ggplot(data_simulations_vf_exp, aes(x = diff_simulations_
 print(plot_grid(graph_exp,graph_fill_exp,graph_visitfill_exp))
 ```
 
-P-values
+#### P-values
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 # Calculation of the one-sided and the two-sided p-value
@@ -464,10 +383,38 @@ kbl(data.frame(outcome = c('Visit','Fill','Visit_Fill'), one_sided_p_values = c(
   kable_styling(bootstrap_options = c("striped", "hover", "condensed"))
 
 ```
+
 As the p-values are relatively low, it seems consistent to reject the sharp null hypothesis for this treatment.
 
+### Info
 
-B. Info
+#### Calculation of ATEs
+
+```{r, eval = TRUE, message = FALSE, warning =  FALSE}
+observed_difference_v_info = mean(data_phis_c$visit[data_phis_c$group == 'Info']) - mean(data_phis_c$visit[data_phis_c$group == 'Control']) # difference of the averages for each treatment (for the Info group)
+observed_difference_f_info = mean(data_phis_c$fill[data_phis_c$group == 'Info']) - mean(data_phis_c$fill[data_phis_c$group == 'Control'])
+print(observed_difference_f_info)
+observed_difference_vf_info = mean(data_phis_c$visit_fill[data_phis_c$group == 'Info'], na.rm = TRUE) - mean(data_phis_c$visit_fill[data_phis_c$group == 'Control'], na.rm = TRUE) 
+
+# displaying differences  
+kbl((data.frame(Outcome = c('Visit', 'Fill', 'Visit_Fill'), ATE = c(observed_difference_v_info,observed_difference_f_info, observed_difference_vf_info)))) %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed"))
+```
+
+The observed differences seem to establish a negative correlation between the 'Info' treatment and the control group: this treatment reduced the different outcomes by 7 to 8 percentage points. For instance, the number of units which visited the website has been reduced by 8 percentage points, compared to the control group.
+
+#### Calculation of the proportions of treated units
+
+```{r, eval = TRUE, message = FALSE, warning =  FALSE}
+data_phis_c_info <- data_phis_c %>%
+  filter(group == 'Control' | group == 'Info') %>%
+  mutate(ind_group = ifelse(group == 'Info',1,0)) # creation of an indicator worth 1 if the unit is treated and 0 otherwise
+                            
+
+prop_info = sum(data_phis_c_info$ind_group)/nrow(data_phis_c_info) # proportion of units receiving the Info treatment
+```
+
+#### Randomization inference loop
 
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
@@ -490,6 +437,8 @@ diff_simulations_vf_info[i] <- mean(data_phis_c_info$visit_fill[data_phis_c_info
 }
 
 ```
+
+#### Charts
 
 ```{r, eval = TRUE}
 data_simulations_info <- tibble(diff_simulations_info=diff_simulations_info)
@@ -519,7 +468,8 @@ graph_visitfill_info <- ggplot(data_simulations_vf_info, aes(x = diff_simulation
 plot_grid(graph_info,graph_fill_info,graph_visitfill_info)
 ```
 
-P-values
+#### P-values
+
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 # Calculation of the one-sided and the two-sided p-value
@@ -540,8 +490,38 @@ kbl(data.frame(Outcome, one_sided_p_values = c(opvi, opfi, opvfi), two_sided_p_v
 
 As we see from the graph and table above, it is more difficult here to reject the sharp null hypothesis for this treatment and particularly for the 'Visit' outcome. Indeed, about 10% of the values are more extreme than that observed for this outcome. Nevertheless, the general trend seems to be in the direction of the effectiveness of the treatment.
 
+### ExpInfo
 
-C. ExpInfo
+#### Calculation of ATEs
+
+```{r, eval = TRUE, message = FALSE, warning =  FALSE}
+
+observed_difference_v_expinfo = mean(data_phis_c$visit[data_phis_c$group == 'ExpInfo']) - mean(data_phis_c$visit[data_phis_c$group == 'Control']) # difference of the averages for each treatment (for the ExpInfo group)
+observed_difference_f_expinfo = mean(data_phis_c$fill[data_phis_c$group == 'ExpInfo']) - mean(data_phis_c$fill[data_phis_c$group == 'Control']) 
+
+observed_difference_vf_expinfo = mean(data_phis_c$visit_fill[data_phis_c$group == 'ExpInfo'], na.rm = TRUE) - mean(data_phis_c$visit_fill[data_phis_c$group == 'Control'], na.rm = TRUE) 
+
+
+# displaying differences
+kbl((data.frame(Outcome = c('Visit', 'Fill', 'Visit_Fill'), ATE = c(observed_difference_v_expinfo,observed_difference_f_expinfo, observed_difference_vf_expinfo)))) %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed"))
+
+```
+
+The observed differences seem to establish a negative correlation between the 'ExpInfo' treatment and the control group: this treatment reduced the different outcomes by 9 to 15 percentage points. For instance, the number of units which visited the website has been reduced by 10 percentage points, compared to the control group.  Let's see if this difference stands up to randomisation inference.
+
+#### Calculation of the proportions of treated units
+
+```{r, eval = TRUE, message = FALSE, warning =  FALSE}
+data_phis_c_expinfo <- data_phis_c %>%
+  filter(group == 'Control' | group == 'ExpInfo') %>%
+  mutate(ind_group = ifelse(group == 'ExpInfo',1,0)) # creation of an indicator worth 1 if the unit is treated and 0 otherwise
+                            
+
+prop_expinfo = sum(data_phis_c_expinfo$ind_group)/nrow(data_phis_c_expinfo) # proportion of units receiving the ExpInfo treatment
+```
+
+#### Randomization inference loop
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 diff_simulations_expinfo <- rep(NA, 1000)
@@ -564,6 +544,7 @@ diff_simulations_vf_expinfo[i] <- mean(data_phis_c_expinfo$visit_fill[data_phis_
 }
 ```
 
+#### Charts
 
 ```{r, eval = TRUE}
 
@@ -595,7 +576,7 @@ graph_visitfill_expinfo <- ggplot(data_simulations_vf_expinfo, aes(x = diff_simu
 plot_grid(graph_expinfo,graph_fill_expinfo,graph_visitfill_expinfo)
 ```
 
-P-values 
+#### P-values
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 #Calcul de la one-sided et two-sided p-value
@@ -615,9 +596,7 @@ kbl(data.frame(Outcome, one_sided_p_values = c(opvei, opfei, opvfei), two_sided_
 
 As the p-values are relatively low, it seems consistent to reject the sharp null hypothesis for this treatment.
 
-
-
-IV. Final results
+### Global Chart
 
 ```{r, echo = TRUE, message = FALSE, warning = FALSE, fig.width = 10, fig.height = 5, fig.fullwidth=TRUE}
 first_row <- plot_grid(graph_exp, graph_fill_exp, graph_visitfill_exp, labels = 'Exp', ncol = 3)
@@ -626,7 +605,6 @@ third_row <- plot_grid(graph_expinfo, graph_fill_expinfo, graph_visitfill_expinf
 
 plot_grid(first_row, second_row, third_row,  nrow = 3) # displaying final results
 ```
-
 
 
 ## Weighted t-test {.tabset .tabset-pills}
@@ -644,7 +622,7 @@ data_wtt <- data_phishing %>%
 
 Then for each group, we calculate the weighted averages of each outcome.
 
-* Control Group
+#### Control Group
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 
@@ -655,18 +633,7 @@ vc = weighted.mean(x = data_wtt$prop_visit[data_wtt$group == 'Control'], w = dat
 vfc = weighted.mean(x = data_wtt$prop_visit_fill[data_wtt$group == 'Control'], w = data_wtt$prop_cluster[data_wtt$group == 'Control'], na.rm = TRUE) # calculation of the weighted average by the proportion of clusters of the average outcome (VisitFill) for the Control group
 ```
 
-* Info Group
-
-```{r, eval = TRUE, message = FALSE, warning =  FALSE}
-
-vi = weighted.mean(x = data_wtt$prop_visit[data_wtt$group == 'Info'], w = data_wtt$prop_cluster[data_wtt$group == 'Info']) # calculation of the weighted average by the proportion of clusters of the average outcome (Visit) for the Info group
-
-fi = weighted.mean(x = data_wtt$prop_fill[data_wtt$group == 'Info'], w = data_wtt$prop_cluster[data_wtt$group == 'Info']) # calculation of the weighted average by the proportion of clusters of the average outcome (Fill) for the Info group
-
-vfi = weighted.mean(x = data_wtt$prop_visit_fill[data_wtt$group == 'Info'], w = data_wtt$prop_cluster[data_wtt$group == 'Info'], na.rm = TRUE) # calculation of the weighted average by the proportion of clusters of the average outcome (VisitFill) for the Info group
-```
-
-* Exp
+#### Exp Group
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 
@@ -677,7 +644,18 @@ fe = weighted.mean(x = data_wtt$prop_fill[data_wtt$group == 'Exp'], w = data_wtt
 vfe = weighted.mean(x = data_wtt$prop_visit_fill[data_wtt$group == 'Exp'], w = data_wtt$prop_cluster[data_wtt$group == 'Exp'], na.rm = TRUE) # calculation of the weighted average by the proportion of clusters of the average outcome (VisitFill) for the Exp group
 ```
 
-* ExpInfo Group
+#### Info Group
+
+```{r, eval = TRUE, message = FALSE, warning =  FALSE}
+
+vi = weighted.mean(x = data_wtt$prop_visit[data_wtt$group == 'Info'], w = data_wtt$prop_cluster[data_wtt$group == 'Info']) # calculation of the weighted average by the proportion of clusters of the average outcome (Visit) for the Info group
+
+fi = weighted.mean(x = data_wtt$prop_fill[data_wtt$group == 'Info'], w = data_wtt$prop_cluster[data_wtt$group == 'Info']) # calculation of the weighted average by the proportion of clusters of the average outcome (Fill) for the Info group
+
+vfi = weighted.mean(x = data_wtt$prop_visit_fill[data_wtt$group == 'Info'], w = data_wtt$prop_cluster[data_wtt$group == 'Info'], na.rm = TRUE) # calculation of the weighted average by the proportion of clusters of the average outcome (VisitFill) for the Info group
+```
+
+#### ExpInfo Group
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 
@@ -688,7 +666,7 @@ fei = weighted.mean(x = data_wtt$prop_fill[data_wtt$group == 'ExpInfo'], w = dat
 vfei = weighted.mean(x = data_wtt$prop_visit_fill[data_wtt$group == 'ExpInfo'], w = data_wtt$prop_cluster[data_wtt$group == 'ExpInfo'], na.rm = TRUE) # calculation of the weighted average by the proportion of clusters of the average outcome (VisitFill) for the ExpInfo group
 ```
 
-* Global Chart
+#### Global Chart
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE, fig.width=8, fig.height=5} 
 
@@ -745,7 +723,7 @@ data_wtt_c <- data_phis_c %>%
 
 ```
 
-* Control Group
+#### Control Group
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 # Without division C
@@ -758,20 +736,7 @@ vfc_c = weighted.mean(x = data_wtt_c$prop_visit_fill[data_wtt_c$group == 'Contro
 
 ```
 
-* Info Group
-
-```{r, eval = TRUE, message = FALSE, warning =  FALSE}
-# Without division C
-
-vi_c= weighted.mean(x = data_wtt_c$prop_visit[data_wtt_c$group == 'Info'], w = data_wtt_c$prop_cluster[data_wtt_c$group == 'Info'])
-
-fi_c =weighted.mean(x = data_wtt_c$prop_fill[data_wtt_c$group == 'Info'], w = data_wtt_c$prop_cluster[data_wtt_c$group == 'Info'])
-
-vfi_c = weighted.mean(x = data_wtt_c$prop_visit_fill[data_wtt_c$group == 'Info'], w = data_wtt_c$prop_cluster[data_wtt_c$group == 'Info'], na.rm = TRUE)
-  
-```
-
-* Exp Group
+#### Exp Group
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 
@@ -784,7 +749,20 @@ fe_c = weighted.mean(x = data_wtt_c$prop_fill[data_wtt_c$group == 'Exp'], w = da
 vfe_c = weighted.mean(x = data_wtt_c$prop_visit_fill[data_wtt_c$group == 'Exp'], w = data_wtt_c$prop_cluster[data_wtt_c$group == 'Exp'], na.rm = TRUE)
 ```
 
-* ExpInfo Group
+#### Info Group
+
+```{r, eval = TRUE, message = FALSE, warning =  FALSE}
+# Without division C
+
+vi_c= weighted.mean(x = data_wtt_c$prop_visit[data_wtt_c$group == 'Info'], w = data_wtt_c$prop_cluster[data_wtt_c$group == 'Info'])
+
+fi_c =weighted.mean(x = data_wtt_c$prop_fill[data_wtt_c$group == 'Info'], w = data_wtt_c$prop_cluster[data_wtt_c$group == 'Info'])
+
+vfi_c = weighted.mean(x = data_wtt_c$prop_visit_fill[data_wtt_c$group == 'Info'], w = data_wtt_c$prop_cluster[data_wtt_c$group == 'Info'], na.rm = TRUE)
+  
+```
+
+#### ExpInfo Group
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 # Without division C
@@ -797,7 +775,7 @@ vfei_c = weighted.mean(x = data_wtt_c$prop_visit_fill[data_wtt_c$group == 'ExpIn
 
 ```
 
-* Global Chart
+#### Global Chart
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE, fig.width=8, fig.height=5} 
 
@@ -844,6 +822,8 @@ plot_grid(ggv, ggf, ggvf) # displaying of the 3 plots together
 Here we find approximately the same results with the same trend: the effects of all treatments seem beneficial and the Exp and Expinfo treatments seem to show the best results. 
 
 ## Linear regression analysis {.tabset .tabset-pills}
+
+Here we look at the main analysis of the experiment, namely which treatments are most effective. In a second part, we will look at age and gender characteristics that may influence the propensity to fall victim to a phishing attack. We use linear regressions.
 
 To automate the linear regression, we first nest the data by outcome. Then, we create a function to do a regression. The function is applied and finally we unnest the data table in order to display the results. After that, we can plot the results with the 95% confident intervals.
 
@@ -919,13 +899,17 @@ data_regression %>%
   ylab("Average Marginal Effects") + xlab("") +
   theme_minimal()
 ```
-Visit outcome:
+
+* Visit outcome:
+
 It can be seen here that the most effective treatment is the Exp one closely followed by the ExpInfo one. The less effective treatment is the Info one.
 
-Fill outcome: 
+* Fill outcome: 
+
 For this outcome the most effective treatment is the ExpInfo one, the second is the Exp treatment and the less effective treatment is the Info one again.
 
-Visit Fill outcome:
+* Visit_Fill outcome:
+
 The order of efficiency for this outcome is the same than for the Fill outcome. Nevertheless, the differences of points of percentage with the control group are much highier for the Exp and ExpInfo treatment. On the contrary, for the Info treatment, the difference is smaller for this outcome. However, despite these larger differences (for the Exp and ExpInfo treatment), the confidence intervals are also larger. The precision of the effect of these treatments on this outcome is therefore less precise
 
 Thus, considering the analysis of these results, one could conclude that the most effective treatment is the ExpInfo one. Indeed, it is the one that allows the most to reduce the number of employees sharing their personal information. Conversely, the treatment that appears to be the least effective is the info one, even though its effect remains positive and not negligible.
@@ -944,27 +928,17 @@ data_phishing <- data_phishing %>%
                             gender == 0 ~ "F"))
 ```
 
-Visit
+We then create the corresponding regression table.
 
-```{r, eval = TRUE, message = FALSE}
+```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 lm_object <- lm(visit ~ group + gender + as.factor(int_employee) + age_categories + division, data = data_phishing) 
 lm_gtobjectv <- tbl_regression(lm_object, include = c(gender, age_categories)) %>%
   bold_labels()
 
-```
-
-Fill
-
-```{r, eval = TRUE, message = FALSE}
 lm_object <- lm(fill ~ group + gender + as.factor(int_employee) + age_categories + division, data = data_phishing) 
 lm_gtobjectf <- tbl_regression(lm_object, include = c(gender, age_categories)) %>%
   bold_labels()
 
-```
-
-Visit Fill
-
-```{r, eval = TRUE, message = FALSE}
 lm_object <- lm(visit_fill ~ group + gender + as.factor(int_employee) + age_categories + division, data = data_phishing) 
 lm_gtobjectvf <- tbl_regression(lm_object, include = c(gender, age_categories)) %>%
   bold_labels()
@@ -1050,32 +1024,18 @@ data_phis_c <- data_phis_c %>%
                             gender == 0 ~ "F"))
 ```
 
-Visit
-
+We then create the corresponding regression table.
 
 ```{r, eval = TRUE, message = FALSE}
 lm_object <- lm(visit ~ group + gender + as.factor(int_employee) + age_categories + division, data = data_phis_c) 
 lm_gtobject_v <- tbl_regression(lm_object, include = c(gender, age_categories)) %>%
   bold_labels()
 
-```
-
-
-
-Fill
-
-```{r, eval = TRUE, message = FALSE}
 lm_object <- lm(fill ~ group + gender + as.factor(int_employee) + age_categories + division, data = data_phis_c) 
 lm_gtobject_f <- tbl_regression(lm_object, include = c(gender, age_categories)) %>%
   bold_labels()
 
 
-```
-
-
-Visit Fill
-
-```{r, eval = TRUE, message = FALSE}
 lm_object <- lm(visit_fill ~ group + gender + as.factor(int_employee) + age_categories + division, data = data_phis_c) 
 lm_gtobject_vf<- tbl_regression(lm_object, include = c(gender, age_categories)) %>%
   bold_labels()
@@ -1086,7 +1046,6 @@ t <- tbl_merge(tbls = list(lm_gtobject_v, lm_gtobject_f, lm_gtobject_vf), tab_sp
 t
 
 ```
-
 
 Without the division C, the results are broadly the same as when the analysis is done with the division C, except for the Visit Fill outcome where individuals aged 26 to 55 are less likely to be duped than younger individuals (age range 16 to 25). Above 55 years of age, individuals are more likely to be duped than younger people. The results therefore seem to contradict each other. We therefore find the non-robust result mentioned in the original paper by the authors.
 
@@ -1215,7 +1174,6 @@ data_regression2_c %>%
 ```
 
 For the analysis without the division C, as before, the same results are found except for the Visit Fill outcome of the Info group where the effect drops from -10.4 percentage points compared to the control group to -7.9 percentage points. The results as a whole can therefore be considered quite robust. 
-
 
 ## Conclusion
 
