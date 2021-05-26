@@ -47,8 +47,10 @@ The file “phishing_dataset.csv” gives the data obtained in the experiment.
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 data_phishing <- read.csv("/Users/f-x/Downloads/phishing_dataset.csv") # data loading
-head(data_phishing)
+head(data_phishing) 
 ```
+
+
 
 - Column “group” indicates in which treatment a subject was with “1”, “2”, “3” and “4” corresponding to “Control”, “Info”, “Exp” and “ExpInfo”, respectively. 
 
@@ -65,11 +67,11 @@ head(data_phishing)
 - Similarly, columns “visit_1”, “fill_1” and “visit_fill_1” are response variables to the first phishing email at time T=1 (only groups Exp and ExpInfo received this email.). 
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
-library(tidyverse) 
-library(cowplot) #To create tables of charts
-library(gtsummary) #to make aesthetic regression tables
-library(knitr) #
-library(kableExtra)
+library(tidyverse)  
+library(cowplot) # to create tables of charts
+library(gtsummary) # to make aesthetic regression tables
+library(knitr) # to creates tables
+library(kableExtra) # to make aesthetic tables
 ```
 
 
@@ -87,7 +89,7 @@ data_phishing <- data_phishing %>%
     group == 3 ~ "Exp",
     group == 4 ~ "ExpInfo"
   )) %>%
-  
+  # changing the order of group variable, putting control group first
   mutate(group = fct_relevel(group, "Control", "Info", "Exp", "ExpInfo")) %>%
   # recoding of the age variable
   mutate(
@@ -99,16 +101,18 @@ data_phishing <- data_phishing %>%
       age > 55 ~ ">55"
     )
   ) %>%
+  # changing the order of age_categories, from the youngest to the oldest
   mutate(age_categories = fct_relevel(age_categories, "16-25", "26-35", "36-45", "46-55")) %>%
   # recoding of the gender variable : O for Female, 1 for Male
   mutate(gender = case_when(gender == "M" ~ 1,
                             gender == "F" ~ 0)) %>%
-  # change order variable division with B as reference
+  # changing the order of division variable, division with B as reference
   mutate(division = fct_relevel(division, "B", "A", "C", "D", "E")) 
 
 data_phis_c <- data_phishing %>%
-  filter(division == 'A' | division == 'B' | division == 'D' | division == 'E') #creation of a data table without the C division
+  filter(division == 'A' | division == 'B' | division == 'D' | division == 'E') # creation of a data table without the C division
 
+# creating two vectors with the outcomes and groups
 Outcome = c('Visit', 'Fill', 'Visit_Fill')
 Group = c('Control','Info','Exp','ExpInf')
 ```
@@ -178,12 +182,14 @@ Then, we calculate the distribution.
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 
 rep_sex = mean(data_phishing$gender, na.rm = TRUE)*100 # gender distribution among the units
-rep_sex_c = mean(data_phis_c$gender, na.rm = TRUE)*100 
-kbl((data.frame(GM = c('gender_mean'),With_division_C = c(rep_sex), Without_division_C = c(rep_sex_c)))) %>%
+rep_sex_c = mean(data_phis_c$gender, na.rm = TRUE)*100
+
+#creating a summary table
+kbl((data.frame(Object = c('Gender mean'), With_division_C = c(rep_sex), Without_division_C = c(rep_sex_c)))) %>%
   kable_styling(bootstrap_options = c("striped", "hover", "condensed"))
 ```
 
-The figures are therefore consistent with the researchers' claims, and removing division C does not pose a large bias.
+The figures are therefore consistent with the researchers' claims, and removing division C does not cause a large bias.
 
 
 #### Age of the units {.tabset .tabset-pills}
@@ -196,7 +202,8 @@ Here we look at the age distribution among the units. According to the paper: "[
 mean_age = mean(data_phishing$age, na.rm = TRUE) # age distribution among the units
 mean_age_c = mean(data_phis_c$age, na.rm = TRUE)
 
-kbl((data.frame(AG = c('age_mean'), With_division_C = c(mean_age), Without_division_C = c(mean_age_c)))) %>%
+# creating a summmary table
+kbl((data.frame(Object = c('Age mean'), With_division_C = c(mean_age), Without_division_C = c(mean_age_c)))) %>%
   kable_styling(bootstrap_options = c("striped", "hover", "condensed"))
 ```
 
@@ -208,8 +215,8 @@ The numbers are consistent. We then look at the age distribution, according to t
 ggplot(data = data_phishing) + # boxplot showing the age distribution according to the treatement
   geom_boxplot(aes(x = group, y = age , color = group)) +
   xlab('Group') +
-  labs(title = 'Age boxplot') +
-  theme(plot.title = element_text(hjust = 0.5))
+  labs(title = 'Age boxplot') 
+  theme(plot.title = element_text(hjust = 0.5)) #putting the title in the middle
 ```
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
@@ -219,7 +226,7 @@ ggplot(data = data_phishing) + # plot showing the age distribution according to 
   theme(plot.title = element_text(hjust = 0.5))
 ```
 
-Here too the groups seem similar with the C division. Let's see without.
+Here, the groups seem similar with the C division. Let's see without.
 
 ##### Without division C
 
@@ -228,7 +235,7 @@ Here too the groups seem similar with the C division. Let's see without.
 ggplot(data = data_phis_c) +
   geom_boxplot(aes(x = group, y = age , color = group)) +  
   xlab('Group') +
-  labs(title = 'Age boxplot (without division C)') +
+  labs(title = 'Age boxplot without division C') +
   theme(plot.title = element_text(hjust = 0.5))
 ```
 
@@ -261,14 +268,14 @@ data_phis_c %>%
 ```
 
 
-Before the removal of division C due to an error on the part of the researchers, the different treatment groups had roughly the same characteristics. The removal of this division caused slight shifts in the distribution of the control variables in the treatment groups. These groups are no longer completely identical or of the same size. 
+Before the removal of division C due to an error on the part of the researchers, the different treatment groups had roughly the same characteristics. The removal of this division caused slight shifts in the distribution of the control variables in the treatment groups. These groups are no longer completely identical or of the same size. For example, the control group has 400 more units and 4 percentage points more women than the Info group. 
 
 ## Randomization inference {.tabset .tabset-pills}
 
 
 We decided to focus our randomization inference by removing the C division from the analysis. Indeed, given the difficulties encountered by the researchers with this unit, it seemed to us biased to take it into account in this analysis.
 
-We have divided this analysis by looking at each treatment individually. In this way, we can first determine which of the treatments definitely reduce the likelihood of falling victim to a phishing attack.
+We have divided this analysis by looking at each treatment individually. In this way, we can first determine which of the treatments obviously reduce the likelihood of falling victim to a phishing attack.
 
 ### Exp
 
@@ -277,16 +284,17 @@ We have divided this analysis by looking at each treatment individually. In this
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 
-observed_difference_v = mean(data_phis_c$visit[data_phis_c$group == 'Exp']) - mean(data_phis_c$visit[data_phis_c$group == 'Control']) # difference of the averages for each treatment (for the Exp group)
-observed_difference_f = mean(data_phis_c$fill[data_phis_c$group == 'Exp']) - mean(data_phis_c$fill[data_phis_c$group == 'Control']) 
-observed_difference_vf = mean(data_phis_c$visit_fill[data_phis_c$group == 'Exp'], na.rm = TRUE) - mean(data_phis_c$visit_fill[data_phis_c$group == 'Control'], na.rm = TRUE) 
-#displaying differences
+observed_difference_v = mean(data_phis_c$visit[data_phis_c$group == 'Exp']) - mean(data_phis_c$visit[data_phis_c$group == 'Control']) # difference of the averages for the visit outcome of the Exp group
+observed_difference_f = mean(data_phis_c$fill[data_phis_c$group == 'Exp']) - mean(data_phis_c$fill[data_phis_c$group == 'Control']) # fill outcome
+observed_difference_vf = mean(data_phis_c$visit_fill[data_phis_c$group == 'Exp'], na.rm = TRUE) - mean(data_phis_c$visit_fill[data_phis_c$group == 'Control'], na.rm = TRUE) # visit_fill outcome
+
+# displaying differences
 kbl(data.frame(Outcome, ATE = c(observed_difference_v,observed_difference_f, observed_difference_vf)))%>%
   kable_styling(bootstrap_options = c("striped", "hover", "condensed"))
 
 ```
 
-The observed differences seem to establish a negative correlation between the 'Exp' treatment and the control group: this treatment reduced the different outcomes by 11 to 13 percentage points. For instance, the number of units which visited the website has been reduced by 13 percentage points, compared to the control group.
+The observed differences seem to establish a negative correlation between the 'Exp' treatment and the control group: this treatment reduced the different outcomes by 11 to 13 percentage points. For instance, the number of units which visited the website has been reduced by 13 percentage points, compared to the control group. We now need to know whether these differences withstand the sharp null hypothesis.
 
 #### Calculation of the proportions of treated units
 
@@ -315,18 +323,19 @@ diff_simulations_vf_exp <- rep(NA, 1000)
 for (i in 1:1000){
 
 data_phis_c_exp <- data_phis_c_exp %>%
-#We construct a new treat variable (with mutate function) which randomly mixes (sample function) the elements of the treat variable  
+#We construct a new group variable (with mutate function) which randomly mixes (sample function) the elements of the group variable  
   group_by(cluster) %>%
   mutate(new_group = rbinom(1, 1, prop_exp)) %>%
   mutate(new_group = case_when(new_group == 1 ~ 'Exp',
                                new_group == 0 ~ 'Control'))
 
-#We calculate the differences for each of the 1000 distributions that I place at the i-th coordinate
-diff_simulations[i] <- mean(data_phis_c_exp$visit[data_phis_c_exp$new_group == "Exp"]) - mean(data_phis_c_exp$visit[data_phis_c_exp$new_group=="Control"])
+#We calculate the differences for each of the 1000 distributions that we place at the i-th coordinate
 
-diff_simulations_f_exp[i] <- mean(data_phis_c_exp$fill[data_phis_c_exp$new_group == "Exp"]) - mean(data_phis_c_exp$fill[data_phis_c_exp$new_group=="Control"])
+diff_simulations[i] <- mean(data_phis_c_exp$visit[data_phis_c_exp$new_group == "Exp"]) - mean(data_phis_c_exp$visit[data_phis_c_exp$new_group=="Control"]) # visit outcome (and exp group of course)
 
-diff_simulations_vf_exp[i] <- mean(data_phis_c_exp$visit_fill[data_phis_c_exp$new_group == "Exp"], na.rm = TRUE) - mean(data_phis_c_exp$visit_fill[data_phis_c_exp$new_group=="Control"], na.rm = TRUE)
+diff_simulations_f_exp[i] <- mean(data_phis_c_exp$fill[data_phis_c_exp$new_group == "Exp"]) - mean(data_phis_c_exp$fill[data_phis_c_exp$new_group=="Control"]) #fill outcome
+
+diff_simulations_vf_exp[i] <- mean(data_phis_c_exp$visit_fill[data_phis_c_exp$new_group == "Exp"], na.rm = TRUE) - mean(data_phis_c_exp$visit_fill[data_phis_c_exp$new_group=="Control"], na.rm = TRUE) #visit_fill outcome
 }
 
 ```
@@ -335,6 +344,7 @@ diff_simulations_vf_exp[i] <- mean(data_phis_c_exp$visit_fill[data_phis_c_exp$ne
 
 ```{r, eval = TRUE}
 
+#Chart of visit outcome
 data_simulations <- tibble(diff_simulations=diff_simulations)
 graph_exp <- ggplot(data_simulations, aes(x = diff_simulations)) +
   geom_density(color = 'black', fill = 'deepskyblue3', alpha = 0.5) +
@@ -345,6 +355,7 @@ graph_exp <- ggplot(data_simulations, aes(x = diff_simulations)) +
   xlab("Visit") +
   theme_minimal()
 
+#Fill outcome
 data_simulations_f_exp <- tibble(diff_simulations_f_exp=diff_simulations_f_exp)
 graph_fill_exp <- ggplot(data_simulations_f_exp, aes(x = diff_simulations_f_exp)) +
   geom_density(color = 'black', fill = 'deepskyblue3', alpha = 0.5) +
@@ -353,6 +364,7 @@ graph_fill_exp <- ggplot(data_simulations_f_exp, aes(x = diff_simulations_f_exp)
   xlab("Fill") +
   theme_minimal()
 
+#Visit_fill outcome
 data_simulations_vf_exp <- tibble(diff_simulations_vf_exp=diff_simulations_vf_exp)
 graph_visitfill_exp <- ggplot(data_simulations_vf_exp, aes(x = diff_simulations_vf_exp)) +
   geom_density(color = 'black', fill = 'deepskyblue3', alpha = 0.5) +
@@ -361,24 +373,25 @@ graph_visitfill_exp <- ggplot(data_simulations_vf_exp, aes(x = diff_simulations_
   xlab("Visit_Fill") +
   theme_minimal()
 
-
+#Displaying the exp charts with plot_grid function
 print(plot_grid(graph_exp,graph_fill_exp,graph_visitfill_exp))
 ```
 
 #### P-values
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
-# Calculation of the one-sided and the two-sided p-value
+# Calculation of the one-sided (op) and the two-sided p-value (tp)
 
-opve = (sum(data_simulations$diff_simulations <= observed_difference_v)/1000)*100 # outcome Visit
+opve = (sum(data_simulations$diff_simulations <= observed_difference_v)/1000)*100 # Visit outcome
 tpve = (sum(abs(data_simulations$diff_simulations) >=  abs(observed_difference_v))/1000)*100
 
-opfe = (sum(data_simulations_f_exp$diff_simulations_f_exp <= observed_difference_f)/1000)*100 # outcome Fill
+opfe = (sum(data_simulations_f_exp$diff_simulations_f_exp <= observed_difference_f)/1000)*100 # Fill outcome
 tpfe = (sum(abs(data_simulations_f_exp$diff_simulations_f_exp) >=  abs(observed_difference_f))/1000)*100
 
-opvfe = (sum(data_simulations_vf_exp$diff_simulations_vf_exp <= observed_difference_vf)/1000)*100 # outcome VisitFill
+opvfe = (sum(data_simulations_vf_exp$diff_simulations_vf_exp <= observed_difference_vf)/1000)*100 # VisitFill outcome
 tpvfe = (sum(abs(data_simulations_vf_exp$diff_simulations_vf_exp) >=  abs(observed_difference_vf))/1000)*100
 
+#Displayinf p-values in a table
 kbl(data.frame(outcome = c('Visit','Fill','Visit_Fill'), one_sided_p_values = c(opve, opfe, opvfe), two_sided_p_values = c(tpve ,tpfe ,tpvfe))) %>%
   kable_styling(bootstrap_options = c("striped", "hover", "condensed"))
 
