@@ -46,7 +46,7 @@ In their experiment, the researchers did not use any means to check whether the 
 The file “phishing_dataset.csv” gives the data obtained in the experiment. 
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
-data_phishing <- read.csv("/Users/martinbeaufils/Downloads/phishing_dataset.csv") # data loading
+data_phishing <- read.csv("/Users/f-x/Downloads/phishing_dataset.csv") # data loading
 head(data_phishing) 
 ```
 
@@ -930,8 +930,22 @@ data_regression <- data_regression %>%
 data_regression
 ```
 
+The linear regression analyses give clear results: all treatments decrease the probability of visiting the site and completing the form. We find the same figures as the authors, although they used logistic regressions (we use linear regressions).
+
+* Visit outcome:
+
+It can be seen here that the most effective treatment is the Exp one with a reduction of 8.1 percentage points compared to the control group. It is more effective than the ExpInfo treatment by 0.2 percentage points and the Info treatment by 2 percentage points.
+
+* Fill outcome: 
+
+For this outcome the most effective treatment is the ExpInfo one. It allows a reduction of 8.7 percentage points compared to the control group. It is more effective than Exp treatment by 1 percentage point and Info treatment by 3.2 percentage points.
+
+* Visit_Fill outcome:
+
+The order of efficiency for this outcome is the same than for the Fill outcome. Nevertheless, the differences of percentage points with the control group are much higher for the Exp (reduction of 10.3 percentage points compared to the control group) and ExpInfo treatment (reduction of 14.8 percentage points compared to the control group). On the contrary, for the Info treatment, the difference is smaller for this outcome (reduction of 5 percentage points compared to the control group). However, despite these larger differences (for the Exp and ExpInfo treatment), the confidence intervals are also larger. The precision of the effect of these treatments on this outcome is therefore less precise.
+
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE, fig.width=8, fig.height=5} 
-# make the graph
+# make the graph of the average marginal effects with the confidence intervales
 data_regression %>%
   mutate(term = fct_relevel(term, "groupInfo", "groupExp", "groupExpInfo")) %>%
   mutate(outcome = case_when(outcome == "visit" ~ "Visit", outcome == "fill" ~ "Fill", outcome == "visit_fill" ~ "Visit fill")) %>%
@@ -959,22 +973,15 @@ data_regression %>%
   theme_minimal()
 ```
 
-* Visit outcome:
 
-It can be seen here that the most effective treatment is the Exp one with a reduction of 8.1 percentage points compared to the control group. It is more effective than the ExpInfo treatment by 0.2 percentage points and the Info treatment by 2 percentage points.
-
-* Fill outcome: 
-
-For this outcome the most effective treatment is the ExpInfo one. It allows a reduction of 8.7 percentage points compared to the control group. It is more effective than Exp treatment by 2 percentage points and Info treatment by 3.2 percentage points.
-
-* Visit_Fill outcome:
-
-The order of efficiency for this outcome is the same than for the Fill outcome. Nevertheless, the differences of points of percentage with the control group are much higher for the Exp (reduction of 10.3 percentage points compared to the control group) and ExpInfo treatment (reduction of 14.8 percentage points compared to the control group). On the contrary, for the Info treatment, the difference is smaller for this outcome (reduction of 5 percentage points compared to the control group). However, despite these larger differences (for the Exp and ExpInfo treatment), the confidence intervals are also larger. The precision of the effect of these treatments on this outcome is therefore less precise.
 
 Thus, considering the analysis of these results, one could conclude that the most effective treatment is the ExpInfo one. Indeed, it is the one that allows the most to reduce the number of employees sharing their personal information. Conversely, the treatment that appears to be the least effective is the info one, even though its effect remains positive and not negligible.
-All treatments have a positive effect on the treated units. Our analysis allows to find the same conclusions as in the article. 
+
+All treatments have a beneficial effect on the treated units. Our analysis allows to find the same conclusions as in the article. 
+
 
 ### Without division C
+
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 # nesting data by outcome
@@ -1004,8 +1011,22 @@ data_regression_c <- data_regression_c %>%
 data_regression_c
 ```
 
+Again, the treatment effects were all beneficial: removing the C division did not fundamentally bias the results.
+
+* Visit outcome : 
+
+The Info, Exp and ExpInfo treatments reduce the probability of visiting the site by 8.3, 12.4 and 9.8 percentage points respectively.
+
+* Fill outcome:
+
+The Info, Exp and ExpInfo treatments reduce form completion by 8.2, 11.1 and 10.0 percentage points respectively.
+
+* Visit_fill outcome:
+
+The Info, Exp and ExpInfo treatments reduce form completion by 10.4, 13.7 and 15.5 percentage points respectively when visiting the site.
+
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE, fig.width=8, fig.height=5} 
-# make the graph
+# make the graph of average marginal effects with confidence intervals
 data_regression_c %>%
   mutate(term = fct_relevel(term, "groupInfo", "groupExp", "groupExpInfo")) %>%
   mutate(outcome = case_when(outcome == "visit" ~ "Visit", outcome == "fill" ~ "Fill", outcome == "visit_fill" ~ "Visit fill")) %>%
@@ -1034,7 +1055,9 @@ data_regression_c %>%
 ```
 
 The results of the analysis without the division C remain essentially the same as announced in the original paper. There is just a difference for the outcome visit where the Exp treatment appears to be more effective than the ExpInfo one.
-Nevertheless, we observe that the differences in percentage points are all greater in this analysis. Indeed, with this analysis all the treatment allow an additional reduction of almost 3 percentage points (on average) compared to the control group (compared to the analysis with division C). One way to explain this is that the control group in Division C was accidentally made aware of the experiment. It can therefore be assumed that these units were then more attentive to phishing emails, which would justify these larger effects.
+
+Nevertheless, we observe that the differences in percentage points are all greater in this analysis. One way to explain this is that the control group in Division C was accidentally made aware of the experiment. It can therefore be assumed that these units were then more attentive to phishing emails, which would justify these larger effects.
+
 
 ## Robustness of the results {.tabset .tabset-pills}
 
@@ -1104,7 +1127,6 @@ data_regression2 %>%
   ylab("Average Marginal Effects") + xlab("") +
   theme_minimal()
 ```
-
 When comparing the linear regression analysis containing the division C with and without the control variables, the effects of the different treatments remain broadly the same. The differences between the two analyses for a treatment never exceed one percentage point. The results of this analysis can therefore be considered robust (as announced in the original paper).
 
 ### Without division C
@@ -1165,9 +1187,9 @@ For the analysis without the division C, as before, the same results are found e
 
 ## Heterogeneity of the results {.tabset .tabset-pills}
 
-### With division C
-
 We are now trying to understand which category is more likely to fall victim to a phishing attack. To do this, we run linear regressions, taking women and the age group 16-25 as the reference gender and age group. 
+
+### With division C
 
 We first recode the variable 'gender' to have clearer tables
 
@@ -1181,24 +1203,36 @@ data_phishing <- data_phishing %>%
 We then create the corresponding regression table.
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
+
+#visit outcome
 lm_object <- lm(visit ~ group + gender + as.factor(int_employee) + age_categories + division, data = data_phishing) 
-lm_gtobjectv <- tbl_regression(lm_object, include = c(gender, age_categories)) %>%
-  bold_labels()
+lm_gtobjectv <- tbl_regression(lm_object, include = c(gender, age_categories), estimate_fun = ~style_ratio(.*100, digits = 1)) %>%
+  bold_labels() #we use tbl_regression (gtsummary package) function, including only gender and age in the final table 
 
+#fill outcome
 lm_object <- lm(fill ~ group + gender + as.factor(int_employee) + age_categories + division, data = data_phishing) 
-lm_gtobjectf <- tbl_regression(lm_object, include = c(gender, age_categories)) %>%
+lm_gtobjectf <- tbl_regression(lm_object, include = c(gender, age_categories), estimate_fun = ~style_ratio(.*100, digits = 1)) %>%
   bold_labels()
 
+#visit_fill outcome
 lm_object <- lm(visit_fill ~ group + gender + as.factor(int_employee) + age_categories + division, data = data_phishing) 
-lm_gtobjectvf <- tbl_regression(lm_object, include = c(gender, age_categories)) %>%
+lm_gtobjectvf <- tbl_regression(lm_object, include = c(gender, age_categories), estimate_fun = ~style_ratio(.*100, digits = 1)) %>%
   bold_labels()
 
-a <- tbl_merge(tbls = list(lm_gtobjectv, lm_gtobjectf, lm_gtobjectvf), tab_spanner = c("**Visit**", "**Fill**", "**Visit Fill**"))
-a
+#displaying the tables using tbl_merge function putting side by side
+tbl_merge(tbls = list(lm_gtobjectv, lm_gtobjectf, lm_gtobjectvf), tab_spanner = c("**Visit**", "**Fill**", "**Visit Fill**"))
+
 ```
 
-It can be seen that the older people are, the more likely they are to be duped by phishing emails. This observation is made in the original paper and is relatively predictable taking into account the familiarity of different generations with hacking risks and new technologies.
-Concerning the sex of the units, it seems that men are slightly more likely to be duped than women except for the VisitFill outcome.
+* Gender : 
+
+Men have the highest visit and fill figures (respectively +4.2 and 1.6 percentage points than women) but are the least likely to fill in the form once they have visited the site (-4.2 percentage points).
+
+* Age : 
+
+It can be seen that the older people are, the more likely they are to be duped by phishing emails : the over 45s are 15 percentage points more likely to visit the site than the 16-25s. Of the units that visited the site, the over-55s are 25 percentage points more likely to complete the form.
+This observation is made in the original paper and is relatively predictable taking into account the familiarity of different generations with hacking risks and new technologies.
+
 
 ### Without division C
 
@@ -1213,31 +1247,34 @@ data_phis_c <- data_phis_c %>%
 
 We then create the corresponding regression table.
 
-```{r, eval = TRUE, message = FALSE}
+```{r eval=TRUE, message=FALSE}
+#linear regression for heterogeneity
+
+#visit outcome
 lm_object <- lm(visit ~ group + gender + as.factor(int_employee) + age_categories + division, data = data_phis_c) 
-lm_gtobject_v <- tbl_regression(lm_object, include = c(gender, age_categories)) %>%
-  bold_labels()
+lm_gtobject_v <- tbl_regression(lm_object, include = c(gender, age_categories), estimate_fun = ~style_ratio(.*100, digits = 1)) %>%
+  bold_labels() #we use tbl_regression (gtsummary package) function, including only gender and age in the final table 
 
+#fill outcome
 lm_object <- lm(fill ~ group + gender + as.factor(int_employee) + age_categories + division, data = data_phis_c) 
-lm_gtobject_f <- tbl_regression(lm_object, include = c(gender, age_categories)) %>%
+lm_gtobject_f <- tbl_regression(lm_object, include = c(gender, age_categories), estimate_fun = ~style_ratio(.*100, digits = 1)) %>%
   bold_labels()
 
-
+#visit_fill outcome
 lm_object <- lm(visit_fill ~ group + gender + as.factor(int_employee) + age_categories + division, data = data_phis_c) 
-lm_gtobject_vf<- tbl_regression(lm_object, include = c(gender, age_categories)) %>%
+lm_gtobject_vf<- tbl_regression(lm_object, include = c(gender, age_categories), estimate_fun = ~style_ratio(.*100, digits = 1)) %>%
   bold_labels()
 
 
-
-t <- tbl_merge(tbls = list(lm_gtobject_v, lm_gtobject_f, lm_gtobject_vf), tab_spanner = c("**Visit**", "**Fill**", "**Visit Fill**"))
-t
+#displaying the tables using tbl_merge function putting side by side
+tbl_merge(tbls = list(lm_gtobject_v, lm_gtobject_f, lm_gtobject_vf), tab_spanner = c("**Visit**", "**Fill**", "**Visit Fill**"))
 
 ```
 
-Without the division C, the results are broadly the same as when the analysis is done with the division C, except for the Visit Fill outcome where individuals aged 26 to 55 are less likely to be duped than younger individuals (age range 16 to 25). Above 55 years of age, individuals are more likely to be duped than younger people. The results therefore seem to contradict each other. We therefore find the non-robust result mentioned in the original paper by the authors.
-Moreover, concerning the sex of the units this analysis produces the same results for the Visit and VisitFill. For the Fill outcome, it seems that both sex have the same probability to be duped. The difference compared to the previous analysis is only 1 percentage point (even for the bounds of the confidence interval). It can therefore be neglected.
+Without the division C, the results are broadly the same as when the analysis is done with the division C, except for the Visit Fill outcome where individuals aged 26 to 55 are less likely to be duped than younger individuals (age range 16 to 25). We therefore find the non-robust result mentioned in the original paper by the authors : "The effect of age on the probability to fill in the password conditional on visiting the website were not robust to excluding division C". The results therefore seem to contradict each other. 
+
 
 ## Conclusion
 
 In conclusion, our results obtained leads to the same conclusions as the original paper. The three treatments proposed by the researchers to prevent phishing attacks do have a beneficial effect on individuals. The ExpInfo treatment combining experiential and informational learning (which are the other two treatments) is more effective. However, the difference with the other treatments is not significant. The authors therefore deduced that the costs of these treatments raised the question of combining them.
-Nevertheless, it is clear that the exclusion of division C is somewhat biased. Indeed, it unbalances the different treatment groups and leads to contradictory results when looking at the link between the age of the individuals and the probability that they give up their personal information.
+Nevertheless, it is clear that the exclusion of division C is somewhat biased. Indeed, it unbalances the different treatment groups and leads to contradictory results when looking at the link between the age of the individuals and the probability that they give up their personal information.Secondly, this experiment was able to determine which gender and age characteristics were more likely to be victims of a phishing attack: as the authors showed, we could see that men were slightly more likely to be victims than women and older people than younger people. Nevertheless, it should be noted that this randomised experiment has some design biases: the one-sided and two-sided non-compliance problems were not taken into account and the C-split problem slightly altered the treatment balance.
