@@ -28,7 +28,7 @@ In March 2018, the film company Pathé was the victim of a phishing attack, caus
 
 Phishing consists of obtaining personal data by gaining the user's trust, in particular by pretending to be an official institution. For an employee, it is for example an e-mail pretending to be the IT department of his company. The employee is then asked to enter his or her passwords in order to solve a fake IT problem. 
 
-Faced with these risks, prevention campaigns are becoming more and more numerous and 95% of companies claim to be conducting them. Nevertheless, it is difficult to know if these techniques are effective and which ones are the most efficient. 
+Faced with these risks, prevention campaigns are increasingly numerous and a majority of companies claim to conduct them internally. Nevertheless, it is difficult to know if these techniques are effective and which ones are the most efficient. 
 
 To answer these questions, Aurelien Baillon, Jeroen de Bruin, Aysil Emirmahmutoglu, Evelien van de Veer and Bram van Dijk from Erasmus University Rotterdam conducted an experiment at the Dutch Ministry of Economic Affairs and Climate Policy.
 
@@ -46,7 +46,7 @@ In their experiment, the researchers did not use any means to check whether the 
 The file “phishing_dataset.csv” gives the data obtained in the experiment. 
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
-data_phishing <- read.csv("/Users/martinbeaufils/Downloads/phishing_dataset.csv") # data loading
+data_phishing <- read.csv("/Users/f-x/Downloads/phishing_dataset.csv") # data loading
 head(data_phishing) 
 ```
 
@@ -78,7 +78,7 @@ library(kableExtra) # to make aesthetic tables
 
 ## Data cleaning
 
-We first clean up the data, recoding the treatment indicators and adding the age categories. We also created a table without the C division, which will be useful for the analyses without this division. Finally, we created two vectors 'Group' and 'Outcome', which will be used for the analyses.
+We first clean up the data, recoding the treatment indicators and adding the age categories. We also created a table without the C division, which will be useful for the analysis without this division. Finally, we created two vectors 'Group' and 'Outcome', which will be used for the analysis.
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 data_phishing <- data_phishing %>%
@@ -110,11 +110,11 @@ data_phishing <- data_phishing %>%
   mutate(division = fct_relevel(division, "B", "A", "C", "D", "E")) 
 
 data_phis_c <- data_phishing %>%
-  filter(division == 'A' | division == 'B' | division == 'D' | division == 'E') # creation of a data table without the C division
+  filter(division == 'A' | division == 'B' | division == 'D' | division == 'E') # creation of a data table without division C
 
 # creating two vectors with the outcomes and groups
 Outcome = c('Visit', 'Fill', 'Visit_Fill')
-Group = c('Control','Info','Exp','ExpInf')
+Group = c('Control','Info','Exp','ExpInfo')
 ```
 
 ## Treatment balance
@@ -215,7 +215,7 @@ The numbers are consistent. We then look at the age distribution, according to t
 ggplot(data = data_phishing) + # box plot showing the age distribution according to the treatment
   geom_boxplot(aes(x = group, y = age , color = group)) +
   xlab('Group') +
-  labs(title = 'Age boxplot') 
+  labs(title = 'Age boxplot') +
   theme(plot.title = element_text(hjust = 0.5)) #putting the title in the middle
 ```
 
@@ -226,7 +226,7 @@ ggplot(data = data_phishing) + # plot showing the age distribution according to 
   theme(plot.title = element_text(hjust = 0.5))
 ```
 
-Here, the groups seem similar with the C division. Let's see without.
+Here, the groups seem similar. Let's see without division C.
 
 ##### Without division C
 
@@ -273,7 +273,7 @@ Before the removal of division C due to an error on the part of the researchers,
 ## Randomization inference {.tabset .tabset-pills}
 
 
-We decided to focus our randomization inference by removing the C division from the analysis. Indeed, given the difficulties encountered by the researchers with this unit, it seemed to us biased to take it into account in this analysis.
+We decided to focus our randomization inference by removing the C division from the analysis. Indeed, given the difficulties encountered by the researchers with this unit, it seemed to us biased to take it into account.
 
 We have divided this analysis by looking at each treatment individually. In this way, we can first determine which of the treatments obviously reduce the likelihood of falling victim to a phishing attack.
 
@@ -311,19 +311,20 @@ prop_exp = sum(data_phis_c_exp$ind_group)/nrow(data_phis_c_exp) # proportion of 
 
 #### Randomization inference loop
 
-As explained, our experiment is based on cluster allocation. Thus, it is necessary to randomize on the clusters and not on the units themselves. As each cluster consists of one and the same treatment, we randomized according to the proportion of treated to control group. 
+As explained, our experiment is based on cluster allocation. Thus, it is necessary to randomize on the clusters and not on the units themselves. As each cluster consists of one and the same treatment, we randomized according to the proportion of treated. 
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
-diff_simulations <- rep(NA, 1000)
-diff_simulations_f_exp <- rep(NA, 1000)
-diff_simulations_vf_exp <- rep(NA, 1000)
+# creating three vectors that will store the randomized differences
+diff_simulations <- rep(NA, 1000) # visit outcome 
+diff_simulations_f_exp <- rep(NA, 1000) # fill outcome 
+diff_simulations_vf_exp <- rep(NA, 1000) # visit_fill outcome 
 
 
 #loop for simulations
 for (i in 1:1000){
 
 data_phis_c_exp <- data_phis_c_exp %>%
-#We construct a new group variable (with mutate function) which randomly mixes (sample function) the elements of the group variable  
+#We construct a new group variable (with mutate function) which randomly mixes the elements of the group variable taking into account the proportion of treated units (with a binomial distribution (rbinom))
   group_by(cluster) %>%
   mutate(new_group = rbinom(1, 1, prop_exp)) %>%
   mutate(new_group = case_when(new_group == 1 ~ 'Exp',
@@ -331,11 +332,11 @@ data_phis_c_exp <- data_phis_c_exp %>%
 
 #We calculate the differences for each of the 1000 distributions that we place at the i-th coordinate
 
-diff_simulations[i] <- mean(data_phis_c_exp$visit[data_phis_c_exp$new_group == "Exp"]) - mean(data_phis_c_exp$visit[data_phis_c_exp$new_group=="Control"]) # visit outcome (and exp group of course)
+diff_simulations[i] <- mean(data_phis_c_exp$visit[data_phis_c_exp$new_group == "Exp"]) - mean(data_phis_c_exp$visit[data_phis_c_exp$new_group=="Control"]) # visit outcome 
 
-diff_simulations_f_exp[i] <- mean(data_phis_c_exp$fill[data_phis_c_exp$new_group == "Exp"]) - mean(data_phis_c_exp$fill[data_phis_c_exp$new_group=="Control"]) #fill outcome
+diff_simulations_f_exp[i] <- mean(data_phis_c_exp$fill[data_phis_c_exp$new_group == "Exp"]) - mean(data_phis_c_exp$fill[data_phis_c_exp$new_group=="Control"]) # fill outcome
 
-diff_simulations_vf_exp[i] <- mean(data_phis_c_exp$visit_fill[data_phis_c_exp$new_group == "Exp"], na.rm = TRUE) - mean(data_phis_c_exp$visit_fill[data_phis_c_exp$new_group=="Control"], na.rm = TRUE) #visit_fill outcome
+diff_simulations_vf_exp[i] <- mean(data_phis_c_exp$visit_fill[data_phis_c_exp$new_group == "Exp"], na.rm = TRUE) - mean(data_phis_c_exp$visit_fill[data_phis_c_exp$new_group=="Control"], na.rm = TRUE) # visit_fill outcome
 }
 
 ```
@@ -373,26 +374,31 @@ graph_visitfill_exp <- ggplot(data_simulations_vf_exp, aes(x = diff_simulations_
   xlab("Visit_Fill") +
   theme_minimal()
 
-#Displaying the exp charts with plot_grid function
+#Displaying the exp charts with plot_grid function (cowplot package)
 print(plot_grid(graph_exp,graph_fill_exp,graph_visitfill_exp))
 ```
+
+Visually, the negative effect of the treatment seems to be confirmed.
 
 #### P-values
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 # Calculation of the one-sided (op) and the two-sided p-value (tp)
 
-opve = (sum(data_simulations$diff_simulations <= observed_difference_v)/1000)*100 # Visit outcome
+# Visit outcome
+opve = (sum(data_simulations$diff_simulations <= observed_difference_v)/1000)*100
 tpve = (sum(abs(data_simulations$diff_simulations) >=  abs(observed_difference_v))/1000)*100
 
-opfe = (sum(data_simulations_f_exp$diff_simulations_f_exp <= observed_difference_f)/1000)*100 # Fill outcome
+# Fill outcome
+opfe = (sum(data_simulations_f_exp$diff_simulations_f_exp <= observed_difference_f)/1000)*100 
 tpfe = (sum(abs(data_simulations_f_exp$diff_simulations_f_exp) >=  abs(observed_difference_f))/1000)*100
 
-opvfe = (sum(data_simulations_vf_exp$diff_simulations_vf_exp <= observed_difference_vf)/1000)*100 # VisitFill outcome
+# Visit_Fill outcome
+opvfe = (sum(data_simulations_vf_exp$diff_simulations_vf_exp <= observed_difference_vf)/1000)*100 
 tpvfe = (sum(abs(data_simulations_vf_exp$diff_simulations_vf_exp) >=  abs(observed_difference_vf))/1000)*100
 
-#Displaying p-values in a table
-kbl(data.frame(outcome = c('Visit','Fill','Visit_Fill'), one_sided_p_values = c(opve, opfe, opvfe), two_sided_p_values = c(tpve ,tpfe ,tpvfe))) %>%
+# Displaying p-values in a table
+kbl(data.frame(Outcome, one_sided_p_values = c(opve, opfe, opvfe), two_sided_p_values = c(tpve ,tpfe ,tpvfe))) %>%
   kable_styling(bootstrap_options = c("striped", "hover", "condensed"))
 
 ```
@@ -404,13 +410,15 @@ As the p-values are relatively low, it seems consistent to reject the sharp null
 #### Calculation of ATEs
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
-observed_difference_v_info = mean(data_phis_c$visit[data_phis_c$group == 'Info']) - mean(data_phis_c$visit[data_phis_c$group == 'Control']) # difference of the averages for each treatment (for the Info group)
-observed_difference_f_info = mean(data_phis_c$fill[data_phis_c$group == 'Info']) - mean(data_phis_c$fill[data_phis_c$group == 'Control'])
-print(observed_difference_f_info)
-observed_difference_vf_info = mean(data_phis_c$visit_fill[data_phis_c$group == 'Info'], na.rm = TRUE) - mean(data_phis_c$visit_fill[data_phis_c$group == 'Control'], na.rm = TRUE) 
+# difference of the averages for each treatment (for the Info group)
+observed_difference_v_info = mean(data_phis_c$visit[data_phis_c$group == 'Info']) - mean(data_phis_c$visit[data_phis_c$group == 'Control']) # visit outcome
+
+observed_difference_f_info = mean(data_phis_c$fill[data_phis_c$group == 'Info']) - mean(data_phis_c$fill[data_phis_c$group == 'Control']) #fill outcome
+
+observed_difference_vf_info = mean(data_phis_c$visit_fill[data_phis_c$group == 'Info'], na.rm = TRUE) - mean(data_phis_c$visit_fill[data_phis_c$group == 'Control'], na.rm = TRUE) #visit_fill outcome
 
 # displaying differences  
-kbl((data.frame(Outcome = c('Visit', 'Fill', 'Visit_Fill'), ATE = c(observed_difference_v_info,observed_difference_f_info, observed_difference_vf_info)))) %>%
+kbl((data.frame(Outcome, ATE = c(observed_difference_v_info,observed_difference_f_info, observed_difference_vf_info)))) %>%
   kable_styling(bootstrap_options = c("striped", "hover", "condensed"))
 ```
 
@@ -431,9 +439,10 @@ prop_info = sum(data_phis_c_info$ind_group)/nrow(data_phis_c_info) # proportion 
 
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
-diff_simulations_info <- rep(NA, 1000)
-diff_simulations_f_info <- rep(NA, 1000)
-diff_simulations_vf_info <- rep(NA, 1000)
+diff_simulations_info <- rep(NA, 1000) # visit outcome
+diff_simulations_f_info <- rep(NA, 1000) # fill outcome
+diff_simulations_vf_info <- rep(NA, 1000) # visit_fill outcome
+
 for (i in 1:1000){
 
 data_phis_c_info <- data_phis_c_info %>%
@@ -442,11 +451,11 @@ data_phis_c_info <- data_phis_c_info %>%
   mutate(new_group = case_when(new_group == 1 ~ 'Info',
                                new_group == 0 ~ 'Control'))
 
-diff_simulations_info[i] <- mean(data_phis_c_info$visit[data_phis_c_info$new_group == "Info"]) - mean(data_phis_c_info$visit[data_phis_c_info$new_group=="Control"])
+diff_simulations_info[i] <- mean(data_phis_c_info$visit[data_phis_c_info$new_group == "Info"]) - mean(data_phis_c_info$visit[data_phis_c_info$new_group=="Control"]) #visit outcome
 
-diff_simulations_f_info[i] <- mean(data_phis_c_info$fill[data_phis_c_info$new_group == "Info"]) - mean(data_phis_c_info$fill[data_phis_c_info$new_group=="Control"])
+diff_simulations_f_info[i] <- mean(data_phis_c_info$fill[data_phis_c_info$new_group == "Info"]) - mean(data_phis_c_info$fill[data_phis_c_info$new_group=="Control"]) # fill outcome
 
-diff_simulations_vf_info[i] <- mean(data_phis_c_info$visit_fill[data_phis_c_info$new_group == "Info"], na.rm = TRUE) - mean(data_phis_c_info$visit_fill[data_phis_c_info$new_group=="Control"], na.rm = TRUE)
+diff_simulations_vf_info[i] <- mean(data_phis_c_info$visit_fill[data_phis_c_info$new_group == "Info"], na.rm = TRUE) - mean(data_phis_c_info$visit_fill[data_phis_c_info$new_group=="Control"], na.rm = TRUE) #visit_fill outcome
 }
 
 ```
@@ -454,6 +463,8 @@ diff_simulations_vf_info[i] <- mean(data_phis_c_info$visit_fill[data_phis_c_info
 #### Charts
 
 ```{r, eval = TRUE}
+
+# visit outcome
 data_simulations_info <- tibble(diff_simulations_info=diff_simulations_info)
 graph_info <- ggplot(data_simulations_info, aes(x = diff_simulations_info)) +
   geom_density(color = 'black', fill = 'deepskyblue3', alpha = 0.5) +
@@ -462,6 +473,7 @@ graph_info <- ggplot(data_simulations_info, aes(x = diff_simulations_info)) +
   xlab("Visit") +
   theme_minimal()
 
+# fill outcome
 data_simulations_f_info <- tibble(diff_simulations_f_info=diff_simulations_f_info)
 graph_fill_info <- ggplot(data_simulations_f_info, aes(x = diff_simulations_f_info)) +
   geom_density(color = 'black', fill = 'deepskyblue3', alpha = 0.5) +
@@ -470,6 +482,7 @@ graph_fill_info <- ggplot(data_simulations_f_info, aes(x = diff_simulations_f_in
   xlab("Fill") +
   theme_minimal()
 
+# visit_fill outcome
 data_simulations_vf_info <- tibble(diff_simulations_vf_info=diff_simulations_vf_info)
 graph_visitfill_info <- ggplot(data_simulations_vf_info, aes(x = diff_simulations_vf_info)) +
   geom_density(color = 'black', fill = 'deepskyblue3', alpha = 0.5) +
@@ -478,8 +491,11 @@ graph_visitfill_info <- ggplot(data_simulations_vf_info, aes(x = diff_simulation
   xlab("Visit_Fill") +
   theme_minimal()
 
+# Displaying the charts
 plot_grid(graph_info,graph_fill_info,graph_visitfill_info)
 ```
+
+Visually, it is less clear here that we can reject the sharp null hypothesis: the treatment effect does not seem marginal enough to reject with certainty.
 
 #### P-values
 
@@ -487,13 +503,16 @@ plot_grid(graph_info,graph_fill_info,graph_visitfill_info)
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 # Calculation of the one-sided and the two-sided p-value
 
-opvi = (sum(data_simulations_info$diff_simulations_info <= observed_difference_v_info)/1000)*100 # outcome Visit
+# outcome Visit
+opvi = (sum(data_simulations_info$diff_simulations_info <= observed_difference_v_info)/1000)*100 
 tpvi = (sum(abs(data_simulations_info$diff_simulations_info) >=  abs(observed_difference_v_info))/1000)*100
 
-opfi = (sum(data_simulations_f_info$diff_simulations_f_info <= observed_difference_f_info)/1000)*100 # outcome Fill
+# outcome Visit
+opfi = (sum(data_simulations_f_info$diff_simulations_f_info <= observed_difference_f_info)/1000)*100 # 
 tpfi = (sum(abs(data_simulations_f_info$diff_simulations_f_info) >=  abs(observed_difference_f_info))/1000)*100
 
-opvfi = (sum(data_simulations_vf_info$diff_simulations_vf_info <= observed_difference_vf_info)/1000)*100 # outcome VisitFill
+# outcome Visit
+opvfi = (sum(data_simulations_vf_info$diff_simulations_vf_info <= observed_difference_vf_info)/1000)*100 # 
 tpvfi = (sum(abs(data_simulations_vf_info$diff_simulations_vf_info) >=  abs(observed_difference_vf_info))/1000)*100
 
 kbl(data.frame(Outcome, one_sided_p_values = c(opvi, opfi, opvfi), two_sided_p_values = c(tpvi ,tpfi ,tpvfi))) %>%
@@ -508,15 +527,16 @@ As we see from the graph and table above, it is more difficult here to reject th
 #### Calculation of ATEs
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
+# difference of the averages for each treatment (for the ExpInfo group)
 
-observed_difference_v_expinfo = mean(data_phis_c$visit[data_phis_c$group == 'ExpInfo']) - mean(data_phis_c$visit[data_phis_c$group == 'Control']) # difference of the averages for each treatment (for the ExpInfo group)
-observed_difference_f_expinfo = mean(data_phis_c$fill[data_phis_c$group == 'ExpInfo']) - mean(data_phis_c$fill[data_phis_c$group == 'Control']) 
+observed_difference_v_expinfo = mean(data_phis_c$visit[data_phis_c$group == 'ExpInfo']) - mean(data_phis_c$visit[data_phis_c$group == 'Control']) # visit outcome
 
-observed_difference_vf_expinfo = mean(data_phis_c$visit_fill[data_phis_c$group == 'ExpInfo'], na.rm = TRUE) - mean(data_phis_c$visit_fill[data_phis_c$group == 'Control'], na.rm = TRUE) 
+observed_difference_f_expinfo = mean(data_phis_c$fill[data_phis_c$group == 'ExpInfo']) - mean(data_phis_c$fill[data_phis_c$group == 'Control']) # fill outcome
 
+observed_difference_vf_expinfo = mean(data_phis_c$visit_fill[data_phis_c$group == 'ExpInfo'], na.rm = TRUE) - mean(data_phis_c$visit_fill[data_phis_c$group == 'Control'], na.rm = TRUE) #visit_fill outcome
 
 # displaying differences
-kbl((data.frame(Outcome = c('Visit', 'Fill', 'Visit_Fill'), ATE = c(observed_difference_v_expinfo,observed_difference_f_expinfo, observed_difference_vf_expinfo)))) %>%
+kbl((data.frame(Outcome, ATE = c(observed_difference_v_expinfo,observed_difference_f_expinfo, observed_difference_vf_expinfo)))) %>%
   kable_styling(bootstrap_options = c("striped", "hover", "condensed"))
 
 ```
@@ -537,9 +557,9 @@ prop_expinfo = sum(data_phis_c_expinfo$ind_group)/nrow(data_phis_c_expinfo) # pr
 #### Randomization inference loop
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
-diff_simulations_expinfo <- rep(NA, 1000)
-diff_simulations_f_expinfo <- rep(NA, 1000)
-diff_simulations_vf_expinfo <- rep(NA, 1000)
+diff_simulations_expinfo <- rep(NA, 1000) #visit outcome
+diff_simulations_f_expinfo <- rep(NA, 1000) #fill outcome
+diff_simulations_vf_expinfo <- rep(NA, 1000) #visit_fill outcome
 
 for (i in 1:1000){
 
@@ -549,11 +569,11 @@ data_phis_c_expinfo <- data_phis_c_expinfo %>%
   mutate(new_group = case_when(new_group == 1 ~ 'ExpInfo',
                                new_group == 0 ~ 'Control'))
 
-diff_simulations_expinfo[i] <- mean(data_phis_c_expinfo$visit[data_phis_c_expinfo$new_group == "ExpInfo"]) - mean(data_phis_c_expinfo$visit[data_phis_c_expinfo$new_group=="Control"])
+diff_simulations_expinfo[i] <- mean(data_phis_c_expinfo$visit[data_phis_c_expinfo$new_group == "ExpInfo"]) - mean(data_phis_c_expinfo$visit[data_phis_c_expinfo$new_group=="Control"]) #visit outcome
 
-diff_simulations_f_expinfo[i] <- mean(data_phis_c_expinfo$fill[data_phis_c_expinfo$new_group == "ExpInfo"]) - mean(data_phis_c_expinfo$fill[data_phis_c_expinfo$new_group=="Control"])
+diff_simulations_f_expinfo[i] <- mean(data_phis_c_expinfo$fill[data_phis_c_expinfo$new_group == "ExpInfo"]) - mean(data_phis_c_expinfo$fill[data_phis_c_expinfo$new_group=="Control"]) #fill outcome
 
-diff_simulations_vf_expinfo[i] <- mean(data_phis_c_expinfo$visit_fill[data_phis_c_expinfo$new_group == "ExpInfo"], na.rm = TRUE) - mean(data_phis_c_expinfo$visit_fill[data_phis_c_expinfo$new_group=="Control"], na.rm = TRUE)
+diff_simulations_vf_expinfo[i] <- mean(data_phis_c_expinfo$visit_fill[data_phis_c_expinfo$new_group == "ExpInfo"], na.rm = TRUE) - mean(data_phis_c_expinfo$visit_fill[data_phis_c_expinfo$new_group=="Control"], na.rm = TRUE) #visit_fill outcome
 }
 ```
 
@@ -561,6 +581,7 @@ diff_simulations_vf_expinfo[i] <- mean(data_phis_c_expinfo$visit_fill[data_phis_
 
 ```{r, eval = TRUE}
 
+#visit outcome
 data_simulations_expinfo <- tibble(diff_simulations_expinfo=diff_simulations_expinfo)
 graph_expinfo <- ggplot(data_simulations_expinfo, aes(x = diff_simulations_expinfo)) +
   geom_density(color = 'black', fill = 'deepskyblue3', alpha = 0.5) +
@@ -569,6 +590,7 @@ graph_expinfo <- ggplot(data_simulations_expinfo, aes(x = diff_simulations_expin
   xlab("Visit") + 
   theme_minimal()
 
+# fill outcome
 data_simulations_f_expinfo <- tibble(diff_simulations_f_expinfo=diff_simulations_f_expinfo)
 graph_fill_expinfo <- ggplot(data_simulations_f_expinfo, aes(x = diff_simulations_f_expinfo)) +
   geom_density(color = 'black', fill = 'deepskyblue3', alpha = 0.5) +
@@ -577,6 +599,7 @@ graph_fill_expinfo <- ggplot(data_simulations_f_expinfo, aes(x = diff_simulation
   xlab("Fill") +
   theme_minimal()
 
+# visit_fill outcome
 data_simulations_vf_expinfo <- tibble(diff_simulations_vf_expinfo=diff_simulations_vf_expinfo)
 graph_visitfill_expinfo <- ggplot(data_simulations_vf_expinfo, aes(x = diff_simulations_vf_expinfo)) +
   geom_density(color = 'black', fill = 'deepskyblue3', alpha = 0.5) +
@@ -585,7 +608,7 @@ graph_visitfill_expinfo <- ggplot(data_simulations_vf_expinfo, aes(x = diff_simu
   xlab("Visit_Fill") +
   theme_minimal()
 
-
+# displaying the charts
 plot_grid(graph_expinfo,graph_fill_expinfo,graph_visitfill_expinfo)
 ```
 
@@ -594,13 +617,16 @@ plot_grid(graph_expinfo,graph_fill_expinfo,graph_visitfill_expinfo)
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 #Calculation of the one-sided and the two-sided p-value
 
-opvei = (sum(data_simulations_expinfo$diff_simulations_expinfo <= observed_difference_v_expinfo)/1000)*100 # outcome Visit
+# outcome Visit
+opvei = (sum(data_simulations_expinfo$diff_simulations_expinfo <= observed_difference_v_expinfo)/1000)*100 
 tpvei = (sum(abs(data_simulations_expinfo$diff_simulations_expinfo) >=  abs(observed_difference_v_expinfo))/1000)*100
 
-opfei = (sum(data_simulations_f_expinfo$diff_simulations_f_expinfo <= observed_difference_f_expinfo)/1000)*100 # outcome Fill
+# outcome Fill
+opfei = (sum(data_simulations_f_expinfo$diff_simulations_f_expinfo <= observed_difference_f_expinfo)/1000)*100 
 tpfei = (sum(abs(data_simulations_f_expinfo$diff_simulations_f_expinfo) >=  abs(observed_difference_f_expinfo))/1000)*100
 
-opvfei = (sum(data_simulations_vf_expinfo$diff_simulations_vf_expinfo <= observed_difference_vf_expinfo)/1000)*100 # outcome VisitFill
+# outcome VisitFill
+opvfei = (sum(data_simulations_vf_expinfo$diff_simulations_vf_expinfo <= observed_difference_vf_expinfo)/1000)*100 
 tpvfei = (sum(abs(data_simulations_vf_expinfo$diff_simulations_vf_expinfo) >=  abs(observed_difference_vf_expinfo))/1000)*100
 
 kbl(data.frame(Outcome, one_sided_p_values = c(opvei, opfei, opvfei), two_sided_p_values = c(tpvei ,tpfei, tpvfei))) %>%
@@ -621,6 +647,8 @@ plot_grid(first_row, second_row, third_row,  nrow = 3) # displaying final result
 
 
 ## Weighted t-test {.tabset .tabset-pills}
+
+The weighted t-test correspond to the researchers' first analysis and we propose to reproduce it here.We study for each treatment the share of units that visited and filled in the form and compare the differences.
 
 ### With division C
 
@@ -682,17 +710,20 @@ vfei = weighted.mean(x = data_wtt$prop_visit_fill[data_wtt$group == 'ExpInfo'], 
 #### Global Chart
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE, fig.width=8, fig.height=5} 
+# creation of data tables to allow plotting results
 
-dataggv <- data.frame(group = c('Control',"Info","Exp","ExpInfo"), visit_mean = c(vc,vi,ve,vei)*100) # creation of data tables to allow plotting results
+dataggv <- data.frame(group = c('Control',"Info","Exp","ExpInfo"), visit_mean = c(vc,vi,ve,vei)*100) #visit outcome
 
-dataggf <- data.frame(group = c('Control',"Info","Exp","ExpInfo"), fill_mean = c(fc,fi,fe,fei)*100)
+dataggf <- data.frame(group = c('Control',"Info","Exp","ExpInfo"), fill_mean = c(fc,fi,fe,fei)*100) #fill outcome
 
-dataggvf <- data.frame(group = c('Control',"Info","Exp","ExpInfo"), vf_mean = c(vfc,vfi,vfe,vfei)*100)
+dataggvf <- data.frame(group = c('Control',"Info","Exp","ExpInfo"), vf_mean = c(vfc,vfi,vfe,vfei)*100) #visit_fill outcome
 ```
 
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE, fig.width=8, fig.height=5} 
+#creation of the plots (proportion of visit, fill, visit_fill by treatment arm)
 
+#visit
 ggv = ggplot(dataggv, aes(x = group, y = visit_mean)) +
 geom_segment(aes(x = group, xend = group, y = 0, yend = visit_mean), colour = "gray60") +
 geom_point(size = 4, colour = "deepskyblue3") +
@@ -701,7 +732,7 @@ ggtitle("Proportion of Visits by Treatment Arm") +
 xlab("Treatment Arm") + ylab("Proportion (%)") +
 theme_minimal()
 
-
+#fill
 ggf = ggplot(dataggf, aes(x = group, y = fill_mean)) +
 geom_segment(aes(x = group, xend = group, y = 0, yend = fill_mean), colour = "gray60") +
 geom_point(size = 4, colour = "deepskyblue3") +
@@ -710,7 +741,7 @@ ggtitle("Proportion of Fill by Treatment Arm") +
 xlab("Treatment Arm") + ylab("Proportion (%)") +
 theme_minimal()
 
-
+#visit_fill
 ggvf = ggplot(dataggvf, aes(x = group, y = vf_mean)) +
 geom_segment(aes(x = group, xend = group, y = 0, yend = vf_mean), colour = "gray60") +
 geom_point(size = 4, colour = "deepskyblue3") +
@@ -724,11 +755,12 @@ plot_grid(ggv, ggf, ggvf) # displaying of the 3 plots together
 
 Overall, the figure shows that the control group has the highest proportion of units that visited the phishing site and filled in the form. Of all the units that visited the site, the control group also filled in the form the most (visit_fill outcome). This first weighted average analysis therefore allows us to estimate the beneficial effect of the treatment: the treatment groups have the lowest percentage of visits and form fillings.
 
-On average, it seems that the Exp and ExpInfo treatments are the most effective on each outcome.
+On average, it seems that the Exp and ExpInfo treatments are the most effective on each outcome : for instance, these treatments reduce the share of form filling after visiting the site (visit_fill outcome) by about 10 percentage points.
 
 ### Without division C
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
+
 #creation of tables containing the proportions of outcomes per cluster
 data_wtt_c <- data_phis_c %>%
   group_by(group, cluster) %>%
@@ -741,10 +773,13 @@ data_wtt_c <- data_phis_c %>%
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 # Without division C
 
-fc_c = weighted.mean(x = data_wtt_c$prop_fill[data_wtt_c$group == 'Control'], w = data_wtt_c$prop_cluster[data_wtt_c$group == 'Control'])
-
+#weighted mean of visit for the control group
 vc_c = weighted.mean(x = data_wtt_c$prop_visit[data_wtt_c$group == 'Control'], w = data_wtt_c$prop_cluster[data_wtt_c$group == 'Control'])
 
+#fill for the control group
+fc_c = weighted.mean(x = data_wtt_c$prop_fill[data_wtt_c$group == 'Control'], w = data_wtt_c$prop_cluster[data_wtt_c$group == 'Control'])
+
+#visit_fill for the control group
 vfc_c = weighted.mean(x = data_wtt_c$prop_visit_fill[data_wtt_c$group == 'Control'], w = data_wtt_c$prop_cluster[data_wtt_c$group == 'Control'], na.rm = TRUE)
 
 ```
@@ -754,10 +789,13 @@ vfc_c = weighted.mean(x = data_wtt_c$prop_visit_fill[data_wtt_c$group == 'Contro
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 # Without division C
 
+#visit
 ve_c = weighted.mean(x = data_wtt_c$prop_visit[data_wtt_c$group == 'Exp'], w = data_wtt_c$prop_cluster[data_wtt_c$group == 'Exp'])
 
+#fill
 fe_c = weighted.mean(x = data_wtt_c$prop_fill[data_wtt_c$group == 'Exp'], w = data_wtt_c$prop_cluster[data_wtt_c$group == 'Exp'])
 
+#visit_fill
 vfe_c = weighted.mean(x = data_wtt_c$prop_visit_fill[data_wtt_c$group == 'Exp'], w = data_wtt_c$prop_cluster[data_wtt_c$group == 'Exp'], na.rm = TRUE)
 ```
 
@@ -766,10 +804,13 @@ vfe_c = weighted.mean(x = data_wtt_c$prop_visit_fill[data_wtt_c$group == 'Exp'],
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 # Without division C
 
+#visit
 vi_c= weighted.mean(x = data_wtt_c$prop_visit[data_wtt_c$group == 'Info'], w = data_wtt_c$prop_cluster[data_wtt_c$group == 'Info'])
 
+#fill
 fi_c =weighted.mean(x = data_wtt_c$prop_fill[data_wtt_c$group == 'Info'], w = data_wtt_c$prop_cluster[data_wtt_c$group == 'Info'])
 
+#visit_fill
 vfi_c = weighted.mean(x = data_wtt_c$prop_visit_fill[data_wtt_c$group == 'Info'], w = data_wtt_c$prop_cluster[data_wtt_c$group == 'Info'], na.rm = TRUE)
   
 ```
@@ -779,10 +820,13 @@ vfi_c = weighted.mean(x = data_wtt_c$prop_visit_fill[data_wtt_c$group == 'Info']
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE}
 # Without division C
 
+#visit
 vei_c = weighted.mean(x = data_wtt_c$prop_visit[data_wtt_c$group == 'ExpInfo'], w = data_wtt_c$prop_cluster[data_wtt_c$group == 'ExpInfo'])
 
+#fill
 fei_c = weighted.mean(x = data_wtt_c$prop_fill[data_wtt_c$group == 'ExpInfo'], w = data_wtt_c$prop_cluster[data_wtt_c$group == 'ExpInfo'])
 
+#visit_fill
 vfei_c = weighted.mean(x = data_wtt_c$prop_visit_fill[data_wtt_c$group == 'ExpInfo'], w = data_wtt_c$prop_cluster[data_wtt_c$group == 'ExpInfo'], na.rm = TRUE)
 
 ```
@@ -790,16 +834,21 @@ vfei_c = weighted.mean(x = data_wtt_c$prop_visit_fill[data_wtt_c$group == 'ExpIn
 #### Global Chart
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE, fig.width=8, fig.height=5} 
+# creation of data tables to allow plotting results
 
+#visit
 dataggv <- data.frame(group = c('Control',"Info","Exp","ExpInfo") ,visit_mean_c = c(vc_c,vi_c,ve_c,vei_c)*100) # creation of data tables to allow plotting results
 
+#fill
 dataggf <- data.frame(group = c('Control',"Info","Exp","ExpInfo") ,fill_mean_c = c(fc_c,fi_c,fe_c,fei_c)*100)
 
+#visit_fill
 dataggvf <- data.frame(group = c('Control',"Info","Exp","ExpInfo") ,vf_mean_c = c(vfc_c,vfi_c,vfe_c,vfei_c)*100)
 ```
 
 ```{r, eval = TRUE, message = FALSE, warning =  FALSE, fig.width=8, fig.height=5} 
 
+#visit 
 ggv = ggplot(dataggv, aes(x = group, y = visit_mean_c)) +
 geom_segment(aes(x = group, xend = group, y = 0, yend = visit_mean_c), colour = "gray60") +
 geom_point(size = 4, colour = "deepskyblue3") +
@@ -808,7 +857,7 @@ ggtitle("Proportion of Visits by Treatment Arm") +
 xlab("Treatment Arm") + ylab("Proportion (%)") +
 theme_minimal()
 
-
+#fill
 ggf = ggplot(dataggf, aes(x = group, y = fill_mean_c)) +
 geom_segment(aes(x = group, xend = group, y = 0, yend = fill_mean_c), colour = "gray60") +
 geom_point(size = 4, colour = "deepskyblue3") +
@@ -817,7 +866,7 @@ ggtitle("Proportion of Fill by Treatment Arm") +
 xlab("Treatment Arm") + ylab("Proportion (%)") +
 theme_minimal()
 
-
+#visit_fill
 ggvf = ggplot(dataggvf, aes(x = group, y = vf_mean_c)) +
 geom_segment(aes(x = group, xend = group, y = 0, yend = vf_mean_c), colour = "gray60") +
 geom_point(size = 4, colour = "deepskyblue3") +
