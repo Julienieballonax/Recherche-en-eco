@@ -50,7 +50,7 @@ data_phishing <- read.csv("/Users/f-x/Downloads/phishing_dataset.csv") # data lo
 head(data_phishing) 
 ```
 
-
+<br>
 
 - Column “group” indicates in which treatment a subject was with “1”, “2”, “3” and “4” corresponding to “Control”, “Info”, “Exp” and “ExpInfo”, respectively. 
 
@@ -1224,6 +1224,8 @@ tbl_merge(tbls = list(lm_gtobjectv, lm_gtobjectf, lm_gtobjectvf), tab_spanner = 
 
 ```
 
+<br>
+
 * Gender : 
 
 Men have the highest visit and fill figures (respectively +4.2 and 1.6 percentage points than women) but are the least likely to fill in the form once they have visited the site (-4.2 percentage points).
@@ -1270,6 +1272,8 @@ lm_gtobject_vf<- tbl_regression(lm_object, include = c(gender, age_categories), 
 tbl_merge(tbls = list(lm_gtobject_v, lm_gtobject_f, lm_gtobject_vf), tab_spanner = c("**Visit**", "**Fill**", "**Visit Fill**"))
 
 ```
+
+<br>
 
 Without the division C, the results are broadly the same as when the analysis is done with the division C, except for the Visit Fill outcome where individuals aged 26 to 55 are less likely to be duped than younger individuals (age range 16 to 25). We therefore find the non-robust result mentioned in the original paper by the authors : "The effect of age on the probability to fill in the password conditional on visiting the website were not robust to excluding division C". The results therefore seem to contradict each other. 
 
